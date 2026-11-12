@@ -195,7 +195,8 @@ try {
     const alert = page.locator('[role="alert"]').first()
     if (await hasVisible(page, alert)) {
       const text = ((await alert.innerText().catch(() => '')) || '').trim()
-      if (text) {
+      if (/incorrect|wrong|invalid|not match|نادرست|اشتباه/i.test(text)) {
+        block('Instagram rejected the login information')
         setState('error', text)
         await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
         process.exit(2)
