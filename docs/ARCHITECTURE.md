@@ -119,7 +119,9 @@ server ──> dashboard  (لوکال یا VPS، پشت پسورد)
 ## داشبورد
 
 - یک پروسه Node، سرو کردن `dashboard/` و API.
-- لوکال: `npm run dev` روی `localhost:4321`.
+- پروتوتایپ فعلی: Vite + React + TypeScript + Tailwind + MUI، با دادهٔ واقعی از `data/`. تصمیم نهایی دربارهٔ استک بعد از تأیید پروتوتایپ گرفته می‌شود.
+- دادهٔ داشبورد با `npm run dashboard:data` از `data/` ساخته می‌شود و در `dashboard/src/data/snapshot.json` می‌نشیند.
+- لوکال: `npm run dashboard:dev` روی `localhost:5173`.
 - سرور: همان کد روی VPS با Caddy برای HTTPS؛ `DATA_DIR` روی دیسک پایدار.
 - امنیت: پسورد از env، کوکی `HttpOnly; Secure; SameSite=Strict` در production، حداکثر ۵ تلاش ورود در ۱۵ دقیقه، بدنه JSON محدود.
 

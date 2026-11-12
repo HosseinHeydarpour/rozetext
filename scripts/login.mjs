@@ -5,10 +5,6 @@ import os from 'node:os'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const RUNTIME = path.join(ROOT, 'runtime')
-const STATUS = path.join(RUNTIME, 'login.json')
-const CODE_FILE = path.join(RUNTIME, '2fa.txt')
-const STATE_FILE = path.join(RUNTIME, 'ig-state.json')
-const LOCK_FILE = path.join(RUNTIME, 'login-blocked.json')
 const TIMEOUT_CODE = 5 * 60_000
 const TIMEOUT_TOTAL = 15 * 60_000
 
@@ -16,19 +12,42 @@ try {
   process.loadEnvFile(path.join(ROOT, '.env'))
 } catch {}
 
-const username = (process.env.IG_USERNAME || '').trim()
-const password = process.env.IG_PASSWORD || ''
+// --account=main is the page account; any other slug reads IG_<SLUG>_* and gets its own files and profile.
+const account = (process.argv.find((arg) => arg.startsWith('--account='))?.slice('--account='.length) || 'main')
+  .trim()
+  .toLowerCase()
+if (!/^[a-z][a-z0-9-]{0,20}$/.test(account)) {
+  console.error(`Invalid --account value: ${account}`)
+  process.exit(1)
+}
+const prefix = account === 'main' ? '' : `${account}-`
+const STATUS = path.join(RUNTIME, `${prefix}login.json`)
+const CODE_FILE = path.join(RUNTIME, `${prefix}2fa.txt`)
+const STATE_FILE = path.join(RUNTIME, `${prefix}ig-state.json`)
+const LOCK_FILE = path.join(RUNTIME, `${prefix}login-blocked.json`)
+const shot = (name) => path.join(RUNTIME, `${prefix}${name}.png`)
+
+const envPrefix = `IG${account === 'main' ? '' : `_${account.toUpperCase()}`}`
+const username = (process.env[`${envPrefix}_USERNAME`] || '').trim()
+const password = process.env[`${envPrefix}_PASSWORD`] || ''
 const manual = process.argv.includes('--manual')
 const useAuthenticator = process.argv.includes('--authenticator')
-const profileDir =
-  process.env.IG_PROFILE_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'rozetext', 'chrome-profile')
+const mainProfile =
+  process.env.IG_PROFILE_DIR ||
+  path.join(process.env.LOCALAPPDATA || os.homedir(), 'rozetext', 'chrome-profile')
+const profileDir = process.env[`${envPrefix}_PROFILE_DIR`] || (account === 'main' ? mainProfile : `${mainProfile}-${account}`)
+
+if (account !== 'main' && path.resolve(profileDir) === path.resolve(mainProfile)) {
+  console.error('Refusing to run: this profile belongs to the main account (IG_PROFILE_DIR).')
+  process.exit(1)
+}
 
 fs.mkdirSync(RUNTIME, { recursive: true })
 fs.rmSync(CODE_FILE, { force: true })
 
 if (fs.existsSync(LOCK_FILE) && !process.argv.includes('--force') && !process.argv.includes('--manual')) {
   const lock = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'))
-  console.log(`login blocked at ${lock.at}: ${lock.reason}. Fix IG_PASSWORD, then run once with --force.`)
+  console.log(`login blocked at ${lock.at}: ${lock.reason}. Fix ${envPrefix}_PASSWORD, then run once with --force.`)
   process.exit(3)
 }
 
@@ -40,7 +59,10 @@ let lastState = ''
 function setState(state, message = '') {
   if (state === lastState) return
   lastState = state
-  fs.writeFileSync(STATUS, JSON.stringify({ state, message, pid: process.pid, updated_at: new Date().toISOString() }, null, 2))
+  fs.writeFileSync(
+    STATUS,
+    JSON.stringify({ account, state, message, pid: process.pid, updated_at: new Date().toISOString() }, null, 2),
+  )
   console.log(`[${state}] ${message}`)
 }
 
@@ -137,7 +159,7 @@ try {
   if (manual) {
     setState('needs_human', 'Manual login: type the password in the Chrome window')
   } else if (!username || !password) {
-    setState('needs_human', 'IG_PASSWORD is missing; log in manually in the Chrome window')
+    setState('needs_human', `${envPrefix}_PASSWORD is missing; log in manually in the Chrome window`)
   } else {
     await userField.waitFor({ state: 'visible', timeout: 45_000 })
     await typeLikeHuman(page, userField, username)
@@ -163,7 +185,7 @@ try {
 
     if (Date.now() - lastShot > 8000) {
       lastShot = Date.now()
-      await page.screenshot({ path: path.join(RUNTIME, 'login-live.png') }).catch(() => {})
+      await page.screenshot({ path: shot('login-live') }).catch(() => {})
     }
 
     if (await loggedIn(context)) break
@@ -177,7 +199,7 @@ try {
       if (codeAttempts >= 3) {
         block('2FA code was rejected three times')
         setState('error', '2FA failed three times; stopped')
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        await page.screenshot({ path: shot('login-error') }).catch(() => {})
         process.exit(2)
       }
       codeAttempts += 1
@@ -218,11 +240,11 @@ try {
         }
 
         authSelected = true
-        await page.screenshot({ path: path.join(RUNTIME, '2fa-screen.png') }).catch(() => {})
+        await page.screenshot({ path: shot('2fa-screen') }).catch(() => {})
 
         if (!pickedAuthenticator) {
           setState('error', 'Could not find the authenticator option in the 2FA dialog')
-          await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+          await page.screenshot({ path: shot('login-error') }).catch(() => {})
           process.exit(2)
         }
       }
@@ -231,7 +253,7 @@ try {
       await box.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
       if (!(await box.isVisible().catch(() => false))) {
         setState('error', 'The security-code field did not appear')
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        await page.screenshot({ path: shot('login-error') }).catch(() => {})
         process.exit(2)
       }
 
@@ -240,7 +262,7 @@ try {
       if (code === 'LOGGED_IN') break
       if (!code) {
         setState('error', 'No 2FA code within 5 minutes')
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        await page.screenshot({ path: shot('login-error') }).catch(() => {})
         process.exit(2)
       }
       await typeLikeHuman(page, box, code)
@@ -256,7 +278,7 @@ try {
 
     if (url.includes('/challenge')) {
       setState('needs_human', 'Instagram checkpoint; solve it in the Chrome window')
-      await page.screenshot({ path: path.join(RUNTIME, 'login-challenge.png') }).catch(() => {})
+      await page.screenshot({ path: shot('login-challenge') }).catch(() => {})
       continue
     }
 
@@ -266,7 +288,7 @@ try {
       if (/incorrect|wrong|invalid|not match|نادرست|اشتباه/i.test(text)) {
         block('Instagram rejected the login information')
         setState('error', text)
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        await page.screenshot({ path: shot('login-error') }).catch(() => {})
         process.exit(2)
       }
     }
@@ -276,7 +298,7 @@ try {
       if (/login information you entered is incorrect|incorrect|wrong password|invalid password|نادرست|اشتباه/i.test(body)) {
         block('Instagram rejected the login information')
         setState('error', 'Instagram rejected the login information (wrong password); stopped, no retry')
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        await page.screenshot({ path: shot('login-error') }).catch(() => {})
         process.exit(2)
       }
     }
@@ -288,7 +310,7 @@ try {
 
   if (!(await loggedIn(context))) {
     setState('error', 'Login did not complete within 15 minutes')
-    await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+    await page.screenshot({ path: shot('login-error') }).catch(() => {})
     process.exit(2)
   }
 
@@ -309,7 +331,7 @@ try {
     setState('closed', 'Chrome window was closed before login finished')
   } else {
     setState('error', error.message)
-    await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+    await page.screenshot({ path: shot('login-error') }).catch(() => {})
   }
   await context.close().catch(() => {})
   process.exit(2)

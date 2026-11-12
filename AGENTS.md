@@ -39,6 +39,9 @@ npm run dev        # server + dashboard on localhost:4321
 npm run sync       # pull fresh Instagram data into data/
 npm run build:site # data + site/ -> dist/
 npm start          # production server
+npm run dashboard:data   # rebuild the dashboard snapshot from data/
+npm run dashboard:dev    # React prototype on localhost:5173
+npm run dashboard:build  # type-check + build the dashboard
 ```
 
 ## Style
