@@ -1,0 +1,337 @@
+{
+  "source": "instagram.com/accounts/insights",
+  "fetched_at": "2026-11-12T15:36:06.304Z",
+  "ranges": {
+    "7": {
+      "timeframe_days": 7,
+      "fetched_at": "2026-11-12T15:36:30.022Z",
+      "ready": true,
+      "parsed": {
+        "views": {
+          "total": 3410689,
+          "followers_pct": 17.9,
+          "non_followers_pct": 82.1,
+          "viewers": 1492630
+        },
+        "interactions": {
+          "total": 321664,
+          "followers_pct": 33,
+          "non_followers_pct": 67,
+          "accounts_engaged": 172455
+        },
+        "content_views": {
+          "reels_pct": 99.5,
+          "stories_pct": 0.5
+        },
+        "content_interactions": {
+          "reels_pct": 99.8,
+          "stories_pct": 0.2,
+          "posts_pct": 0
+        },
+        "profile_visits": 5846,
+        "followers_total": 96324,
+        "top_content_views": [
+          {
+            "value": "215K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "132K",
+            "date": "Nov 11"
+          },
+          {
+            "value": "69.5K",
+            "date": "Nov 8"
+          },
+          {
+            "value": "41.4K",
+            "date": "Nov 5"
+          },
+          {
+            "value": "36.7K",
+            "date": "Nov 9"
+          }
+        ],
+        "top_content_interactions": [
+          {
+            "value": "12.7K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "6.3K",
+            "date": "Nov 11"
+          },
+          {
+            "value": "3K",
+            "date": "Nov 8"
+          },
+          {
+            "value": "1.9K",
+            "date": "Nov 8"
+          },
+          {
+            "value": "1.7K",
+            "date": "Nov 5"
+          }
+        ],
+        "active_times": {
+          "selected_day": "M",
+          "hours": {
+            "12a": 3,
+            "3a": 6,
+            "6a": 9,
+            "9a": 12,
+            "12p": 3,
+            "3p": 6,
+            "6p": 9,
+            "9p": 31454
+          }
+        }
+      },
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 7 days\nAccount insights\nViews\n3,410,689\nViews\nFollowers\n17.9%\nNon-followers\n82.1%\nViewers\n1,492,630\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.5%\n0.5%\nFollowers\nNon-followers\nTop content based on views\nSee all\n215K\nNov 7\n132K\nNov 11\n69.5K\nNov 8\n41.4K\nNov 5\n36.7K\nNov 9\nInteractions\n321,664\nInteractions\nFollowers\n33%\nNon-followers\n67%\nAccounts engaged\n172,455\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n12.7K\nNov 7\n6.3K\nNov 11\n3K\nNov 8\n1.9K\nNov 8\n1.7K\nNov 5\nProfile\n5,846\nProfile activity\nProfile visits\n5,846\nFollowers\n96,324\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+    },
+    "14": {
+      "timeframe_days": 14,
+      "fetched_at": "2026-11-12T15:36:45.744Z",
+      "ready": true,
+      "parsed": {
+        "views": {
+          "total": 6705315,
+          "followers_pct": 18.7,
+          "non_followers_pct": 81.3,
+          "viewers": 2685399
+        },
+        "interactions": {
+          "total": 582757,
+          "followers_pct": 33.4,
+          "non_followers_pct": 66.6,
+          "accounts_engaged": 307292
+        },
+        "content_views": {
+          "reels_pct": 99.1,
+          "stories_pct": 0.9
+        },
+        "content_interactions": {
+          "reels_pct": 99.8,
+          "stories_pct": 0.2,
+          "posts_pct": 0
+        },
+        "profile_visits": 12727,
+        "followers_total": 96324,
+        "top_content_views": [
+          {
+            "value": "899K",
+            "date": "Oct 31"
+          },
+          {
+            "value": "350K",
+            "date": "Nov 5"
+          },
+          {
+            "value": "215K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "148K",
+            "date": "Oct 29"
+          },
+          {
+            "value": "135K",
+            "date": "Nov 4"
+          }
+        ],
+        "top_content_interactions": [
+          {
+            "value": "52.5K",
+            "date": "Oct 31"
+          },
+          {
+            "value": "35K",
+            "date": "Nov 5"
+          },
+          {
+            "value": "12.7K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "7.4K",
+            "date": "Nov 4"
+          },
+          {
+            "value": "6.8K",
+            "date": "Oct 29"
+          }
+        ],
+        "active_times": {
+          "selected_day": "M",
+          "hours": {
+            "12a": 3,
+            "3a": 6,
+            "6a": 9,
+            "9a": 12,
+            "12p": 3,
+            "3p": 6,
+            "6p": 9,
+            "9p": 31454
+          }
+        }
+      },
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 14 days\nAccount insights\nViews\n6,705,315\nViews\nFollowers\n18.7%\nNon-followers\n81.3%\nViewers\n2,685,399\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.1%\n0.9%\nFollowers\nNon-followers\nTop content based on views\nSee all\n899K\nOct 31\n350K\nNov 5\n215K\nNov 7\n148K\nOct 29\n135K\nNov 4\nInteractions\n582,757\nInteractions\nFollowers\n33.4%\nNon-followers\n66.6%\nAccounts engaged\n307,292\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n52.5K\nOct 31\n35K\nNov 5\n12.7K\nNov 7\n7.4K\nNov 4\n6.8K\nOct 29\nProfile\n12,727\nProfile activity\nProfile visits\n12,727\nFollowers\n96,324\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+    },
+    "30": {
+      "timeframe_days": 30,
+      "fetched_at": "2026-11-12T15:36:53.728Z",
+      "ready": true,
+      "parsed": {
+        "views": {
+          "total": 20476665,
+          "followers_pct": 17.3,
+          "non_followers_pct": 82.7,
+          "viewers": 6803376
+        },
+        "interactions": {
+          "total": 1718760,
+          "followers_pct": 30.8,
+          "non_followers_pct": 69.2,
+          "accounts_engaged": 814058
+        },
+        "content_views": {
+          "reels_pct": 99.6,
+          "stories_pct": 0.4
+        },
+        "content_interactions": {
+          "reels_pct": 99.9,
+          "stories_pct": 0.1,
+          "posts_pct": 0
+        },
+        "profile_visits": 35734,
+        "followers_total": 96324,
+        "top_content_views": [],
+        "top_content_interactions": [
+          {
+            "value": "52.5K",
+            "date": "Oct 31"
+          },
+          {
+            "value": "35K",
+            "date": "Nov 5"
+          },
+          {
+            "value": "34.3K",
+            "date": "Oct 15"
+          },
+          {
+            "value": "30.5K",
+            "date": "Oct 16"
+          },
+          {
+            "value": "23.4K",
+            "date": "Oct 21"
+          }
+        ],
+        "active_times": {
+          "selected_day": "M",
+          "hours": {
+            "12a": 3,
+            "3a": 6,
+            "6a": 9,
+            "9a": 12,
+            "12p": 3,
+            "3p": 6,
+            "6p": 9,
+            "9p": 31454
+          }
+        }
+      },
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 30 days\nAccount insights\nViews\n20,476,665\nViews\nFollowers\n17.3%\nNon-followers\n82.7%\nViewers\n6,803,376\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.6%\n0.4%\nFollowers\nNon-followers\nInteractions\n1,718,760\nInteractions\nFollowers\n30.8%\nNon-followers\n69.2%\nAccounts engaged\n814,058\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n52.5K\nOct 31\n35K\nNov 5\n34.3K\nOct 15\n30.5K\nOct 16\n23.4K\nOct 21\nProfile\n35,734\nProfile activity\nProfile visits\n35,734\nFollowers\n96,324\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+    },
+    "90": {
+      "timeframe_days": 90,
+      "fetched_at": "2026-11-12T15:37:09.587Z",
+      "ready": true,
+      "parsed": {
+        "views": {
+          "total": 99811127,
+          "followers_pct": 13.6,
+          "non_followers_pct": 86.4,
+          "viewers": 19660874
+        },
+        "interactions": {
+          "total": 8376934,
+          "followers_pct": 28.5,
+          "non_followers_pct": 71.5,
+          "accounts_engaged": 3073574
+        },
+        "content_views": {
+          "reels_pct": 99.8,
+          "stories_pct": 0.2
+        },
+        "content_interactions": {
+          "reels_pct": 99.9,
+          "stories_pct": 0.1,
+          "posts_pct": 0
+        },
+        "profile_visits": 163053,
+        "followers_total": 96324,
+        "top_content_views": [
+          {
+            "value": "0",
+            "date": "Nov 12"
+          },
+          {
+            "value": "0",
+            "date": "Nov 12"
+          },
+          {
+            "value": "0",
+            "date": "Nov 12"
+          },
+          {
+            "value": "0",
+            "date": "Nov 11"
+          },
+          {
+            "value": "0",
+            "date": "Nov 11"
+          }
+        ],
+        "top_content_interactions": [
+          {
+            "value": "262K",
+            "date": "Sep 16"
+          },
+          {
+            "value": "254K",
+            "date": "Aug 27"
+          },
+          {
+            "value": "209K",
+            "date": "Sep 16"
+          },
+          {
+            "value": "155K",
+            "date": "Sep 8"
+          },
+          {
+            "value": "149K",
+            "date": "Sep 12"
+          }
+        ],
+        "active_times": {
+          "selected_day": "M",
+          "hours": {
+            "12a": 3,
+            "3a": 6,
+            "6a": 9,
+            "9a": 12,
+            "12p": 3,
+            "3p": 6,
+            "6p": 9,
+            "9p": 31454
+          }
+        }
+      },
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 90 days\nAccount insights\nViews\n99,811,127\nViews\nFollowers\n13.6%\nNon-followers\n86.4%\nViewers\n19,660,874\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.8%\n0.2%\nFollowers\nNon-followers\nTop content based on views\nSee all\n0\nNov 12\n0\nNov 12\n0\nNov 12\n0\nNov 11\n0\nNov 11\nInteractions\n8,376,934\nInteractions\nFollowers\n28.5%\nNon-followers\n71.5%\nAccounts engaged\n3,073,574\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n262K\nSep 16\n254K\nAug 27\n209K\nSep 16\n155K\nSep 8\n149K\nSep 12\nProfile\n163,053\nProfile activity\nProfile visits\n163,053\nFollowers\n96,324\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+    }
+  }
+}

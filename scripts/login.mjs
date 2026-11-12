@@ -18,6 +18,8 @@ try {
 
 const username = (process.env.IG_USERNAME || '').trim()
 const password = process.env.IG_PASSWORD || ''
+const manual = process.argv.includes('--manual')
+const useAuthenticator = process.argv.includes('--authenticator')
 const profileDir =
   process.env.IG_PROFILE_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'rozetext', 'chrome-profile')
 
@@ -53,9 +55,10 @@ async function typeLikeHuman(page, locator, text) {
   await locator.pressSequentially(text, { delay: 70 + Math.floor(Math.random() * 80) })
 }
 
-async function waitForCode() {
+async function waitForCode(context) {
   const started = Date.now()
   while (Date.now() - started < TIMEOUT_CODE) {
+    if (await loggedIn(context)) return 'LOGGED_IN'
     if (fs.existsSync(CODE_FILE)) {
       const code = fs.readFileSync(CODE_FILE, 'utf8').replace(/\D/g, '')
       fs.rmSync(CODE_FILE, { force: true })
@@ -102,9 +105,11 @@ setState('opening', 'Chrome opened')
 
 const userField = page.locator('input[name="email"], input[name="username"]').first()
 const passField = page.locator('input[name="pass"], input[name="password"]').first()
-const codeField = page
-  .locator('input[name="verificationCode"], input[name="security_code"], input[autocomplete="one-time-code"]')
-  .first()
+
+const codeInput = () =>
+  page
+    .locator('input:visible:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"])')
+    .first()
 
 try {
   await page.goto('https://www.instagram.com/', { waitUntil: 'domcontentloaded', timeout: 60_000 })
@@ -127,9 +132,9 @@ try {
     process.exit(0)
   }
 
-  setState('login', 'Filling the login form')
+  setState('login', manual ? 'Waiting for manual login' : 'Filling the login form')
 
-  if (process.argv.includes('--manual')) {
+  if (manual) {
     setState('needs_human', 'Manual login: type the password in the Chrome window')
   } else if (!username || !password) {
     setState('needs_human', 'IG_PASSWORD is missing; log in manually in the Chrome window')
@@ -152,6 +157,7 @@ try {
   const started = Date.now()
   let lastShot = 0
   let codeAttempts = 0
+  let authSelected = false
   while (Date.now() - started < TIMEOUT_TOTAL) {
     await page.waitForTimeout(2000)
 
@@ -164,7 +170,10 @@ try {
 
     const url = page.url()
 
-    if (url.includes('two_factor') || (await hasVisible(page, codeField))) {
+    const twoFactorPrompt = page.getByText(/try another way/i).first()
+    const tryAnotherButton = page.getByRole('button', { name: /try another way/i }).first()
+    const onTwoFactor = url.includes('two_factor') || (await twoFactorPrompt.isVisible().catch(() => false))
+    if (!manual && onTwoFactor) {
       if (codeAttempts >= 3) {
         block('2FA code was rejected three times')
         setState('error', '2FA failed three times; stopped')
@@ -172,19 +181,76 @@ try {
         process.exit(2)
       }
       codeAttempts += 1
+
+      if (useAuthenticator && !authSelected) {
+        await twoFactorPrompt.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
+        await pause(page, 500, 900)
+
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          const trigger = (await hasVisible(page, tryAnotherButton)) ? tryAnotherButton : twoFactorPrompt
+          if (await hasVisible(page, trigger)) {
+            await trigger.click().catch(() => {})
+            await pause(page, 1500, 2200)
+          }
+          if (await page.getByRole('dialog').first().isVisible().catch(() => false)) break
+        }
+
+        const dialog = page.getByRole('dialog').first()
+        await dialog.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {})
+        const dialogVisible = await dialog.isVisible().catch(() => false)
+        const scope = dialogVisible ? dialog : page
+
+        const authOption = scope
+          .getByText(/authentication app|authenticator app|authenticator|اپلیکیشن احراز هویت|برنامه احراز هویت/i)
+          .first()
+        await authOption.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
+
+        const pickedAuthenticator = await hasVisible(page, authOption)
+        if (pickedAuthenticator) {
+          await authOption.click()
+          await pause(page, 900, 1500)
+
+          const proceed = page.getByRole('button', { name: /^continue$/i }).first()
+          if (await hasVisible(page, proceed)) {
+            await proceed.click()
+            await pause(page, 1200, 2000)
+          }
+        }
+
+        authSelected = true
+        await page.screenshot({ path: path.join(RUNTIME, '2fa-screen.png') }).catch(() => {})
+
+        if (!pickedAuthenticator) {
+          setState('error', 'Could not find the authenticator option in the 2FA dialog')
+          await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+          process.exit(2)
+        }
+      }
+
+      const box = codeInput()
+      await box.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
+      if (!(await box.isVisible().catch(() => false))) {
+        setState('error', 'The security-code field did not appear')
+        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        process.exit(2)
+      }
+
       setState('needs_2fa', `Instagram asked for the security code (attempt ${codeAttempts} of 3)`)
-      const code = await waitForCode()
+      const code = await waitForCode(context)
+      if (code === 'LOGGED_IN') break
       if (!code) {
         setState('error', 'No 2FA code within 5 minutes')
         await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
         process.exit(2)
       }
-      await typeLikeHuman(page, codeField, code)
+      await typeLikeHuman(page, box, code)
       await pause(page, 400, 800)
       const confirm = page.getByRole('button', { name: /^(next|confirm|submit|continue)$/i }).first()
       if (await hasVisible(page, confirm)) await confirm.click()
-      else await codeField.press('Enter')
+      else await box.press('Enter')
       setState('submitted', '2FA code submitted')
+      await page.waitForTimeout(3000)
+      if (await loggedIn(context)) break
       continue
     }
 

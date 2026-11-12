@@ -6,7 +6,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "login": "node scripts/login.mjs"
+    "login": "node scripts/login.mjs",
+    "dashboard:data": "node scripts/dashboard-data.mjs"
   },
   "dependencies": {
     "playwright-core": "^1.65.0"
