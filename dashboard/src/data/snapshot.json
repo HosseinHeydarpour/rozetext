@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T21:21:43.986Z",
+  "generated_at": "2026-11-12T22:49:49.109Z",
   "account": {
     "username": "rozetext.ir",
     "followers": 96421,
@@ -6025,85 +6025,85 @@
     ],
     "cities": [
       {
-        "name": "Semnan",
+        "name": "سمنان",
         "pct": 25.2
       },
       {
-        "name": "Yasuj",
+        "name": "یاسوج",
         "pct": 12.4
       },
       {
-        "name": "Mashhad",
+        "name": "مشهد",
         "pct": 11.7
       },
       {
-        "name": "Tehran",
+        "name": "تهران",
         "pct": 7.6
       },
       {
-        "name": "Dezful",
+        "name": "دزفول",
         "pct": 7.4
       },
       {
-        "name": "Tabriz",
+        "name": "تبریز",
         "pct": 4.2
       },
       {
-        "name": "Ahvaz",
+        "name": "اهواز",
         "pct": 2.4
       },
       {
-        "name": "Shiraz",
+        "name": "شیراز",
         "pct": 1.8
       },
       {
-        "name": "Isfahan",
+        "name": "اصفهان",
         "pct": 1.5
       },
       {
-        "name": "Maku",
+        "name": "ماکو",
         "pct": 1.5
       }
     ],
     "countries": [
       {
-        "name": "Iran",
+        "name": "ایران",
         "pct": 94.8
       },
       {
-        "name": "Afghanistan",
+        "name": "افغانستان",
         "pct": 1.7
       },
       {
-        "name": "Germany",
+        "name": "آلمان",
         "pct": 0.5
       },
       {
-        "name": "United States",
+        "name": "آمریکا",
         "pct": 0.4
       },
       {
-        "name": "Turkey",
+        "name": "ترکیه",
         "pct": 0.4
       },
       {
-        "name": "Iraq",
+        "name": "عراق",
         "pct": 0.3
       },
       {
-        "name": "Canada",
+        "name": "کانادا",
         "pct": 0.3
       },
       {
-        "name": "United Kingdom",
+        "name": "بریتانیا",
         "pct": 0.2
       },
       {
-        "name": "Sweden",
+        "name": "سوئد",
         "pct": 0.1
       },
       {
-        "name": "Australia",
+        "name": "استرالیا",
         "pct": 0.1
       }
     ],
@@ -6328,6 +6328,114 @@
       "link_clicks": "‑‑",
       "watch_time": "4h 56m",
       "avg_play_time": "4s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "پر از حرفیم ولی کسی نیست که گوش بده. این را سیو کن. #سکوت #رزتکست",
+      "date_published": "Tue Nov 10, 11:47pm",
+      "reach": "5,852",
+      "views": "8,014",
+      "viewers": "‑‑",
+      "follows": "5",
+      "interactions": "334",
+      "likes": "214",
+      "comments": "2",
+      "shares": "73",
+      "saves": "39",
+      "link_clicks": "‑‑",
+      "watch_time": "6h 16m",
+      "avg_play_time": "4s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "کسی که زندگی رو فهمیده، دنبال آرامشه نه برنده شدن. این را سیو کن. #آرامش #رزتکست",
+      "date_published": "Tue Nov 10, 9:00pm",
+      "reach": "5,723",
+      "views": "7,146",
+      "viewers": "‑‑",
+      "follows": "3",
+      "interactions": "326",
+      "likes": "196",
+      "comments": "6",
+      "shares": "98",
+      "saves": "16",
+      "link_clicks": "‑‑",
+      "watch_time": "6h",
+      "avg_play_time": "4s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "آدم امن یعنی همونی که بودنش آرامشه. این را برای آدم امنت بفرست. #آدم_امن #رزتکست",
+      "date_published": "Tue Nov 10, 6:20pm",
+      "reach": "4,616",
+      "views": "6,800",
+      "viewers": "‑‑",
+      "follows": "4",
+      "interactions": "265",
+      "likes": "134",
+      "comments": "6",
+      "shares": "95",
+      "saves": "24",
+      "link_clicks": "‑‑",
+      "watch_time": "5h 30m",
+      "avg_play_time": "5s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "قطع رابطه با آدمای خسته‌کننده، آرامشه نه بی‌ادبی. این را سیو کن. #مرز #رزتکست",
+      "date_published": "Tue Nov 10, 3:00pm",
+      "reach": "5,491",
+      "views": "7,817",
+      "viewers": "‑‑",
+      "follows": "1",
+      "interactions": "430",
+      "likes": "276",
+      "comments": "7",
+      "shares": "85",
+      "saves": "40",
+      "link_clicks": "‑‑",
+      "watch_time": "7h 23m",
+      "avg_play_time": "5s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "آدمایی که وسط جروبحث هم حرمت نگه می‌دارن، واقعا لِوِلشون بالاست. این را سیو کن. #احترام #رزتکست",
+      "date_published": "Tue Nov 10, 12:27pm",
+      "reach": "3,412",
+      "views": "5,395",
+      "viewers": "‑‑",
+      "follows": "0",
+      "interactions": "349",
+      "likes": "164",
+      "comments": "8",
+      "shares": "146",
+      "saves": "23",
+      "link_clicks": "‑‑",
+      "watch_time": "4h 9m",
+      "avg_play_time": "5s",
+      "three_second_views": "‑‑",
+      "earnings": "‑‑"
+    },
+    {
+      "title": "آدمایی که باهاشون حتی چای خوردن حال میده، بزرگ‌ترین نعمت زندگین. این را برای آدم امنت بفرست. #آدم_امن #رزتکست",
+      "date_published": "Tue Nov 10, 9:31am",
+      "reach": "5,367",
+      "views": "8,337",
+      "viewers": "‑‑",
+      "follows": "2",
+      "interactions": "481",
+      "likes": "230",
+      "comments": "3",
+      "shares": "220",
+      "saves": "21",
+      "link_clicks": "‑‑",
+      "watch_time": "6h 47m",
+      "avg_play_time": "5s",
       "three_second_views": "‑‑",
       "earnings": "‑‑"
     }

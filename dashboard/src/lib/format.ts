@@ -68,6 +68,14 @@ export const sourceDateFa = (value: string) => {
   return new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'short' }).format(date)
 }
 
+export const hourFa = (key: string) => {
+  const match = key.match(/^(\d{1,2})(a|p)$/)
+  if (!match) return key
+  let hour = Number(match[1]) % 12
+  if (match[2] === 'p') hour += 12
+  return fa.format(hour)
+}
+
 export const toNumber = (value: string | number | null | undefined) => {
   if (value == null) return null
   const clean = String(value).replace(/[^\d.-]/g, '')

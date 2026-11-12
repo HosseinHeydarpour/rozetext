@@ -148,13 +148,40 @@ if (ageStart >= 0) {
   }
 }
 
+const cityFa = {
+  Semnan: 'سمنان',
+  Yasuj: 'یاسوج',
+  Mashhad: 'مشهد',
+  Tehran: 'تهران',
+  Dezful: 'دزفول',
+  Tabriz: 'تبریز',
+  Ahvaz: 'اهواز',
+  Shiraz: 'شیراز',
+  Isfahan: 'اصفهان',
+  Maku: 'ماکو',
+}
+
+const countryFa = {
+  Iran: 'ایران',
+  Afghanistan: 'افغانستان',
+  Germany: 'آلمان',
+  'United States': 'آمریکا',
+  Turkey: 'ترکیه',
+  Iraq: 'عراق',
+  Canada: 'کانادا',
+  'United Kingdom': 'بریتانیا',
+  Sweden: 'سوئد',
+  Australia: 'استرالیا',
+}
+
 const cities = []
 if (cityStart >= 0) {
   const names = demographicsRows[cityStart + 1] || []
   const values = demographicsRows[cityStart + 2] || []
   names.forEach((name, index) => {
     if (!name) return
-    cities.push({ name: name.split(',')[0], pct: Number(values[index] || 0) })
+    const city = name.split(',')[0]
+    cities.push({ name: cityFa[city] ?? city, pct: Number(values[index] || 0) })
   })
 }
 
@@ -164,7 +191,7 @@ if (countryStart >= 0) {
   const values = demographicsRows[countryStart + 2] || []
   names.forEach((name, index) => {
     if (!name) return
-    countries.push({ name, pct: Number(values[index] || 0) })
+    countries.push({ name: countryFa[name] ?? name, pct: Number(values[index] || 0) })
   })
 }
 
@@ -225,7 +252,7 @@ const snapshot = {
     women: genderRow ? Number(genderRow[2] || 0) : 42.8,
   },
   formats,
-  recentContent: contentTable.rows.slice(0, 12),
+  recentContent: contentTable.rows,
   topBySaves,
   topByViews,
   activeTimes: insight30.active_times?.hours || {},

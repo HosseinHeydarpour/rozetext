@@ -1,42 +1,44 @@
 # DESIGN: rozetext dashboard
 
-**Direction:** a printed report on paper, not a SaaS console. The page belongs to a Persian poetry and typography account, so it borrows the grammar of a literary journal: paper stock, ink, one stamped accent, large Naskh numerals, and hairline rules instead of cards floating in space.
+**Direction:** the standard Material UI dashboard template. AppBar, a persistent right-hand Drawer, a KPI card row, X Charts and an X DataGrid, in RTL Persian. No bespoke design system on top: Material is the design, the brand only sets color, font and radius.
 
-**Dials:** ENERGY 5 / RHYTHM 4 / MOTION 1.
-
-- ENERGY 5: the numbers and the Naskh display carry the page; no decorative noise.
-- RHYTHM 4: the hero KPI, the chart, the content table and the audience block have different weights, not one uniform card grid.
-- MOTION 1: static report. Only native focus states and no entrance animation.
+**Stack:** React 19 + TypeScript + Vite, `@mui/material` v9, `@mui/x-charts`, `@mui/x-data-grid`, `react-router-dom` (SPA).
 
 ## Palette
 
-| Token | Value | Use |
-|---|---|---|
-| paper | `#F3EDE2` | page ground |
-| surface | `#FBF8F2` | report panels |
-| ink | `#17130F` | text and data |
-| muted | `#6E6257` | labels and secondary text |
-| line | `#DCD2C3` | hairlines |
-| accent | `#8E2F2F` | save rate, women series, story share |
+Theme is defined twice, once per color scheme, in `src/theme.ts`.
 
-The accent is reserved for data encoding and one quality metric; it is not a button color.
+| Token | Light | Dark |
+|---|---|---|
+| primary | `#8E3B46` | `#E7A0A8` |
+| secondary | `#2F6B5F` | `#8CC7B9` |
+| background.default | `#F6F4F0` | `#0F1115` |
+| background.paper | `#FFFFFF` | `#171A21` |
+| text.primary | `#1B1A17` | `#F3F1ED` |
+
+Primary is the account's red for views and men; secondary is the green for interactions, follows and women. Charts use these two only.
 
 ## Type
 
-- Vazirmatn for UI and prose.
-- Noto Naskh Arabic for the headline, section headings and numerals. The serif numerals are the identity; they are not a generic display font.
+- Peyda for everything, self-hosted from `public/fonts` (Medium / Bold / Black woff2). No CDN, no second family.
+- Headings `h4`–`h6` at weight 700; body at 400 (rendered by the Medium file), numbers via `Intl.NumberFormat('fa-IR')`.
 
-## Written reasons for techniques that need one
+## Modes
 
-- **Uppercase masthead with wide tracking (R-06):** the overline is the journal masthead, `ROZETEXT.IR · داشبورد رشد`, not a generic eyebrow. Tracking separates the Latin domain from the Persian body and matches the printed-report direction.
-- **Hairline panels, no shadows (R-12):** the report sits on paper; elevation would imply floating app cards, which contradicts the direction.
-- **Dense table (R-14):** content analysis is the job, so the table is allowed to be dense; the KPI block above it carries hierarchy instead of adding more cards.
-- **Red accent:** save rate and the women series are the two readings the page is built to surface; the story share uses the same accent in the format bar. No other red.
+Light and dark are equal citizens. The scheme is chosen with `useColorScheme`, stored under `rozetext-mode`, and applied through `data-mui-color-scheme`; the toggle sits in the AppBar. Default is light.
 
-## Non-goals
+## Routes
 
-No glass, no gradients, no glow, no grid background, no dark-mode default, no invented metrics. If a number is missing, the UI says `بی‌داده` instead of filling the gap.
+- `/` overview: range switch (7 ranges), four KPI cards, views line chart, follows bar chart, recent grid, top-by-saves.
+- `/content`: full 18-row grid with watch time, top by saves, top by views.
+- `/audience`: gender pie, age × gender bars, cities, countries, active hours, format split.
+
+## Rules
+
+- Every number comes from `src/data/snapshot.json`, which `scripts/build-dashboard-data.mjs` derives from `data/exports`. No metric is typed by hand; a missing one prints `بی‌داده`.
+- Persian digits everywhere, including chart axes and chips. City and country names are translated in the build script; percentages are untouched.
+- Tables and charts inherit theme colors, so both schemes work without per-component color logic.
 
 ## Placeholders
 
-The sidebar monogram (`ر` in an ink square) is a typographic placeholder until the owner supplies the page's real logo or avatar. No other logo, avatar, testimonial or statistic was invented.
+The drawer monogram (`ر` in a primary square) and the AppBar avatar are typographic placeholders until the owner supplies a real logo. No other image, testimonial or statistic was invented.

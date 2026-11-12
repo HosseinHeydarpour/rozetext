@@ -1,55 +1,54 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@font-face {
+  font-family: 'Peyda';
+  src: url('/fonts/Peyda-Medium.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Peyda';
+  src: url('/fonts/Peyda-Bold.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Peyda';
+  src: url('/fonts/Peyda-Black.woff2') format('woff2');
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  color-scheme: light;
-}
-
-html {
-  background: #f3ede2;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: #f3ede2;
-  color: #17130f;
-  font-family: Vazirmatn, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  color-scheme: light dark;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Peyda, Vazirmatn, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 ::selection {
-  background: #8e2f2f;
-  color: #fbf8f2;
-}
-
-:focus-visible {
-  outline: 2px solid #8e2f2f;
-  outline-offset: 2px;
-}
-
-.num {
-  font-family: 'Noto Naskh Arabic', serif;
-  font-variant-numeric: tabular-nums lining-nums;
-  direction: ltr;
-  unicode-bidi: isolate;
-}
-
-.hairline {
-  border-color: #dcd2c3;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  scrollbar-width: none;
+  background: #8e3b46;
+  color: #ffffff;
 }

@@ -38,7 +38,12 @@ const mainProfile =
 const profileDir =
   process.env[`${envPrefix}_PROFILE_DIR`] || (account === 'main' ? mainProfile : `${mainProfile}-${account}`)
 
-if (account !== 'main' && path.resolve(profileDir) === path.resolve(mainProfile)) {
+const samePath = (a, b) => {
+  const [x, y] = [path.resolve(a), path.resolve(b)]
+  return (process.platform === 'win32' ? x.toLowerCase() === y.toLowerCase() : x === y)
+}
+
+if (account !== 'main' && samePath(profileDir, mainProfile)) {
   console.error('Refusing to run: this profile belongs to the main account (IG_PROFILE_DIR).')
   process.exit(1)
 }
@@ -76,6 +81,10 @@ async function typeLikeHuman(page, locator, text) {
   await pause(page, 200, 500)
   await locator.fill('')
   await locator.pressSequentially(text, { delay: 70 + Math.floor(Math.random() * 80) })
+  // Chrome's saved-password bubble can swallow keystrokes; set the value directly when typing did not land.
+  if ((await locator.inputValue().catch(() => '')) !== text) {
+    await locator.fill(text)
+  }
 }
 
 async function waitForCode(context) {
