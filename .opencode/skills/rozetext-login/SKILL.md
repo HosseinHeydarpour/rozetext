@@ -1,0 +1,41 @@
+---
+name: rozetext-login
+description: "Authenticated Instagram session for @rozetext.ir. Opens Chrome, logs in, handles the 2FA code, and keeps the session for private data work. Load only when the task needs the account."
+---
+
+# rozetext-login
+
+## When to use
+
+Only for work that needs an authenticated session: insights, saves, reach, DMs, comments, audience data. Public profile and post metrics come from BeatAPI; do not open a browser for those.
+
+## Credentials
+
+- `IG_USERNAME` (already `rozetext.ir`) and `IG_PASSWORD` live in `.env`, which is gitignored.
+- Never print the password, never echo it back, never commit it, never place it in a skill file.
+- If the user pastes a password in chat, write it to `.env` and suggest rotating it afterwards, since chat history keeps it.
+
+## Run
+
+1. Start `npm run login` in the background.
+2. Poll `runtime/login.json` every few seconds and act on `state`:
+   - `opening` — Chrome is up; wait.
+   - `submitted` — credentials or a code were sent; wait.
+   - `needs_2fa` — ask the user for the 6-digit code they just received, write it to `runtime/2fa.txt`, the script submits it and deletes the file. Never invent or reuse a code.
+   - `needs_human` — a checkpoint or captcha. Ask the user to finish it in the opened Chrome window; the script keeps waiting.
+   - `ok` — session saved and Chrome closed.
+   - `error` — quote `message` to the user; a screenshot is at `runtime/login-error.png`. Wrong password and expired codes need a new run.
+3. The script exits by itself. Do not open a second run while one is active; check the `pid` field first.
+
+## Session
+
+- Chrome profile: `%LOCALAPPDATA%\rozetext\chrome-profile` on Windows, override with `IG_PROFILE_DIR`.
+- Cookies are also written to `runtime/ig-state.json` for later scripts.
+- A valid session skips the form and exits `ok`.
+- Session expiry, password change or a new device challenge: rerun and handle the new state.
+
+## Safety
+
+- 2FA codes are one-time. A stale code fails and must be requested again.
+- The script only logs in. It never posts, follows, changes settings or reads the password back into output.
+- One Chrome window at a time; two runs on the same profile corrupt the session.
