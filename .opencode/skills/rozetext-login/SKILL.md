@@ -17,15 +17,17 @@ Only for work that needs an authenticated session: insights, saves, reach, DMs, 
 
 ## Run
 
-1. Start `npm run login` in the background.
+0. Before running, check `runtime/login-blocked.json`. If it exists, do not run. Report the reason to the user and wait for a corrected password.
+1. Start `npm run login` in the background. One attempt per user request, never loop.
 2. Poll `runtime/login.json` every few seconds and act on `state`:
    - `opening` — Chrome is up; wait.
    - `submitted` — credentials or a code were sent; wait.
-   - `needs_2fa` — ask the user for the 6-digit code they just received, write it to `runtime/2fa.txt`, the script submits it and deletes the file. Never invent or reuse a code.
+   - `needs_2fa` — ask the user for the 6-digit code they just received, write it to `runtime/2fa.txt`, the script submits it and deletes the file. Never invent or reuse a code. Three codes maximum, then it stops.
    - `needs_human` — a checkpoint or captcha. Ask the user to finish it in the opened Chrome window; the script keeps waiting.
    - `ok` — session saved and Chrome closed.
    - `error` — quote `message` to the user; a screenshot is at `runtime/login-error.png`. Wrong password and expired codes need a new run.
-3. The script exits by itself. Do not open a second run while one is active; check the `pid` field first.
+3. A wrong password writes `runtime/login-blocked.json` and exits. Do not rerun, do not try another password, do not offer workarounds. Tell the user the password was rejected and ask for the correct one, written into `.env`. Only after they confirm, run once with `--force`.
+4. The script exits by itself. Do not open a second run while one is active; check the `pid` field first.
 
 ## Session
 

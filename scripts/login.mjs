@@ -7,7 +7,9 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 const RUNTIME = path.join(ROOT, 'runtime')
 const STATUS = path.join(RUNTIME, 'login.json')
 const CODE_FILE = path.join(RUNTIME, '2fa.txt')
-const TIMEOUT_2FA = 5 * 60_000
+const STATE_FILE = path.join(RUNTIME, 'ig-state.json')
+const LOCK_FILE = path.join(RUNTIME, 'login-blocked.json')
+const TIMEOUT_CODE = 5 * 60_000
 const TIMEOUT_TOTAL = 15 * 60_000
 
 try {
@@ -19,15 +21,41 @@ const password = process.env.IG_PASSWORD || ''
 const profileDir =
   process.env.IG_PROFILE_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), 'rozetext', 'chrome-profile')
 
-function status(state, message = '') {
-  fs.mkdirSync(RUNTIME, { recursive: true })
+fs.mkdirSync(RUNTIME, { recursive: true })
+fs.rmSync(CODE_FILE, { force: true })
+
+if (fs.existsSync(LOCK_FILE) && !process.argv.includes('--force')) {
+  const lock = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'))
+  console.log(`login blocked at ${lock.at}: ${lock.reason}. Fix IG_PASSWORD, then run once with --force.`)
+  process.exit(3)
+}
+
+function block(reason) {
+  fs.writeFileSync(LOCK_FILE, JSON.stringify({ reason, at: new Date().toISOString() }, null, 2))
+}
+
+let lastState = ''
+function setState(state, message = '') {
+  if (state === lastState) return
+  lastState = state
   fs.writeFileSync(STATUS, JSON.stringify({ state, message, pid: process.pid, updated_at: new Date().toISOString() }, null, 2))
   console.log(`[${state}] ${message}`)
 }
 
+const pause = (page, min = 500, max = 1200) =>
+  page.waitForTimeout(min + Math.floor(Math.random() * Math.max(1, max - min)))
+
+async function typeLikeHuman(page, locator, text) {
+  await locator.scrollIntoViewIfNeeded().catch(() => {})
+  await locator.click()
+  await pause(page, 200, 500)
+  await locator.fill('')
+  await locator.pressSequentially(text, { delay: 70 + Math.floor(Math.random() * 80) })
+}
+
 async function waitForCode() {
   const started = Date.now()
-  while (Date.now() - started < TIMEOUT_2FA) {
+  while (Date.now() - started < TIMEOUT_CODE) {
     if (fs.existsSync(CODE_FILE)) {
       const code = fs.readFileSync(CODE_FILE, 'utf8').replace(/\D/g, '')
       fs.rmSync(CODE_FILE, { force: true })
@@ -43,30 +71,12 @@ async function loggedIn(context) {
   return cookies.some((c) => c.name === 'sessionid' && c.value)
 }
 
-async function clickFirst(page, selectors) {
-  for (const selector of selectors) {
-    const el = page.locator(selector).first()
-    if (await el.count()) {
-      try {
-        await el.click({ timeout: 2000 })
-        return true
-      } catch {}
-    }
+async function hasVisible(page, locator) {
+  try {
+    return (await locator.count()) > 0 && (await locator.first().isVisible())
+  } catch {
+    return false
   }
-  return false
-}
-
-async function fillFirst(page, selectors, value) {
-  for (const selector of selectors) {
-    const el = page.locator(selector).first()
-    if (await el.count()) {
-      try {
-        await el.fill(value)
-        return true
-      } catch {}
-    }
-  }
-  return false
 }
 
 const context = await chromium.launchPersistentContext(profileDir, {
@@ -81,107 +91,152 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, async () => {
     if (closing) return
     closing = true
-    status('stopped', 'Stopped by signal')
+    setState('stopped', 'Stopped by signal')
     await context.close().catch(() => {})
     process.exit(0)
   })
 }
 
-
 const page = context.pages()[0] || (await context.newPage())
-status('opening', 'Chrome opened')
+setState('opening', 'Chrome opened')
+
+const userField = page.locator('input[name="email"], input[name="username"]').first()
+const passField = page.locator('input[name="pass"], input[name="password"]').first()
+const codeField = page
+  .locator('input[name="verificationCode"], input[name="security_code"], input[autocomplete="one-time-code"]')
+  .first()
 
 try {
   await page.goto('https://www.instagram.com/', { waitUntil: 'domcontentloaded', timeout: 60_000 })
-  await page.waitForTimeout(3000)
+  await page.waitForTimeout(1200)
 
-  // cookie banner
-  await clickFirst(page, [
-    'button:has-text("Allow all cookies")',
-    'button:has-text("Allow essential cookies")',
-    'button:has-text("Decline optional cookies")',
-  ])
+  for (const text of ['Allow all cookies', 'Allow essential cookies', 'Decline optional cookies']) {
+    const button = page.getByRole('button', { name: text }).first()
+    if (await hasVisible(page, button)) {
+      await button.click().catch(() => {})
+      await pause(page, 400, 900)
+      break
+    }
+  }
 
   if (await loggedIn(context)) {
-    await context.storageState({ path: path.join(RUNTIME, 'ig-state.json') })
-    status('ok', 'Already logged in; session saved')
+    await context.storageState({ path: STATE_FILE })
+    fs.rmSync(LOCK_FILE, { force: true })
+    setState('ok', 'Already logged in; session saved')
     await context.close()
     process.exit(0)
   }
 
-  status('login', 'Opening the login form')
+  setState('login', 'Filling the login form')
 
   if (!username || !password) {
-    status('needs_human', 'IG_PASSWORD is missing; log in manually in the Chrome window')
+    setState('needs_human', 'IG_PASSWORD is missing; log in manually in the Chrome window')
   } else {
-    await page.goto('https://www.instagram.com/accounts/login/', { waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(2000)
+    await userField.waitFor({ state: 'visible', timeout: 45_000 })
+    await typeLikeHuman(page, userField, username)
+    await pause(page, 500, 1100)
 
-    const userFilled = await fillFirst(page, ['input[name="username"]', 'input[aria-label*="username" i]'], username)
-    const passFilled = await fillFirst(page, ['input[name="password"]', 'input[aria-label*="password" i]'], password)
-    if (!userFilled || !passFilled) {
-      status('needs_human', 'Login form not found; log in manually in the Chrome window')
-    } else {
-      await clickFirst(page, ['button[type="submit"]', 'div[role="button"]:has-text("Log in")'])
-      status('submitted', 'Credentials submitted')
-    }
+    await passField.waitFor({ state: 'visible', timeout: 15_000 })
+    await typeLikeHuman(page, passField, password)
+    await pause(page, 600, 1300)
+
+    const loginButton = page.getByRole('button', { name: /^log in$/i }).first()
+    if (await hasVisible(page, loginButton)) await loginButton.click()
+    else await passField.press('Enter')
+
+    setState('submitted', 'Credentials submitted')
   }
 
   const started = Date.now()
+  let lastShot = 0
+  let codeAttempts = 0
   while (Date.now() - started < TIMEOUT_TOTAL) {
-    await page.waitForTimeout(2500)
+    await page.waitForTimeout(2000)
+
+    if (Date.now() - lastShot > 8000) {
+      lastShot = Date.now()
+      await page.screenshot({ path: path.join(RUNTIME, 'login-live.png') }).catch(() => {})
+    }
 
     if (await loggedIn(context)) break
 
     const url = page.url()
-    const body = await page.textContent('body').catch(() => '')
 
-    if (url.includes('two_factor') || (await page.locator('input[name="verificationCode"], input[name="security_code"]').count())) {
-      status('needs_2fa', 'Instagram asked for the security code')
-      const code = await waitForCode()
-      if (!code) {
-        status('error', 'No 2FA code within 5 minutes')
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') })
+    if (url.includes('two_factor') || (await hasVisible(page, codeField))) {
+      if (codeAttempts >= 3) {
+        block('2FA code was rejected three times')
+        setState('error', '2FA failed three times; stopped')
+        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
         process.exit(2)
       }
-      await fillFirst(page, ['input[name="verificationCode"]', 'input[name="security_code"]', 'input[aria-label*="code" i]'], code)
-      await clickFirst(page, ['button[type="submit"]', 'button:has-text("Next")', 'button:has-text("Confirm")'])
-      status('submitted', '2FA code submitted')
+      codeAttempts += 1
+      setState('needs_2fa', `Instagram asked for the security code (attempt ${codeAttempts} of 3)`)
+      const code = await waitForCode()
+      if (!code) {
+        setState('error', 'No 2FA code within 5 minutes')
+        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        process.exit(2)
+      }
+      await typeLikeHuman(page, codeField, code)
+      await pause(page, 400, 800)
+      const confirm = page.getByRole('button', { name: /^(next|confirm|submit|continue)$/i }).first()
+      if (await hasVisible(page, confirm)) await confirm.click()
+      else await codeField.press('Enter')
+      setState('submitted', '2FA code submitted')
       continue
     }
 
     if (url.includes('/challenge')) {
-      status('needs_human', 'Instagram checkpoint; solve it in the Chrome window')
+      setState('needs_human', 'Instagram checkpoint; solve it in the Chrome window')
+      await page.screenshot({ path: path.join(RUNTIME, 'login-challenge.png') }).catch(() => {})
       continue
     }
 
-    if (url.includes('/accounts/login') && /login/i.test(url)) {
-      const alert = page.locator('[role="alert"]').first()
-      if (await alert.count()) {
-        const text = (await alert.textContent().catch(() => '')) || 'Instagram rejected the login'
-        status('error', text.trim())
-        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') })
+    const alert = page.locator('[role="alert"]').first()
+    if (await hasVisible(page, alert)) {
+      const text = ((await alert.innerText().catch(() => '')) || '').trim()
+      if (text) {
+        setState('error', text)
+        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
         process.exit(2)
       }
     }
 
-    if (/checkpoint|suspicious|confirm it.s you/i.test(body)) {
-      status('needs_human', 'Instagram wants a confirmation in the Chrome window')
+    if (Date.now() - started > 15_000 && lastState === 'submitted') {
+      const body = (await page.textContent('body').catch(() => '')) || ''
+      if (/login information you entered is incorrect|incorrect|wrong password|invalid password|نادرست|اشتباه/i.test(body)) {
+        block('Instagram rejected the login information')
+        setState('error', 'Instagram rejected the login information (wrong password); stopped, no retry')
+        await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+        process.exit(2)
+      }
+    }
+
+    if (Date.now() - started > 30_000 && lastState === 'submitted') {
+      setState('needs_human', 'Instagram is not responding; check the Chrome window')
     }
   }
 
   if (!(await loggedIn(context))) {
-    status('error', 'Login did not complete within 15 minutes')
-    await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') })
+    setState('error', 'Login did not complete within 15 minutes')
+    await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
     process.exit(2)
   }
 
-  await context.storageState({ path: path.join(RUNTIME, 'ig-state.json') })
-  status('ok', 'Logged in; session saved')
+  for (let i = 0; i < 3; i++) {
+    const notNow = page.getByRole('button', { name: /not now/i }).first()
+    if (!(await hasVisible(page, notNow))) break
+    await notNow.click().catch(() => {})
+    await pause(page, 800, 1600)
+  }
+
+  await context.storageState({ path: STATE_FILE })
+  fs.rmSync(LOCK_FILE, { force: true })
+  setState('ok', 'Logged in; session saved')
   await context.close()
   process.exit(0)
 } catch (error) {
-  status('error', error.message)
+  setState('error', error.message)
   await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
   await context.close().catch(() => {})
   process.exit(2)
