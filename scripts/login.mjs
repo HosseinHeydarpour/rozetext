@@ -24,7 +24,7 @@ const profileDir =
 fs.mkdirSync(RUNTIME, { recursive: true })
 fs.rmSync(CODE_FILE, { force: true })
 
-if (fs.existsSync(LOCK_FILE) && !process.argv.includes('--force')) {
+if (fs.existsSync(LOCK_FILE) && !process.argv.includes('--force') && !process.argv.includes('--manual')) {
   const lock = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'))
   console.log(`login blocked at ${lock.at}: ${lock.reason}. Fix IG_PASSWORD, then run once with --force.`)
   process.exit(3)
@@ -129,7 +129,9 @@ try {
 
   setState('login', 'Filling the login form')
 
-  if (!username || !password) {
+  if (process.argv.includes('--manual')) {
+    setState('needs_human', 'Manual login: type the password in the Chrome window')
+  } else if (!username || !password) {
     setState('needs_human', 'IG_PASSWORD is missing; log in manually in the Chrome window')
   } else {
     await userField.waitFor({ state: 'visible', timeout: 45_000 })
@@ -237,8 +239,12 @@ try {
   await context.close()
   process.exit(0)
 } catch (error) {
-  setState('error', error.message)
-  await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+  if (/has been closed|Target closed|Browser has been closed/i.test(error.message)) {
+    setState('closed', 'Chrome window was closed before login finished')
+  } else {
+    setState('error', error.message)
+    await page.screenshot({ path: path.join(RUNTIME, 'login-error.png') }).catch(() => {})
+  }
   await context.close().catch(() => {})
   process.exit(2)
 }

@@ -25,8 +25,10 @@ Only for work that needs an authenticated session: insights, saves, reach, DMs, 
    - `needs_2fa` — ask the user for the 6-digit code they just received, write it to `runtime/2fa.txt`, the script submits it and deletes the file. Never invent or reuse a code. Three codes maximum, then it stops.
    - `needs_human` — a checkpoint or captcha. Ask the user to finish it in the opened Chrome window; the script keeps waiting.
    - `ok` — session saved and Chrome closed.
+   - `closed` — the user closed Chrome; nothing was saved.
    - `error` — quote `message` to the user; a screenshot is at `runtime/login-error.png`. Wrong password and expired codes need a new run.
 3. A wrong password writes `runtime/login-blocked.json` and exits. Do not rerun, do not try another password, do not offer workarounds. Tell the user the password was rejected and ask for the correct one, written into `.env`. Only after they confirm, run once with `--force`.
+4. When the user is unsure of the password, run `npm run login -- --manual` instead: it opens Chrome without touching the form and waits for them to type it. The block file does not apply to manual mode.
 4. The script exits by itself. Do not open a second run while one is active; check the `pid` field first.
 
 ## Session
