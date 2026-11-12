@@ -1,8 +1,8 @@
 import { Card, CardHeader, CardContent, Typography, Box } from '@mui/material'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridLocaleText } from '@mui/x-data-grid'
 import { faIR } from '@mui/x-data-grid/locales'
 import type { RecentContent } from '../lib/types'
-import { cellNumber, sourceDateFa } from '../lib/format'
+import { cellNumber, fa, sourceDateFa } from '../lib/format'
 
 interface PostsGridProps {
   rows: RecentContent[]
@@ -53,7 +53,13 @@ const columns: GridColDef[] = [
   },
 ]
 
-const localeText = (faIR as any)?.components?.MuiDataGrid?.defaultProps?.localeText
+const localeText: Partial<GridLocaleText> = {
+  ...faIR.components.MuiDataGrid.defaultProps.localeText,
+  paginationDisplayedRows: ({ from, to, count }) =>
+    count === -1
+      ? `${fa.format(from)}–${fa.format(to)}`
+      : `${fa.format(from)}–${fa.format(to)} از ${fa.format(count)}`,
+}
 
 export default function PostsGrid({ rows, hideFooter = false, height = 620 }: PostsGridProps) {
   return (

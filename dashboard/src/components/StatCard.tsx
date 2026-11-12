@@ -31,13 +31,7 @@ export default function StatCard({ title, value, caption, chipLabel, chipColor =
           <Box sx={{ width: '100%', height: 56, mt: 'auto', pt: 1 }}>
             <SparkLineChart data={data} height={56} color={color ?? 'primary'} area showTooltip />
           </Box>
-        ) : (
-          <Box sx={{ mt: 'auto', pt: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              نرخ از مجموع ریلزهای ثبت‌شده محاسبه شده است.
-            </Typography>
-          </Box>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   )
