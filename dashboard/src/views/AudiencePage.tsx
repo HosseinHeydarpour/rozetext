@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, Card, CardContent, CardHeader, Chip, Grid, LinearProgress, Stack, Typography, useTheme } from '@mui/material'
 import { BarChart } from '@mui/x-charts/BarChart'
 import { PieChart } from '@mui/x-charts/PieChart'

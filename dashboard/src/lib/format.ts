@@ -68,6 +68,13 @@ export const sourceDateFa = (value: string) => {
   return new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'short' }).format(date)
 }
 
+export const usDateFa = (value: string) => {
+  const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/)
+  if (!match) return value
+  const date = new Date(Number(match[3]), Number(match[1]) - 1, Number(match[2]), Number(match[4] ?? 0), Number(match[5] ?? 0))
+  return new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'short', year: '2-digit' }).format(date)
+}
+
 export const hourFa = (key: string) => {
   const match = key.match(/^(\d{1,2})(a|p)$/)
   if (!match) return key

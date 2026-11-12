@@ -1,6 +1,6 @@
 # Delivery Gate: rozetext dashboard prototype
 
-Build: `npm run build` in `dashboard/` passes (`tsc -b` + `vite build`, 0 errors). Runtime check on the dev server: three routes render, both color schemes apply, console has 0 errors.
+Build: `npm run build` in `dashboard/` passes (`next build`, TypeScript included, 0 errors). Runtime check on the dev server: all four routes render, both color schemes apply, console has 0 errors. The analyzer was exercised end to end against the real `reels_database.json`.
 
 ## Block 1: Hard Gate
 
@@ -9,13 +9,13 @@ Build: `npm run build` in `dashboard/` passes (`tsc -b` + `vite build`, 0 errors
 - R-17 PASS: every number comes from `data/exports` through `scripts/build-dashboard-data.mjs`. No hand-typed metric.
 - R-18 PASS: no testimonials or invented people.
 - R-23 PASS: the drawer monogram and AppBar avatar are declared placeholders in `DESIGN.md`.
-- R-24 PASS: three routes with real screens: `/`, `/content`, `/audience`; every nav item resolves.
+- R-24 PASS: four routes with real screens: `/`, `/content`, `/content/analyzer`, `/audience`; every nav item resolves.
 - R-25 PASS: light text `#1B1A17` on `#F6F4F0` ≈ 15.9:1; dark text `#F3F1ED` on `#0F1115` ≈ 17.3:1.
-- R-26 PASS: all seven range buttons swap the chart data; theme toggle and every nav item act.
-- R-27 PASS: a missing metric prints `بی‌داده`; data is bundled so no loading state applies.
+- R-26 PASS: all seven range buttons swap the chart data; theme toggle, nav, analyzer dialogs and imports act.
+- R-27 PASS: a missing metric prints `بی‌داده`; the analyzer reports load and save failures in the UI instead of failing silently.
 - R-28 PASS: no FAQ.
 - R-32 PASS: MUI controls are native buttons and links; visible focus ring on Tab.
-- R-39 PASS: `lang=fa`, `dir=rtl`, page title, `header`/`main`/`nav` landmarks, labelled icon buttons.
+- R-39 PASS: `lang=fa`, `dir=rtl` on the root html, page title, `header`/`main`/`nav` landmarks, labelled icon buttons.
 - R-40 PASS: no media; Peyda is self-hosted; no performance claim.
 
 ## Block 2: Purpose-Gate
@@ -29,6 +29,17 @@ Build: `npm run build` in `dashboard/` passes (`tsc -b` + `vite build`, 0 errors
 - R-14 PASS: KPI row is 4/2/1 columns by breakpoint, the charts and grid below carry different weights.
 - R-19 PASS: no entrance animation; only MUI's own transitions on the drawer and toggles.
 - R-22 PASS: no illustrations.
+
+## Block 2b: Analyzer (port of `instagram_analyzer_app.py`)
+
+- Load PASS: `/api/reels` returns all 512 reels of `Default`; KPIs match the database (total 118.9M views, median 50,025, 111 viral / 344 mid / 57 flop).
+- Edit PASS: saving manual content wrote through to `data/reels_database.json` (verified on disk) and the timestamp moved.
+- Flop PASS: the switch toggled `is_flopped` on the right item and nothing else changed.
+- CSV PASS: an import with two rows reported «۲ ریل جدید» and created both items under the active account only.
+- JSON PASS: an import with one known and one unknown id reported «۱ محتوا آپدیت شد، ۱ ریل پیدا نشد».
+- Report PASS: the downloaded `.txt` carries the desktop header, tier badge and the `Views | Followers Gained` / `Shares | Saves` lines.
+- Accounts PASS: creating an account switched to it and left an empty reel table; the previous account kept its 512 items.
+- Isolation PASS: all test writes were confined to a throwaway account, and the database was restored from the untouched source copy afterwards.
 
 ## Block 3: Liveliness
 

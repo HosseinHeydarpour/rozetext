@@ -2,7 +2,7 @@
 
 **Direction:** the standard Material UI dashboard template. AppBar, a persistent right-hand Drawer, a KPI card row, X Charts and an X DataGrid, in RTL Persian. No bespoke design system on top: Material is the design, the brand only sets color, font and radius.
 
-**Stack:** React 19 + TypeScript + Vite, `@mui/material` v9, `@mui/x-charts`, `@mui/x-data-grid`, `react-router-dom` (SPA).
+**Stack:** Next.js 16 App Router + React 19 + TypeScript, `@mui/material` v9, `@mui/x-charts`, `@mui/x-data-grid`, Emotion RTL cache via `@mui/material-nextjs`. No Vite, no Tailwind.
 
 ## Palette
 
@@ -30,12 +30,30 @@ Light and dark are equal citizens. The scheme is chosen with `useColorScheme`, s
 ## Routes
 
 - `/` overview: range switch (7 ranges), four KPI cards, views line chart, follows bar chart, recent grid, top-by-saves.
-- `/content`: full 18-row grid with watch time, top by saves, top by views.
+- `/content` (menu «محتوا»): the exported post table, top by saves, top by views.
+- `/content/analyzer` (menu «محتوا ← آنالیزور»): the reels database screen.
 - `/audience`: gender pie, age × gender bars, cities, countries, active hours, format split.
+
+The drawer keeps «محتوا» as one collapsible section with the analyzer first, then the post table.
+
+## Analyzer
+
+A port of the desktop `instagram_analyzer_app.py` onto the web, same data model and same merge rules:
+
+- Source of truth `data/reels_database.json` via `/api/reels`; atomic writes.
+- Accounts: switch, create, reset the active one after typing `DELETE`.
+- Table: code, date, views, followers gained, shares, saves, tier, caption, manual content, prediction, flop flag. Sort by views, search, filter by tier.
+- Import CSV: Meta headers are matched through the same alias lists (`permalink`/`post`/`url`, `publish time`/`date`, …). Existing reels keep `content`, `prediction` and `is_flopped`; the caption is always replaced; new rows are green, changed rows are amber.
+- Import content JSON: accepts `reelsId`, `reelId`, `reels_id`, `id` and the legacy `conetnt` typo; only existing reels change.
+- Report: `.txt` download with the desktop format, tiers `VIRAL ≥ 300k`, `MID ≥ 10k`, else `FLOP`, plus the manual-flop flag.
+- Selection mode: click rows to collect reel codes, then copy the JSON list.
+
+Deviations from the desktop build, on purpose: numbers with thousands separators are parsed instead of becoming 0, the table always shows the whole account after an import (no partial view), and every write reports success or failure in the UI instead of printing to a console nobody sees.
 
 ## Rules
 
-- Every number comes from `src/data/snapshot.json`, which `scripts/build-dashboard-data.mjs` derives from `data/exports`. No metric is typed by hand; a missing one prints `بی‌داده`.
+- Every dashboard number comes from `src/data/snapshot.json`, which `scripts/build-dashboard-data.mjs` derives from `data/exports`. No metric is typed by hand; a missing one prints `بی‌داده`.
+- Analyzer numbers come from `data/reels_database.json`; the browser never guesses one.
 - Persian digits everywhere, including chart axes and chips. City and country names are translated in the build script; percentages are untouched.
 - Tables and charts inherit theme colors, so both schemes work without per-component color logic.
 

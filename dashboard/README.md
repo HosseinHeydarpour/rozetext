@@ -1,13 +1,14 @@
-# rozetext dashboard (prototype)
+# rozetext dashboard
 
-A local dashboard for the rozetext.ir page: React, TypeScript, Tailwind and MUI.
+A local dashboard for the rozetext.ir page: Next.js (App Router), React, TypeScript and MUI. All UI is Persian and RTL, with light and dark schemes.
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # type-check + production build
+npm run dev      # http://localhost:3000
+npm run build    # production build
+npm start        # serve the production build
 ```
 
 From the repo root:
@@ -18,10 +19,24 @@ npm run dashboard:dev
 npm run dashboard:build
 ```
 
+`next dev`/`next start` must run from this folder: the API reads `../data/reels_database.json` relative to the working directory.
+
+## Routes
+
+| Route | Screen |
+|---|---|
+| `/` | overview: KPIs, views, follows, recent posts |
+| `/content` | the exported post table |
+| `/content/analyzer` | reels analyzer: 512 reels, editing, CSV/JSON import, report |
+| `/audience` | demographics |
+
+`/api/reels` reads and writes the analyzer database. Writes go through a temp file and a rename, so a crash cannot leave a half-written JSON.
+
 ## Data
 
-`src/data/snapshot.json` is generated from the repo's `data/` exports by `scripts/build-dashboard-data.mjs`. Nothing in the UI is hardcoded except labels; every number comes from that snapshot. Rebuild it after a new data collection.
+- `src/data/snapshot.json` is generated from `data/exports` by `scripts/build-dashboard-data.mjs`. Rebuild it after every data collection.
+- `../data/reels_database.json` is the analyzer store, shaped like the desktop app's file: `active_account` plus `accounts[name].items[reelCode]`. It is not generated; the analyzer edits it.
 
 ## Direction
 
-Read `DESIGN.md` before changing the interface. The short version: paper and ink, Naskh numerals, one pomegranate accent, no gradients, no glass, no fabricated metrics.
+Read `DESIGN.md` before changing the interface. The short version: standard MUI dashboard, Peyda, one red and one green, no fabricated metrics and no invented statistics.

@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, Chip, Grid, Stack } from '@mui/material'
 import PageHeader from '../components/PageHeader'
 import PostsGrid from '../components/PostsGrid'
