@@ -85,19 +85,25 @@ export default function ReelsTable({
       {
         field: 'reelCode',
         headerName: 'کد ریل',
-        width: 108,
+        width: 126,
         renderCell: (params) => (
-          <Typography
-            component="a"
-            href={params.row.url}
-            target="_blank"
-            rel="noreferrer"
-            variant="body2"
-            sx={{ color: 'primary.main', fontFamily: 'monospace', direction: 'ltr' }}
-            onClick={(event) => event.stopPropagation()}
-          >
-            {params.value}
-          </Typography>
+          <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
+            {params.row.is_new ? <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main', flexShrink: 0 }} /> : null}
+            {params.row.is_updated && !params.row.is_new ? (
+              <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'warning.main', flexShrink: 0 }} />
+            ) : null}
+            <Typography
+              component="a"
+              href={params.row.url}
+              target="_blank"
+              rel="noreferrer"
+              variant="body2"
+              sx={{ color: 'primary.main', fontFamily: 'monospace', fontSize: 12, direction: 'ltr' }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {params.value}
+            </Typography>
+          </Stack>
         ),
       },
       {
@@ -277,9 +283,7 @@ export default function ReelsTable({
           sortModel={sortModel}
           onSortModelChange={setSortModel}
           sortingOrder={['desc', 'asc']}
-          getRowClassName={(params: GridRowClassNameParams<GridValidRowModel & ReelRow>) =>
-            params.row.is_new ? 'row-new' : params.row.is_updated ? 'row-updated' : ''
-          }
+          getRowClassName={(params: GridRowClassNameParams<GridValidRowModel & ReelRow>) => (params.row.is_new ? 'row-new' : '')}
           onRowClick={(params) => {
             if (selectionMode) onSelectionToggle(params.row.id)
           }}

@@ -10,7 +10,7 @@ interface TopPostsCardProps {
 
 export default function TopPostsCard({ title, posts, metric }: TopPostsCardProps) {
   return (
-    <Card variant="outlined" sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%' }}>
       <CardHeader title={title} />
       <CardContent sx={{ pt: 0 }}>
         <List disablePadding>
@@ -40,7 +40,7 @@ export default function TopPostsCard({ title, posts, metric }: TopPostsCardProps
                     </Typography>
                   </Stack>
                 </Box>
-                <Chip size="small" label={faCompact.format(post[metric] ?? 0)} variant="outlined" />
+                <Chip size="small" label={faCompact.format(post[metric] ?? 0)} variant="outlined" sx={{ flexShrink: 0 }} />
               </Stack>
             </ListItem>
           ))}

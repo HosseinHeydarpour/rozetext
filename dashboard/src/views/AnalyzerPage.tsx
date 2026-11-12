@@ -270,21 +270,17 @@ export default function AnalyzerPage() {
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {kpis.map((kpi) => (
           <Grid key={kpi.label} size={{ xs: 6, sm: 4, lg: 2 }}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
-              <CardContent sx={{ py: 1.5 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {kpi.label}
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.5 }}>
-                  {kpi.value}
-                </Typography>
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ py: 2 }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'text.secondary' }}>{kpi.label}</Typography>
+                <Typography sx={{ fontSize: 24, fontWeight: 700, mt: 0.5 }}>{kpi.value}</Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <Card variant="outlined" sx={{ mb: 2 }}>
+      <Card sx={{ mb: 2 }}>
         <CardContent sx={{ py: 1.5 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ alignItems: { md: 'center' } }}>
             <FormControlLabel
@@ -298,10 +294,10 @@ export default function AnalyzerPage() {
             ) : null}
             <Box sx={{ flexGrow: 1 }} />
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-              <Chip size="small" label={`جدید: ${fa.format(stats.newCount)}`} color="success" variant="outlined" />
-              <Chip size="small" label={`آپدیت‌شده: ${fa.format(stats.updatedCount)}`} color="warning" variant="outlined" />
-              <Chip size="small" label={`فلپ دستی: ${fa.format(stats.flopped)}`} variant="outlined" />
-              <Chip size="small" label={`آخرین ذخیره: ${activeAccount?.last_updated ?? '—'}`} variant="outlined" />
+              <Chip size="small" label={`جدید: ${fa.format(stats.newCount)}`} color="success" />
+              <Chip size="small" label={`آپدیت‌شده: ${fa.format(stats.updatedCount)}`} color="warning" />
+              <Chip size="small" label={`فلپ دستی: ${fa.format(stats.flopped)}`} />
+              <Chip size="small" label={`آخرین ذخیره: ${activeAccount?.last_updated ?? '—'}`} />
             </Stack>
             <Button size="small" color="error" startIcon={<DeleteSweepRoundedIcon />} onClick={() => setResetOpen(true)} disabled={!db}>
               پاک‌کردن داده

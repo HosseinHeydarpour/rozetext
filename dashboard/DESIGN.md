@@ -1,62 +1,59 @@
 # DESIGN: rozetext dashboard
 
-**Direction:** the standard Material UI dashboard template. AppBar, a persistent right-hand Drawer, a KPI card row, X Charts and an X DataGrid, in RTL Persian. No bespoke design system on top: Material is the design, the brand only sets color, font and radius.
+**Source:** the Figma community file "Material UI Dashboard Screen (Community)" (`UWCfsFjGebg9Ve55GTWv5s`), frame `App` / `analytics`. Layout, spacing, radii, shadows, type sizes and colors are taken from that file's node data, not approximated by eye.
 
-**Stack:** Next.js 16 App Router + React 19 + TypeScript, `@mui/material` v9, `@mui/x-charts`, `@mui/x-data-grid`, Emotion RTL cache via `@mui/material-nextjs`. No Vite, no Tailwind.
+**Stack:** Next.js 16 App Router + React 19 + TypeScript, `@mui/material` v9, `@mui/x-charts`, `@mui/x-data-grid`, Emotion RTL cache via `@mui/material-nextjs`.
 
-## Palette
+## Measured tokens (from Figma)
 
-Theme is defined twice, once per color scheme, in `src/theme.ts`.
-
-| Token | Light | Dark |
+| Token | Value | Where it came from |
 |---|---|---|
-| primary | `#8E3B46` | `#E7A0A8` |
-| secondary | `#2F6B5F` | `#8CC7B9` |
-| background.default | `#F6F4F0` | `#0F1115` |
-| background.paper | `#FFFFFF` | `#171A21` |
-| text.primary | `#1B1A17` | `#F3F1ED` |
+| primary | `#00A76F` | Go Now button, active nav item |
+| primary light | `#5BE49B` | banner gradient, featured label |
+| primary dark | `#007867` | banner text tint, teal stat card |
+| primary darker | `#004B50` | banner heading |
+| info dark | `#006C9C` | blue stat card |
+| success | `#22C55E` | trend arrows |
+| error | `#FF5630` | notification badge |
+| text primary | `#212B36` | all headings and numbers |
+| text secondary | `#637381` | table headers, captions |
+| text disabled | `#919EAB` | section labels, axis ticks |
+| background | `#F4F6F8` | page ground |
+| paper | `#FFFFFF` | cards, drawer |
+| divider | `rgba(145,158,171,0.20)` | hairlines |
+| card radius | 16 px | every card |
+| card shadow | `0 0 2px rgba(145,158,171,.20), 0 12px 24px -4px rgba(145,158,171,.12)` | card frame effect |
+| drawer | 280 px | sidebar frame |
+| header | 80 px, `rgba(255,255,255,.80)` + blur 6 | header frame |
+| grid gap | 24 px | dashboard grid |
+| card padding | 24 px | card content |
+| type | h3 32/700, h4 24/700, h6 18/700, body 14, caption 12 | text nodes |
 
-Primary is the account's red for views and men; secondary is the green for interactions, follows and women. Charts use these two only.
+Dark scheme is the same geometry with `#161C24` ground, `#212B36` paper and `#919EAB` secondary text. Literal colors that must differ per scheme use `theme.applyStyles('dark', …)`, because `theme.palette.mode` is static under CSS variables.
+
+## Layout, as in the file
+
+1. Welcome card (8 cols) + featured reel card (4).
+2. Three KPI cards (4 each), 166 px tall.
+3. Age donut (4) + views line chart (8).
+4. Recent reels table (8) + top reels by saves (4).
+5. Cities (4) + countries (4) + two ring stat cards (4).
+
+The analyzer and audience screens reuse the same card, header and type rules instead of inventing new ones.
+
+## Where it departs from the Figma file
+
+- Content is real: no Lorem Ipsum, no "Jaydon Frankie", no invoice rows. The banner says what the page actually did (`۱۹ میلیون ویو …`), the featured card is the best reel, the table is the five latest reels, the donut is age share of the real audience.
+- The Figma area chart is a plain two-line chart; ours is one line with the range selector wired to the seven exported ranges.
+- The Figma "Current Download" donut has 4 arbitrary slices; ours shows six real age buckets and the real follower total in the center.
+- The Figma page ships a photo in the featured card. There are no reel thumbnails in the data, so the card uses a brand gradient and the caption.
+- Chart x-axis labels are rendered as a label row under the chart (MUI X v9 renders empty tick labels when the axis is fed raw ISO dates).
+- The "active times" export parses into `{"12a":3,"3a":6,…,"9p":31454}` — labels and values are transposed, so the screen does not show an active-hours chart. It needs a fix in the scraper before it can be trusted.
 
 ## Type
 
-- Peyda for everything, self-hosted from `public/fonts` (Medium / Bold / Black woff2). No CDN, no second family.
-- Headings `h4`–`h6` at weight 700; body at 400 (rendered by the Medium file), numbers via `Intl.NumberFormat('fa-IR')`.
+Peyda everywhere, self-hosted from `public/fonts` (Medium / Bold / Black). Persian digits through `Intl.NumberFormat('fa-IR')`, including axes and chips. The design's Public Sans is not loaded; Peyda keeps the same sizes and weights.
 
 ## Modes
 
-Light and dark are equal citizens. The scheme is chosen with `useColorScheme`, stored under `rozetext-mode`, and applied through `data-mui-color-scheme`; the toggle sits in the AppBar. Default is light.
-
-## Routes
-
-- `/` overview: range switch (7 ranges), four KPI cards, views line chart, follows bar chart, recent grid, top-by-saves.
-- `/content` (menu «محتوا»): the exported post table, top by saves, top by views.
-- `/content/analyzer` (menu «محتوا ← آنالیزور»): the reels database screen.
-- `/audience`: gender pie, age × gender bars, cities, countries, active hours, format split.
-
-The drawer keeps «محتوا» as one collapsible section with the analyzer first, then the post table.
-
-## Analyzer
-
-A port of the desktop `instagram_analyzer_app.py` onto the web, same data model and same merge rules:
-
-- Source of truth `data/reels_database.json` via `/api/reels`; atomic writes.
-- Accounts: switch, create, reset the active one after typing `DELETE`.
-- Table: code, date, views, followers gained, shares, saves, tier, caption, manual content, prediction, flop flag. Sort by views, search, filter by tier.
-- Import CSV: Meta headers are matched through the same alias lists (`permalink`/`post`/`url`, `publish time`/`date`, …). Existing reels keep `content`, `prediction` and `is_flopped`; the caption is always replaced; new rows are green, changed rows are amber.
-- Import content JSON: accepts `reelsId`, `reelId`, `reels_id`, `id` and the legacy `conetnt` typo; only existing reels change.
-- Report: `.txt` download with the desktop format, tiers `VIRAL ≥ 300k`, `MID ≥ 10k`, else `FLOP`, plus the manual-flop flag.
-- Selection mode: click rows to collect reel codes, then copy the JSON list.
-
-Deviations from the desktop build, on purpose: numbers with thousands separators are parsed instead of becoming 0, the table always shows the whole account after an import (no partial view), and every write reports success or failure in the UI instead of printing to a console nobody sees.
-
-## Rules
-
-- Every dashboard number comes from `src/data/snapshot.json`, which `scripts/build-dashboard-data.mjs` derives from `data/exports`. No metric is typed by hand; a missing one prints `بی‌داده`.
-- Analyzer numbers come from `data/reels_database.json`; the browser never guesses one.
-- Persian digits everywhere, including chart axes and chips. City and country names are translated in the build script; percentages are untouched.
-- Tables and charts inherit theme colors, so both schemes work without per-component color logic.
-
-## Placeholders
-
-The drawer monogram (`ر` in a primary square) and the AppBar avatar are typographic placeholders until the owner supplies a real logo. No other image, testimonial or statistic was invented.
+Light and dark are both first-class: `useColorScheme`, stored under `rozetext-mode`, applied through `data-mui-color-scheme`. Default is light, matching the Figma frame.

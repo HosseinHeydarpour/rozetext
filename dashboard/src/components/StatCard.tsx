@@ -1,37 +1,47 @@
-import { Box, Card, CardContent, Chip, Stack, Typography } from '@mui/material'
+'use client'
+
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded'
+import TrendingDownRoundedIcon from '@mui/icons-material/TrendingDownRounded'
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart'
 
 export interface StatCardProps {
   title: string
   value: string
-  caption: string
-  chipLabel: string
-  chipColor?: 'success' | 'default' | 'primary' | 'info'
-  data?: number[]
+  trendLabel: string
+  trendDirection?: 'up' | 'down' | 'flat'
+  data: number[]
+  plotType?: 'line' | 'bar'
   color?: string
 }
 
-export default function StatCard({ title, value, caption, chipLabel, chipColor = 'default', data, color }: StatCardProps) {
+export default function StatCard({ title, value, trendLabel, trendDirection = 'up', data, plotType = 'bar', color }: StatCardProps) {
+  const Icon = trendDirection === 'down' ? TrendingDownRoundedIcon : TrendingUpRoundedIcon
+  const tone = trendDirection === 'down' ? 'error.main' : 'success.main'
+
   return (
-    <Card variant="outlined" sx={{ height: '100%' }}>
-      <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          {title}
-        </Typography>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-          <Typography variant="h4" component="p" sx={{ fontWeight: 700 }}>
-            {value}
-          </Typography>
-          <Chip size="small" label={chipLabel} color={chipColor} variant={chipColor === 'default' ? 'outlined' : 'filled'} />
+    <Card sx={{ height: '100%', minHeight: 166 }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Typography sx={{ fontSize: 14, fontWeight: 600, color: 'text.primary' }}>{title}</Typography>
+
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Icon sx={{ fontSize: 20, color: tone }} />
+          <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{trendLabel}</Typography>
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-          {caption}
-        </Typography>
-        {data && data.length > 0 ? (
-          <Box sx={{ width: '100%', height: 56, mt: 'auto', pt: 1 }}>
-            <SparkLineChart data={data} height={56} color={color ?? 'primary'} area showTooltip />
+
+        <Stack direction="row" sx={{ alignItems: 'flex-end', justifyContent: 'space-between', gap: 1, mt: 0.5 }}>
+          <Typography sx={{ fontSize: 32, fontWeight: 700, lineHeight: 1.4 }}>{value}</Typography>
+          <Box sx={{ width: 88, height: 44, flexShrink: 0 }}>
+            <SparkLineChart
+              data={data.length ? data : [0]}
+              height={44}
+              plotType={plotType}
+              color={color ?? 'primary.main'}
+              showTooltip
+              sx={{ '& .MuiChartsAxis-root': { display: 'none' } }}
+            />
           </Box>
-        ) : null}
+        </Stack>
       </CardContent>
     </Card>
   )

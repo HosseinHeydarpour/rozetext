@@ -39,4 +39,4 @@ npm run dashboard:build
 
 ## Direction
 
-Read `DESIGN.md` before changing the interface. The short version: standard MUI dashboard, Peyda, one red and one green, no fabricated metrics and no invented statistics.
+Read `DESIGN.md` before changing the interface. The short version: pixel-level port of the Figma "Material UI Dashboard Screen" file — 16 px cards with the two-layer shadow, 280 px drawer, 80 px blurred header, `#00A76F` primary, Peyda, real data only.

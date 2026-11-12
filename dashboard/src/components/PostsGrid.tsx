@@ -49,7 +49,15 @@ const columns: GridColDef[] = [
     width: 110,
     align: 'center',
     headerAlign: 'center',
-    valueFormatter: (value: string) => (/^[‑-]+$/.test(value) ? 'بی‌داده' : value),
+    valueFormatter: (value: string) => {
+      if (/^[‑-]+$/.test(value)) return 'بی‌داده'
+      const match = value.match(/^(?:(\d+)d\s*)?(?:(\d+)h\s*)?(?:(\d+)m)?$/)
+      if (!match) return value
+      const [, days, hours, minutes] = match
+      return [days && `${fa.format(Number(days))}ر`, hours && `${fa.format(Number(hours))}س`, minutes && `${fa.format(Number(minutes))}د`]
+        .filter(Boolean)
+        .join(' ')
+    },
   },
 ]
 
@@ -63,7 +71,7 @@ const localeText: Partial<GridLocaleText> = {
 
 export default function PostsGrid({ rows, hideFooter = false, height = 620 }: PostsGridProps) {
   return (
-    <Card variant="outlined" sx={{ height: hideFooter ? 'auto' : height, display: 'flex', flexDirection: 'column' }}>
+    <Card sx={{ height: hideFooter ? 'auto' : height, display: 'flex', flexDirection: 'column' }}>
       <CardHeader title="پست‌های اخیر" sx={{ pb: 0 }} />
       <CardContent sx={{ flexGrow: 1, minHeight: 0, p: 0, '&:last-child': { pb: 0 } }}>
         <Box sx={{ height: hideFooter ? 360 : '100%', width: '100%' }}>
