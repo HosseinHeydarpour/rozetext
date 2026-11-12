@@ -11,7 +11,10 @@
     "meta:suite": "node scripts/meta-suite.mjs",
     "meta:export": "node scripts/meta-export.mjs",
     "meta:insights": "node scripts/meta-insights.mjs",
-    "meta:audience": "node scripts/meta-audience.mjs"
+    "meta:audience": "node scripts/meta-audience.mjs",
+    "meta:ranges": "node scripts/meta-ranges.mjs",
+    "meta:content": "node scripts/meta-content.mjs",
+    "data:collect": "node scripts/collect-data.mjs"
   },
   "dependencies": {
     "playwright-core": "^1.65.0"

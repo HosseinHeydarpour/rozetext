@@ -101,6 +101,37 @@ Status: `runtime/meta-audience.json` (`opening`, `demographics`, `trends`, `done
 
 If the Audience page shows **You are currently offline**, click Refresh and wait; demographics need the connection.
 
+## All date ranges
+
+`npm run meta:ranges` repeats the Results charts, the Trends analysis, and Top content formats for every range in the date dropdown:
+
+- Yesterday
+- Last 7 days
+- Last 28 days
+- Last 90 days
+- This week
+- This month
+- This year
+
+Output in `data/exports/ranges/`:
+
+- `insights-<chart>-<range>.csv` (4 charts per range)
+- `audience-trends-<range>.json` (daily follows series and totals)
+- `top-content-formats-<range>.csv`
+
+Status: `runtime/meta-ranges.json` (`range-results`, `range-trends`, `range-formats`, `done`, `needs_session`, `error`). Select the range through the date button, never by editing the URL.
+
+## Watch time from the Content table
+
+`npm run meta:content` opens Business Suite Content → Posts & reels and reads the visible table:
+
+- Watch time
+- Video average play time
+- 3-second views
+- plus Views, Reach, Likes, Comments, Shares, Saves, Follows
+
+Output: `data/exports/content-table.json` and `content-table.csv` with about the 19 most recent posts. The table caps at roughly 20 rows; for older posts change the date range first. Rows with `--` mean the metric is not available for that post.
+
 ## Human behaviour
 
 - Headed Chrome, one window, human pauses; never loop the export.

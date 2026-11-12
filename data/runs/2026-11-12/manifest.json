@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-12",
+  "started_at": "2026-11-12T20:25:14.970Z",
+  "full": false,
+  "steps": [
+    {
+      "name": "dashboard",
+      "code": 0,
+      "at": "2026-11-12T20:26:00.565Z"
+    },
+    {
+      "name": "meta-export",
+      "code": 0,
+      "at": "2026-11-12T20:29:09.030Z"
+    },
+    {
+      "name": "meta-insights",
+      "code": 0,
+      "at": "2026-11-12T20:29:57.703Z"
+    },
+    {
+      "name": "meta-audience",
+      "code": 0,
+      "at": "2026-11-12T20:31:12.180Z"
+    },
+    {
+      "name": "meta-content",
+      "code": 0,
+      "at": "2026-11-12T20:31:36.387Z"
+    }
+  ],
+  "files": {
+    "dashboard": [
+      "dashboard/insights-account.json"
+    ],
+    "meta_suite": [
+      "meta-suite/audience/audience-demographics.csv",
+      "meta-suite/audience/audience-trends.json",
+      "meta-suite/audience/top-content-formats.csv",
+      "meta-suite/Aug-01-2026_Nov-11-2026_1003335446150941.csv",
+      "meta-suite/content-table.csv",
+      "meta-suite/content-table.json",
+      "meta-suite/insights/insights-content-interactions.csv",
+      "meta-suite/insights/insights-link-clicks.csv",
+      "meta-suite/insights/insights-reach.csv",
+      "meta-suite/insights/insights-views.csv"
+    ]
+  },
+  "finished_at": "2026-11-12T20:31:43.802Z"
+}
