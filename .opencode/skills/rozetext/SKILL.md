@@ -12,6 +12,7 @@ Repo: HosseinHeydarpour/rozetext (private)
 ## Sub-skills
 
 - `rozetext-login` — authenticated Instagram session. Load before any task that needs private account data (insights, inbox, comments).
+- `rozetext-data-collect-account-login` — separate session for the data-collection burner account. Load when a task could risk the page account. Never replaces the page session.
 
 ## Where things live
 

@@ -27,7 +27,7 @@ const STATE_FILE = path.join(RUNTIME, `${prefix}ig-state.json`)
 const LOCK_FILE = path.join(RUNTIME, `${prefix}login-blocked.json`)
 const shot = (name) => path.join(RUNTIME, `${prefix}${name}.png`)
 
-const envPrefix = `IG${account === 'main' ? '' : `_${account.toUpperCase()}`}`
+const envPrefix = `IG${account === 'main' ? '' : `_${account.toUpperCase().replaceAll('-', '_')}`}`
 const username = (process.env[`${envPrefix}_USERNAME`] || '').trim()
 const password = process.env[`${envPrefix}_PASSWORD`] || ''
 const manual = process.argv.includes('--manual')
@@ -35,7 +35,8 @@ const useAuthenticator = process.argv.includes('--authenticator')
 const mainProfile =
   process.env.IG_PROFILE_DIR ||
   path.join(process.env.LOCALAPPDATA || os.homedir(), 'rozetext', 'chrome-profile')
-const profileDir = process.env[`${envPrefix}_PROFILE_DIR`] || (account === 'main' ? mainProfile : `${mainProfile}-${account}`)
+const profileDir =
+  process.env[`${envPrefix}_PROFILE_DIR`] || (account === 'main' ? mainProfile : `${mainProfile}-${account}`)
 
 if (account !== 'main' && path.resolve(profileDir) === path.resolve(mainProfile)) {
   console.error('Refusing to run: this profile belongs to the main account (IG_PROFILE_DIR).')
