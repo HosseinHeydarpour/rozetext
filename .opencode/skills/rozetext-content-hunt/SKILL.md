@@ -224,7 +224,13 @@ Write the confirmed candidates to `data/hunted-candidates/<YYYY-MM-DD>/candidate
 
 The full row shape is in `references/database.md`.
 
-### 5. Report
+### 5. Plan
+
+Call `rozetext-planner` with the daily file. It assigns each confirmed text to a follower-active window and writes `data/content-hunt/plans/<date>.json`. If there are no confirmed texts, skip.
+
+Do not duplicate the planner's logic here. It reads the daily file, the active hours and the capacity, and returns the schedule.
+
+### 6. Report
 
 Give the user a Persian report with:
 
@@ -232,6 +238,7 @@ Give the user a Persian report with:
 - how many passed all gates and went into the main database
 - the confirmed texts: link, score, band, why it scored, source handle, rewritten caption
 - the daily file path
+- the plan: which window each text got, and any unscheduled texts
 - the cost of the run
 - the one thing that blocked the run, if anything
 

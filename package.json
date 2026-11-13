@@ -19,6 +19,7 @@
     "meta:content": "node scripts/meta-content.mjs",
     "data:collect": "node scripts/collect-data.mjs",
     "reels:content": "node scripts/update-reels-content.mjs",
+    "plan:content": "node scripts/plan-content.mjs",
     "direct:admin": "node scripts/direct-admin.mjs",
     "dashboard:collect": "node scripts/dashboard-data.mjs",
     "dashboard:data": "node scripts/build-dashboard-data.mjs",
