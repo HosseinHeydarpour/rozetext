@@ -22,6 +22,31 @@
   font-display: swap;
 }
 
+/* fonts used by the post designs in the Rozetext Figma file */
+@font-face {
+  font-family: 'IRLotus';
+  src: url('/fonts/IRLotus-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRLotus';
+  src: url('/fonts/IRLotus-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRTitr';
+  src: url('/fonts/IRTitr-Regular.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
 }

@@ -43,12 +43,34 @@ The analyzer and audience screens reuse the same card, header and type rules ins
 
 ## Analyzer screen
 
-One account (رز تکست), no switcher. Table: code, date, views, followers, shares, saves, tier, caption, «متن ریلز», prediction, flop. Every cell is one line with the full text in a tooltip; clicking «متن ریلز» or «پیشبینی» opens the editor.
+One account (رز تکست), no switcher. Table: code, date, views, followers, shares, saves, tier, caption, «متن ریلز», prediction. Every cell is one line with the full text in a tooltip; clicking «متن ریلز» or «پیشبینی» opens the editor. Filters and the view-sort button sit at the left end of the card, search at the right.
 
-- CSV import keeps `content`/`prediction`/`is_flopped` of existing reels, always replaces the caption and marks new rows green.
+- CSV import keeps `content`/`prediction` of existing reels, always replaces the caption and marks new rows green.
 - Report dialog exports `.txt` (desktop format) or `.md` (summary table + per-reel details).
 - Reset asks for `DELETE`.
-- Removed on request: account switching, JSON content import, selection mode.
+- Removed on request: account switching, JSON content import, selection mode, manual flop.
+
+## Creator screen
+
+`/content/creator` is the post maker, built from the "Rozetext" Figma file (`WY3tdDSMwF6WiXVQRwY4t1`, section Post):
+
+| | light | dark |
+|---|---|---|
+| text | `#292929` 90% | `#F4C466` 95% |
+| highlight | `#8B2635` (red), white text | `#F4C466` (yellow), dark text |
+| font | IRLotus 700 | IRLotus 700 |
+| cover font | IRTitr 400 | IRTitr 400 |
+
+- Canvas is 1080×1920 and is the preview itself, so the PNG export (`toBlob`, guide hidden) matches what you see.
+- Controls: mode (light/dark), kind (cover hook / body), font size, line height, vertical offset, background image, safe-area guide.
+- Instagram safe area is 260 px top, 340 px bottom, 200 px right (action rail) on 1080×1920; text is wrapped to the safe width and clamped inside it.
+- `*word*` marks a highlighted run; the band is drawn from measured glyph positions, then the run is re-drawn in the accent's contrast color.
+- Fonts are self-hosted from `public/fonts`: `IRLotus-Regular.ttf`, `IRLotus-Bold.ttf`, `IRTitr-Regular.ttf` (copied from the system fonts the design uses).
+
+The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `reels_database.json` and the test hook/body, and states that extraction is not wired to ffmpeg yet instead of faking a result.
+
+## Benchmark accounts screen
+`/content/benchmark` reads `data/benchmark-accounts/benchmark_accounts.json` through `/api/benchmark` and shows one card per account: avatar (from the stored base64), Persian name, handle, cluster chip, followers/posts/following, average and record views, the content style and the matching archetypes. Four KPI cards (accounts, total followers, median, max) sit above a search field and a sort selector (followers / posts / alphabetical).
 
 ## Where it departs from the Figma file
 

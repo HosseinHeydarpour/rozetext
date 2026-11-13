@@ -33,6 +33,8 @@ import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded
 import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded'
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded'
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded'
+import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded'
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded'
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
@@ -59,7 +61,9 @@ const navItems: NavItem[] = [
     label: 'محتوا',
     icon: <ArticleRoundedIcon />,
     children: [
+      { to: '/content/creator', label: 'محتوا ساز', icon: <AutoAwesomeRoundedIcon fontSize="small" /> },
       { to: '/content/analyzer', label: 'آنالیزور', icon: <InsightsRoundedIcon fontSize="small" /> },
+      { to: '/content/benchmark', label: 'اکانت‌های مرجع', icon: <GroupsRoundedIcon fontSize="small" /> },
       { to: '/content', label: 'پست‌ها', icon: <GridViewRoundedIcon fontSize="small" /> },
     ],
   },
@@ -70,6 +74,7 @@ const titles: Record<string, string> = {
   '/': 'نمای کلی',
   '/content': 'محتوا',
   '/content/analyzer': 'آنالیزور محتوا',
+  '/content/benchmark': 'اکانت‌های مرجع',
   '/audience': 'مخاطب',
 }
 
@@ -384,7 +389,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Box>
 
         <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
-          <Box sx={{ maxWidth: 1230, mx: 'auto', px: { xs: 2, md: 3 }, py: 3 }}>{children}</Box>
+          <Box sx={{ maxWidth: 2460, mx: 'auto', px: { xs: 2, md: 3 }, py: 3 }}>{children}</Box>
         </Box>
       </Box>
     </Box>

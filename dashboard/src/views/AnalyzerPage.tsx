@@ -106,16 +106,6 @@ export default function AnalyzerPage() {
     await persist(next, field === 'content' ? 'متن ریلز ذخیره شد.' : 'پیش‌بینی ذخیره شد.')
   }
 
-  const toggleFlop = async (id: string) => {
-    if (!db) return
-    const next = clone()
-    const item = next.accounts[next.active_account].items[id]
-    if (!item) return
-    item.is_flopped = !item.is_flopped
-    next.accounts[next.active_account].last_updated = stamp()
-    await persist(next)
-  }
-
   const importCsv = async (text: string, fileName: string) => {
     if (!db) return
     try {
@@ -210,7 +200,6 @@ export default function AnalyzerPage() {
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
               <Chip size="small" label={`جدید: ${fa.format(stats.newCount)}`} color="success" />
               <Chip size="small" label={`آپدیت‌شده: ${fa.format(stats.updatedCount)}`} color="warning" />
-              <Chip size="small" label={`فلپ دستی: ${fa.format(stats.flopped)}`} />
             </Stack>
             <Box sx={{ flexGrow: 1 }} />
             <Typography variant="caption" color="text.secondary">
@@ -231,7 +220,6 @@ export default function AnalyzerPage() {
         loading={loading || saving}
         initialSearch={initialSearch}
         onEdit={(id, field) => setEditor({ id, field })}
-        onToggleFlop={(id) => void toggleFlop(id)}
       />
 
       {editor && editing ? (

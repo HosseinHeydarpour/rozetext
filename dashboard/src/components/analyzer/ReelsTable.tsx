@@ -7,7 +7,6 @@ import {
   Card,
   Chip,
   Stack,
-  Switch,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -33,7 +32,6 @@ type TierFilter = 'all' | ReelRow['tier']
 interface ReelsTableProps {
   rows: ReelRow[]
   onEdit: (id: string, field: 'content' | 'prediction') => void
-  onToggleFlop: (id: string) => void
   loading?: boolean
   initialSearch?: string
 }
@@ -65,7 +63,7 @@ function Tik({ value }: { value: string }) {
   )
 }
 
-export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initialSearch = '' }: ReelsTableProps) {
+export default function ReelsTable({ rows, onEdit, loading, initialSearch = '' }: ReelsTableProps) {
   const [tier, setTier] = useState<TierFilter>('all')
   const [search, setSearch] = useState(initialSearch)
   const [sortDesc, setSortDesc] = useState(true)
@@ -215,25 +213,8 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
           </Box>
         ),
       },
-      {
-        field: 'is_flopped',
-        headerName: 'فلپ',
-        width: 64,
-        align: 'center',
-        headerAlign: 'center',
-        sortable: false,
-        renderCell: (params) => (
-          <Switch
-            size="small"
-            checked={params.row.is_flopped}
-            onChange={() => onToggleFlop(params.row.id)}
-            onClick={(event) => event.stopPropagation()}
-            slotProps={{ input: { 'aria-label': `فلپ ${params.row.reelCode}` } }}
-          />
-        ),
-      },
     ],
-    [onEdit, onToggleFlop],
+    [onEdit],
   )
 
   return (
@@ -247,23 +228,26 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
             onChange={(event) => setSearch(event.target.value)}
             sx={{ minWidth: 260 }}
           />
-          <ToggleButtonGroup exclusive size="small" value={tier} onChange={(_, value: TierFilter | null) => value && setTier(value)}>
-            <ToggleButton value="all" sx={{ px: 1.4, fontSize: 12 }}>
-              همه ({fa.format(rows.length)})
-            </ToggleButton>
-            <ToggleButton value="VIRAL" sx={{ px: 1.4, fontSize: 12 }}>
-              وایرال
-            </ToggleButton>
-            <ToggleButton value="MID" sx={{ px: 1.4, fontSize: 12 }}>
-              متوسط
-            </ToggleButton>
-            <ToggleButton value="FLOP" sx={{ px: 1.4, fontSize: 12 }}>
-              ضعیف
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <Button size="small" variant="outlined" onClick={() => setSortDesc((value) => !value)}>
-            مرتب‌سازی ویو {sortDesc ? '↓' : '↑'}
-          </Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 1 }}>
+            <ToggleButtonGroup exclusive size="small" value={tier} onChange={(_, value: TierFilter | null) => value && setTier(value)}>
+              <ToggleButton value="all" sx={{ px: 1.4, fontSize: 12 }}>
+                همه ({fa.format(rows.length)})
+              </ToggleButton>
+              <ToggleButton value="VIRAL" sx={{ px: 1.4, fontSize: 12 }}>
+                وایرال
+              </ToggleButton>
+              <ToggleButton value="MID" sx={{ px: 1.4, fontSize: 12 }}>
+                متوسط
+              </ToggleButton>
+              <ToggleButton value="FLOP" sx={{ px: 1.4, fontSize: 12 }}>
+                ضعیف
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <Button size="small" variant="outlined" onClick={() => setSortDesc((value) => !value)}>
+              مرتب‌سازی ویو {sortDesc ? '↓' : '↑'}
+            </Button>
+          </Stack>
         </Stack>
         <Typography variant="caption" color="text.secondary">
           برای ویرایش متن ریلز یا پیش‌بینی روی همان ستون کلیک کنید. کد ریل در تب جدید باز می‌شود.
