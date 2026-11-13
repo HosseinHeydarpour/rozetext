@@ -17,18 +17,29 @@ if (!fs.existsSync(COOKIE_FILE)) {
 
 const raw = JSON.parse(fs.readFileSync(COOKIE_FILE, 'utf8'))
 const now = Date.now()
-const cookies = raw
-  .filter((c) => !c.expires_iso || Date.parse(c.expires_iso) > now)
-  .map((c) => ({
-    name: c.name,
-    value: c.value,
-    domain: c.domain || '.facebook.com',
-    path: c.path || '/',
-    expires: c.expires_iso ? Math.floor(Date.parse(c.expires_iso) / 1000) : -1,
-    httpOnly: Boolean(c.httpOnly),
-    secure: c.secure !== false,
-    ...(c.sameSite ? { sameSite: c.sameSite } : {}),
-  }))
+const SAME_SITE = { no_restriction: 'None', lax: 'Lax', strict: 'Strict' }
+
+function toPlaywright(cookie) {
+  const expiry = cookie.expires_iso
+    ? Date.parse(cookie.expires_iso)
+    : cookie.expirationDate
+      ? cookie.expirationDate * 1000
+      : 0
+  if (expiry && expiry <= now) return null
+  const sameSite = SAME_SITE[(cookie.sameSite || '').toLowerCase()]
+  return {
+    name: cookie.name,
+    value: cookie.value,
+    domain: cookie.domain || '.facebook.com',
+    path: cookie.path || '/',
+    expires: expiry ? Math.floor(expiry / 1000) : -1,
+    httpOnly: Boolean(cookie.httpOnly),
+    secure: cookie.secure !== false,
+    ...(sameSite ? { sameSite } : {}),
+  }
+}
+
+const cookies = raw.map(toPlaywright).filter(Boolean)
 
 const context = await chromium.launchPersistentContext(profileDir, {
   channel: 'chrome',

@@ -58,11 +58,24 @@ function listFiles(dir) {
   return out
 }
 
+let blocked = null
+let failed = null
+
 try {
   for (const step of steps) {
     saveStatus('step', { step: step.name })
     const code = await runStep(step)
     manifest.steps.push({ name: step.name, code, at: new Date().toISOString() })
+
+    if (code === 3) {
+      blocked = step.name
+      break
+    }
+
+    if (code !== 0) {
+      failed = step.name
+      break
+    }
 
     if (step.name === 'dashboard') {
       const source = path.join(ROOT, 'data', 'insights-account.json')
@@ -91,11 +104,6 @@ try {
       if (fs.existsSync(source)) fs.cpSync(source, path.join(metaDir, 'ranges'), { recursive: true })
     }
 
-    if (code === 3) {
-      saveStatus('needs_session', { step: step.name })
-      break
-    }
-
     await new Promise((r) => setTimeout(r, 4000 + Math.floor(Math.random() * 4000)))
   }
 
@@ -103,7 +111,12 @@ try {
   manifest.files.dashboard = listFiles(dashboardDir)
   manifest.files.meta_suite = listFiles(metaDir)
   fs.writeFileSync(path.join(runDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
-  saveStatus('done', { folder: path.relative(ROOT, runDir), dashboard_files: manifest.files.dashboard.length, meta_files: manifest.files.meta_suite.length })
+  saveStatus(blocked ? 'needs_session' : failed ? 'error' : 'done', {
+    step: blocked ?? failed ?? undefined,
+    folder: path.relative(ROOT, runDir),
+    dashboard_files: manifest.files.dashboard.length,
+    meta_files: manifest.files.meta_suite.length,
+  })
 } catch (error) {
   saveStatus('error', { message: error.message })
   process.exitCode = 2
