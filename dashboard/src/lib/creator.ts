@@ -15,6 +15,8 @@ export interface CreatorTheme {
   name: string
   text: string
   textOpacity: number
+  coverText: string
+  coverTextOpacity: number
   accent: string
   onAccent: string
   font: string
@@ -30,6 +32,8 @@ export const THEMES: Record<CreatorMode, CreatorTheme> = {
     name: 'لایت',
     text: '#292929',
     textOpacity: 0.9,
+    coverText: '#181818',
+    coverTextOpacity: 0.8,
     accent: '#8B2635',
     onAccent: '#FFFFFF',
     font: 'IRLotus',
@@ -42,6 +46,8 @@ export const THEMES: Record<CreatorMode, CreatorTheme> = {
     name: 'دارک',
     text: '#F4C466',
     textOpacity: 0.95,
+    coverText: '#FFF7EE',
+    coverTextOpacity: 0.95,
     accent: '#F4C466',
     onAccent: '#1B1B1B',
     font: 'IRLotus',
@@ -51,6 +57,14 @@ export const THEMES: Record<CreatorMode, CreatorTheme> = {
     background: '#141414',
   },
 }
+
+/** Background art exported from the same Figma frames, one per mode and kind. */
+export const BACKGROUNDS: Record<CreatorMode, Record<CreatorKind, string>> = {
+  light: { cover: '/creator/light-cover.png', text: '/creator/light-text.png' },
+  dark: { cover: '/creator/dark-cover.png', text: '/creator/dark-text.png' },
+}
+
+export const COVER_OFFSET = -170
 
 export const COVER_FONT = { family: 'IRTitr', weight: 400, fontSize: 92, lineHeight: 150 }
 
@@ -157,10 +171,12 @@ export interface DrawOptions {
 export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSettings, options: DrawOptions = {}) {
   const theme = THEMES[settings.mode]
   const isCover = settings.kind === 'cover'
-  const family = isCover ? COVER_FONT.family : theme.font
-  const weight = isCover ? COVER_FONT.weight : theme.weight
+  const family = isCover ? 'IRTitr' : theme.font
+  const weight = isCover ? 400 : theme.weight
   const { fontSize, lineHeight } = settings
   const text = isCover ? settings.hook : settings.body
+  const textColor = isCover ? theme.coverText : theme.text
+  const textOpacity = isCover ? theme.coverTextOpacity : theme.textOpacity
 
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
   if (options.backgroundImage?.complete) ctx.drawImage(options.backgroundImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -191,7 +207,7 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
     row.ranges.forEach((range) => {
       const before = ctx.measureText(row.text.slice(0, range.start)).width
       const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
-      const pad = fontSize * 0.14
+      const pad = fontSize * 0.3
       ctx.save()
       ctx.globalAlpha = 0.95
       ctx.fillStyle = theme.accent
@@ -199,8 +215,8 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       ctx.restore()
     })
 
-    ctx.globalAlpha = settings.mode === 'dark' ? theme.textOpacity : theme.textOpacity
-    ctx.fillStyle = theme.text
+    ctx.globalAlpha = textOpacity
+    ctx.fillStyle = textColor
     ctx.fillText(row.text, centerX, y)
 
     row.ranges.forEach((range) => {
@@ -208,7 +224,7 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
       ctx.save()
       ctx.beginPath()
-      const pad = fontSize * 0.3
+      const pad = fontSize * 0.55
       ctx.rect(right - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
       ctx.clip()
       ctx.globalAlpha = 1

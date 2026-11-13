@@ -25,7 +25,7 @@ import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
-import { CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, SAFE_AREA, THEMES, drawPost, type CreatorKind, type CreatorMode, type CreatorSettings } from '@/lib/creator'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, SAFE_AREA, THEMES, drawPost, type CreatorKind, type CreatorMode, type CreatorSettings } from '@/lib/creator'
 
 const DEFAULT_BODY = `گاهی دلم برای بچگی‌هام خیلی تنگ میشه...
 برای عصرهایی که می‌رفتیم سر کوچه و با بچه‌های همسایه بازی می‌کردیم
@@ -50,12 +50,13 @@ export default function CreatorPage() {
     lineHeight: THEMES.dark.lineHeight,
     offsetY: 0,
     background: THEMES.dark.background,
-    backgroundImage: null,
+    backgroundImage: BACKGROUNDS.dark.text,
     showSafeArea: true,
   })
   const [reel, setReel] = useState<{ url: string; code: string } | null>(null)
   const [audioNote, setAudioNote] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+  const [backgroundVersion, setBackgroundVersion] = useState(0)
 
   const theme = THEMES[settings.mode]
 
@@ -92,13 +93,16 @@ export default function CreatorPage() {
       image.onload = () => {
         imageRef.current = image
         setReady(true)
+        setBackgroundVersion((value) => value + 1)
       }
       image.onerror = () => {
         imageRef.current = null
         setReady(true)
+        setBackgroundVersion((value) => value + 1)
       }
     } else {
       imageRef.current = null
+      setBackgroundVersion((value) => value + 1)
     }
   }, [settings.backgroundImage])
 
@@ -108,15 +112,16 @@ export default function CreatorPage() {
     if (!context) return
     if (!ready) return
     drawPost(context, settings, { backgroundImage: imageRef.current })
-  }, [settings, ready])
+  }, [settings, ready, backgroundVersion])
 
   const patch = (values: Partial<CreatorSettings>) => setSettings((current) => ({ ...current, ...values }))
 
   const switchMode = (mode: CreatorMode) => {
     patch({
       mode,
-      fontSize: THEMES[mode].fontSize,
-      lineHeight: THEMES[mode].lineHeight,
+      fontSize: settings.kind === 'cover' ? COVER_FONT.fontSize : THEMES[mode].fontSize,
+      lineHeight: settings.kind === 'cover' ? COVER_FONT.lineHeight : THEMES[mode].lineHeight,
+      backgroundImage: BACKGROUNDS[mode][settings.kind],
     })
   }
 
@@ -125,6 +130,8 @@ export default function CreatorPage() {
       kind,
       fontSize: kind === 'cover' ? COVER_FONT.fontSize : THEMES[settings.mode].fontSize,
       lineHeight: kind === 'cover' ? COVER_FONT.lineHeight : THEMES[settings.mode].lineHeight,
+      offsetY: kind === 'cover' ? COVER_OFFSET : 0,
+      backgroundImage: BACKGROUNDS[settings.mode][kind],
     })
   }
 
@@ -277,7 +284,7 @@ export default function CreatorPage() {
                   <Button
                     size="small"
                     startIcon={<RestartAltRoundedIcon />}
-                    onClick={() => patch({ backgroundImage: null })}
+                    onClick={() => patch({ backgroundImage: BACKGROUNDS[settings.mode][settings.kind] })}
                     disabled={!settings.backgroundImage}
                   >
                     حذف تصویر
