@@ -14,6 +14,7 @@ Repo: HosseinHeydarpour/rozetext (private)
 - `rozetext-login` — authenticated Instagram session. Load before any task that needs private account data (insights, inbox, comments).
 - `rozetext-data-collect-account-login` — separate session for the data-collection burner account. Load when a task could risk the page account. Never replaces the page session.
 - `rozetext-hunt-benchmark-accounts` — verify and discover benchmark accounts with the collector account. Stores profile stats and avatars in `data/benchmark-accounts/`.
+- `rozetext-content-hunt` — hunt proven texts from benchmark accounts, hashtags and explore, copy the exact on-screen text, score it, and queue the high-probability ones in `data/main-database/reels_database.json`.
 - `rozetext-direct-admin`: cautious inbox replies. Scans threads read-only, drafts warm Persian replies, and sends only after explicit approval.
 
 ## Where things live

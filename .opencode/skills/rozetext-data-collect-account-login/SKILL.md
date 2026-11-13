@@ -35,6 +35,19 @@ Posting, DMs, follows and comments stay off limits from this account. It is a re
 5. If the user wants to type the password themselves: `npm run login:collect -- --manual`.
 6. Check the `pid` in the status file before a new run; never start a second collect login while one is active.
 
+## Verify before handoff
+
+A saved session proves a login happened, not who is logged in. Before another skill uses this session for content hunting, benchmark hunting or bulk reads:
+
+1. `runtime/collect-login.json` must say `state: "ok"`.
+2. Read the handle from the live profile at `https://www.instagram.com/`, or let the calling script read it. The storage-state file does not contain the handle.
+3. The handle must equal `IG_COLLECT_USERNAME` and must not equal `IG_USERNAME` or `rozetext.ir`.
+4. If the page account opens, stop. Do not browse, screenshot, like or follow. Nothing from this session is safe to use.
+
+Report the result as `collector verified: <handle>`. A caller that does not see this line must not start.
+
+The extraction script also enforces this at runtime: it reads the live handle, refuses `rozetext.ir`, and halts with `needs_session` on any mismatch. Do not bypass that check.
+
 ## Session import (when password login is blocked)
 
 Use this when Instagram rejects the password, or the user already has a valid session for the collect account.

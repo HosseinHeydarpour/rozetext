@@ -1,0 +1,214 @@
+# Database contract
+
+Four places hold the hunt. They do different jobs.
+
+| file | job |
+|---|---|
+| `data/main-database/reels_database.json`, `accounts.Default` | the page's reels, plus selected hunted texts |
+| same file, `accounts.hunt` | staging for extraction only |
+| `data/content-hunt/candidates.json` | score, provenance and pipeline status |
+| `data/hunted-candidates/<date>/candidates.json` | the dashboard's daily snapshot |
+
+The source shortcode is the key in all three, so a text can be traced from the queue to the database.
+
+## `accounts.Default`
+
+The page's own 512 reels live here and are never modified by the hunt.
+
+A hunted text enters this account only after scoring above 65. It gets the page's normal item shape, with only `caption` and `content` filled:
+
+```json
+"DfW7ev_zMTY": {
+  "url": "",
+  "date": "",
+  "caption": "exact caption",
+  "content": "exact on-screen text",
+  "prediction": "",
+  "is_flopped": false,
+  "is_new": false,
+  "is_updated": false,
+  "last_stats": null
+}
+```
+
+Every other field is empty. No source numbers, no source URL, no score.
+
+| field | filled when | meaning |
+|---|---|---|
+| `caption` | selection | exact caption of the source, ending with ` #رزتکست` |
+| `content` | selection | exact on-screen text of the source |
+| `url` | after publishing | the page's own reel URL |
+| `date` | after publishing | the page's publish date |
+| `last_stats` | after measuring | `{views, followers, share, save}` from the page's own export |
+| `prediction`, `is_flopped`, `is_new`, `is_updated` | never by the hunt | leave the defaults |
+
+Rules:
+
+- The item key is the **source** shortcode. It does not change after publishing.
+- The final caption ends with ` #رزتکست`. Remove any `#رزتکست` from the source caption first, so it appears once. Never add it to `content`.
+- Until the page publishes, `url` is empty and `last_stats` is null. The dashboard will show the item with 0 views and a FLOP tier; that is expected and correct, it has no result yet.
+- After publishing, fill `url`, `date` and later `last_stats`. Do not put the source account's metrics here.
+- Writes are atomic: write `.tmp`, then rename. UTF-8, no BOM.
+
+## `accounts.hunt` (staging)
+
+Only exists between discovery and scoring. Each item carries what extraction needs:
+
+```json
+"DfW7ev_zMTY": {
+  "url": "https://www.instagram.com/reel/DfW7ev_zMTY/",
+  "caption": "exact caption",
+  "content": "",
+  "source_account_id": "17841400000000000",
+  "source_handle": "shadighorbanyy",
+  "benchmark_account_id": "@shadighorbanyy",
+  "method": "benchmark",
+  "found_at": "2026-11-13T02:26:31.749Z"
+}
+```
+
+- `source_account_id` is the numeric id when the API returns it, otherwise the handle.
+- `benchmark_account_id` is the numeric id when the source is a benchmark account, otherwise its registry handle.
+- `content` is filled by `update-reels-content.mjs --apply`.
+- After scoring, a selected item is copied to `Default` and deleted here. A rejected item is deleted here and kept in the queue as a row.
+- The account is empty after a clean run. If it is not empty, the run did not finish; resume from scoring, not from discovery.
+
+## `data/content-hunt/candidates.json`
+
+The ranked queue holds what the database no longer holds: score, lift, provenance and status.
+
+```json
+{
+  "meta": { "updated_at": "2026-11-13T…", "count": 1 },
+  "items": {
+    "DfW7ev_zMTY": {
+      "shortcode": "DfW7ev_zMTY",
+      "score": 79,
+      "band": "A",
+      "fit": 45,
+      "proof": 25,
+      "lift": 3.4,
+      "lines": 16,
+      "hook": "letter",
+      "theme": "دوری/جدایی",
+      "reasons": ["۱۶ خط", "شروع نامه‌وار", "لیفت ۳.۴ برابر اکانت منبع"],
+      "status": "selected",
+      "source_handle": "shadighorbanyy",
+      "source_url": "https://www.instagram.com/reel/DfW7ev_zMTY/",
+      "method": "benchmark",
+      "found_at": "2026-11-13T…",
+      "published_url": "",
+      "measured_views": null
+    }
+  }
+}
+```
+
+| status | meaning |
+|---|---|
+| `selected` | score above 65, the text is in `accounts.Default` |
+| `rejected` | score 65 or below, no text in the database |
+| `published` | the page posted it; `published_url` is set |
+| `measured` | 7 or 30 day numbers are in |
+
+`lift` is the source post's views divided by the source account's median. `proof` is 0 when no median exists, and the score is capped at 70.
+
+## `data/hunted-candidates/<YYYY-MM-DD>/candidates.json`
+
+The dashboard's daily snapshot. Written after scoring, only for selected candidates (`score > 65`). Date is the run date in Asia/Tehran.
+
+```json
+{
+  "date": "2026-11-13",
+  "run_at": "2026-11-13T10:20:00.000Z",
+  "collector": "hosseinheydarpour",
+  "count": 3,
+  "published": 0,
+  "cost_usd": 1.38,
+  "candidates": [
+    {
+      "shortcode": "DfW7ev_zMTY",
+      "rank": 1,
+      "score": 79,
+      "band": "A",
+      "fit": 45,
+      "proof": 25,
+      "lift": 3.4,
+      "lines": 16,
+      "hook": "letter",
+      "theme": "دوری/جدایی",
+      "reasons": ["۱۶ خط", "شروع نامه‌وار", "لیفت ۳.۴ برابر اکانت منبع"],
+      "source_handle": "shadighorbanyy",
+      "source_account_id": "17841400000000000",
+      "source_name": "شادی قربانی",
+      "source_url": "https://www.instagram.com/reel/DfW7ev_zMTY/",
+      "source_posted_at": "2026-10-31T06:59:00",
+      "source_views": 1100000,
+      "source_likes": null,
+      "source_comments": null,
+      "source_median": 320000,
+      "method": "benchmark",
+      "benchmark_account_id": "@shadighorbanyy",
+      "caption": "کپشن دقیق پیج مادر",
+      "content": "متن دقیق روی ریل",
+      "final_caption": "کپشن دقیق پیج مادر #رزتکست",
+      "duration_sec": 8,
+      "visual_note": "پس‌زمینه مشکی، متن سفید وسط‌چین",
+      "cover_url": "",
+      "published": false,
+      "published_url": "",
+      "published_at": "",
+      "status": "selected",
+      "found_at": "2026-11-13T10:12:00.000Z"
+    }
+  ]
+}
+```
+
+Field notes:
+
+| field | why it is there |
+|---|---|
+| `rank`, `score`, `band`, `fit`, `proof`, `lift`, `reasons` | why this text was picked |
+| `source_handle`, `source_account_id`, `source_name`, `source_url` | the mother page, for credit and traceability |
+| `source_posted_at`, `source_views`, `source_likes`, `source_comments`, `source_median` | how the source performed; `null` when the API did not return it |
+| `method`, `benchmark_account_id` | how it was found and which benchmark account it belongs to |
+| `caption`, `content` | the exact source caption and on-screen text |
+| `final_caption` | the caption to publish, ending with `#رزتکست` |
+| `lines`, `hook`, `theme` | the text shape that drives the score |
+| `duration_sec`, `visual_note`, `cover_url` | production hints; empty when unknown |
+| `published`, `published_url`, `published_at` | the publish flag and its evidence |
+| `status`, `found_at` | pipeline state and timestamp |
+
+Rules:
+
+- Only selected candidates. Rejected ones stay in the queue, not here.
+- One folder per day. A second run merges by `shortcode`, re-ranks, and updates `count`.
+- `published` is a boolean and starts `false`. It turns `true` only when the page's own reel URL exists.
+- `source_likes` and `source_comments` stay `null` when the API does not return them. Do not write 0 as a stand-in.
+- Writes are atomic. UTF-8, no BOM.
+
+The dashboard reads it through `GET /api/hunted` (latest day) or `GET /api/hunted?date=YYYY-MM-DD`.
+
+## Run log
+
+`data/content-hunt/runs/<YYYY-MM-DD>.json` holds the raw discovery pages and the cost:
+
+```json
+{
+  "date": "2026-11-13",
+  "collector": "hosseinheydarpour",
+  "methods": { "benchmark": 18, "hashtag": 5, "explore": 2 },
+  "pages_per_account": 3,
+  "calls": 62,
+  "cost_usd": 1.384,
+  "discovered": 2700,
+  "kept": 40,
+  "extracted": 20,
+  "scored": 20,
+  "selected": 3,
+  "errors": []
+}
+```
+
+No metric enters the database or the queue without `fetched_at` in the run log or `found_at` in the item.

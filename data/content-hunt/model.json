@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "kind": "heuristic",
+  "source": "512 reels, 2026-08-14 to 2026-11-11",
+  "base_viral_rate": 21.7,
+  "viral_threshold": 300000,
+  "selection_threshold": 65,
+  "bands": {
+    "A": 66,
+    "B": 45
+  },
+  "expected_viral_rate": {
+    "A": "40-50%",
+    "B": "20-30%",
+    "C": "under 10%"
+  },
+  "accounts_per_run": {
+    "min": 15,
+    "default": 18,
+    "max": 20
+  },
+  "pages_per_account": 3,
+  "reels_per_page": 50,
+  "recalibrate_after": 20,
+  "last_calibration": null
+}

@@ -8197,6 +8197,10 @@
           }
         }
       }
+    },
+    "hunt": {
+      "last_updated": "Never",
+      "items": {}
     }
   }
 }

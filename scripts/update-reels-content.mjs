@@ -57,8 +57,9 @@ function halt(state, message, code = 2) {
 
 if (!fs.existsSync(dbPath)) stop('error', 'reels database not found: data/main-database/reels_database.json')
 const db = JSON.parse(fs.readFileSync(dbPath, 'utf8').replace(/^\uFEFF/, ''))
-const account = db.accounts?.[db.active_account]
-if (!account?.items) stop('error', `active account "${db.active_account}" has no items`)
+const accountName = (flag('account') || db.active_account).trim()
+const account = db.accounts?.[accountName]
+if (!account?.items) stop('error', `account "${accountName}" has no items`)
 const items = account.items
 
 function save() {
