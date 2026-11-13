@@ -25,7 +25,8 @@ import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
-import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, drawPost, deriveHook, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+import MovieRoundedIcon from '@mui/icons-material/MovieRounded'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, downloadBlob, drawPost, deriveHook, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
 
 const STORAGE_KEY = 'rozetext-creator'
 
@@ -73,7 +74,8 @@ export default function CreatorPage() {
     showSafeArea: true,
   })
   const [reel, setReel] = useState<{ url: string; code: string } | null>(null)
-  const [audioNote, setAudioNote] = useState<string | null>(null)
+  const [buildingClip, setBuildingClip] = useState<'video' | 'audio' | null>(null)
+  const [clipNote, setClipNote] = useState<{ severity: 'success' | 'info' | 'error'; message: string } | null>(null)
   const [ready, setReady] = useState(false)
   const [backgroundVersion, setBackgroundVersion] = useState(0)
   const [customColor, setCustomColor] = useState(false)
@@ -214,6 +216,36 @@ export default function CreatorPage() {
       offsetY: kind === 'cover' ? COVER_OFFSET : 0,
       backgroundImage: BACKGROUNDS[settings.mode][kind],
     })
+  }
+
+  /** One click: current frame as PNG + the reel's audio → MP4 from the server. */
+  const buildClip = async (format: 'video' | 'audio') => {
+    if (!reel?.url || !canvasRef.current) return
+    setBuildingClip(format)
+    setClipNote({ severity: 'info', message: format === 'video' ? 'صدا استخراج و کلیپ ساخته می‌شود…' : 'صدا استخراج می‌شود…' })
+    try {
+      const image = format === 'video' ? canvasRef.current.toDataURL('image/png') : undefined
+      const response = await fetch('/api/clip', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ url: reel.url, image, format }),
+      })
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { error?: string }
+        throw new Error(body.error ?? 'ساخت کلیپ ناموفق بود.')
+      }
+      const blob = await response.blob()
+      const extension = format === 'video' ? 'mp4' : 'm4a'
+      downloadBlob(blob, `rozetext-${reel.code || 'reel'}-${Date.now()}.${extension}`)
+      setClipNote({
+        severity: 'success',
+        message: format === 'video' ? 'کلیپ ساخته شد و دانلود شد.' : 'صدای ریل جدا شد و دانلود شد.',
+      })
+    } catch (cause) {
+      setClipNote({ severity: 'error', message: String((cause as Error).message ?? cause) })
+    } finally {
+      setBuildingClip(null)
+    }
   }
 
   const download = () => {
@@ -543,8 +575,7 @@ export default function CreatorPage() {
           <Card sx={{ mt: 3 }}>
             <CardHeader
               title="مدیریت صدای ریلز"
-              subheader="صدا از لینک ریلز جدا می‌شود و متن تکست‌گرافی روی آن می‌نشیند."
-              action={<Chip size="small" color="warning" label="فاز بعدی" />}
+              subheader="صدا از لینک ریل جدا می‌شود و کاور روی آن می‌نشیند؛ خروجی یک MP4 آمادهٔ انتشار است."
             />
             <CardContent sx={{ pt: 0 }}>
               <Stack spacing={2}>
@@ -557,21 +588,26 @@ export default function CreatorPage() {
                 />
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                   <Button
+                    variant="contained"
+                    startIcon={<MovieRoundedIcon />}
+                    disabled={!reel?.url || buildingClip !== null}
+                    onClick={() => void buildClip('video')}
+                  >
+                    {buildingClip === 'video' ? 'در حال ساخت کلیپ…' : 'ساخت کلیپ با یک کلیک'}
+                  </Button>
+                  <Button
                     variant="outlined"
                     startIcon={<GraphicEqRoundedIcon />}
-                    onClick={() =>
-                      setAudioNote(
-                        'استخراج صدا هنوز به ffmpeg و نشست اینستاگرام وصل نشده است؛ این بخش در فاز بعدی فعال می‌شود و تا آن زمان هیچ فایلی ساخته نمی‌شود.',
-                      )
-                    }
+                    disabled={!reel?.url || buildingClip !== null}
+                    onClick={() => void buildClip('audio')}
                   >
-                    جدا سازی صدا
-                  </Button>
-                  <Button variant="contained" disabled>
-                    ساخت ویدیو
+                    {buildingClip === 'audio' ? 'در حال استخراج…' : 'فقط صدا'}
                   </Button>
                 </Stack>
-                {audioNote ? <Alert severity="info">{audioNote}</Alert> : null}
+                <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>
+                  کلیپ از کاورِ همین پیش‌نمایش ساخته می‌شود؛ اگر می‌خواهی متن هم روی ویدیو باشد، حالت «متن تکست‌گرافی» را انتخاب کن.
+                </Typography>
+                {clipNote ? <Alert severity={clipNote.severity}>{clipNote.message}</Alert> : null}
                 <Divider />
                 <Stack spacing={1.5}>
                   <Typography sx={{ fontSize: 13, fontWeight: 600 }}>متن آماده برای ساخت ویدیو</Typography>

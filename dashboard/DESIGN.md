@@ -71,7 +71,7 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 - `*word*` marks a highlighted run; the band is drawn from measured glyph positions, then the run is re-drawn in the accent's contrast color.
 - Fonts are self-hosted from `public/fonts`: `IRLotus-Regular.ttf`, `IRLotus-Bold.ttf`, `IRTitr-Regular.ttf` (copied from the system fonts the design uses).
 
-The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `data/main-database/reels_database.json` and the test hook/body, and states that extraction is not wired to ffmpeg yet instead of faking a result.
+The reel-audio card prefills a reel link from `data/main-database/reels_database.json`. «ساخت کلیپ با یک کلیک» sends the current canvas frame and the link to `/api/clip`, which extracts the audio with yt-dlp and muxes it with the still frame through ffmpeg (1080×1920, H.264 + AAC, `-shortest`); «فقط صدا» returns the m4a alone. No Instagram session is needed for public reels; private ones fail with the yt-dlp error shown in the card.
 
 ## Settings
 
