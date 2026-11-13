@@ -37,6 +37,7 @@ import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded'
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded'
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded'
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
+import EventAvailableRoundedIcon from '@mui/icons-material/EventAvailableRounded'
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded'
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
@@ -63,6 +64,7 @@ const navItems: NavItem[] = [
     icon: <ArticleRoundedIcon />,
     children: [
       { to: '/content/creator', label: 'محتوا ساز', icon: <AutoAwesomeRoundedIcon fontSize="small" /> },
+      { to: '/content/schedule', label: 'محتوای آماده انتشار', icon: <EventAvailableRoundedIcon fontSize="small" /> },
       { to: '/content/analyzer', label: 'آنالیزور', icon: <InsightsRoundedIcon fontSize="small" /> },
       { to: '/content/benchmark', label: 'اکانت‌های مرجع', icon: <GroupsRoundedIcon fontSize="small" /> },
       { to: '/content', label: 'پست‌ها', icon: <GridViewRoundedIcon fontSize="small" /> },
