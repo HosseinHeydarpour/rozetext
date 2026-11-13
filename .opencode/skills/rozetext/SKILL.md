@@ -13,6 +13,7 @@ Repo: HosseinHeydarpour/rozetext (private)
 
 - `rozetext-login` — authenticated Instagram session. Load before any task that needs private account data (insights, inbox, comments).
 - `rozetext-data-collect-account-login` — separate session for the data-collection burner account. Load when a task could risk the page account. Never replaces the page session.
+- `rozetext-direct-admin`: cautious inbox replies. Scans threads read-only, drafts warm Persian replies, and sends only after explicit approval.
 
 ## Where things live
 
