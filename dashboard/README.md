@@ -19,7 +19,7 @@ npm run dashboard:dev
 npm run dashboard:build
 ```
 
-`next dev`/`next start` must run from this folder: the API reads `../data/reels_database.json` relative to the working directory.
+`next dev`/`next start` must run from this folder: the API reads `../data/main-database/reels_database.json` relative to the working directory.
 
 ## Routes
 

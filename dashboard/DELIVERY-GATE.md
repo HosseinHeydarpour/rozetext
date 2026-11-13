@@ -18,7 +18,7 @@ Measured in the running app and compared to the Figma node data (`1:4641` dashbo
 
 - R-02 PASS: no em dash in rendered dashboard text.
 - R-03 PASS: no horizontal document overflow at 1518 px; the tables scroll inside their card.
-- R-17 PASS: every number comes from `data/exports` (snapshot) or `data/reels_database.json`. No hand-typed metric.
+- R-17 PASS: every number comes from `data/exports` (snapshot) or `data/main-database/reels_database.json`. No hand-typed metric.
 - R-18 PASS: no testimonials or invented people.
 - R-23 PASS: the drawer monogram and AppBar avatar are placeholders.
 - R-24 PASS: `/`, `/content`, `/content/analyzer`, `/audience` all resolve; menu «محتوا» holds the analyzer first.
@@ -33,7 +33,7 @@ Measured in the running app and compared to the Figma node data (`1:4641` dashbo
 ## Block 2: Analyzer (port of `instagram_analyzer_app.py`)
 
 - Load PASS: 512 reels, 118.9M total views, median 50,025, 111 viral / 344 mid / 57 flop.
-- Edit PASS: saving manual content wrote through to `data/reels_database.json`.
+- Edit PASS: saving manual content wrote through to `data/main-database/reels_database.json`.
 - Flop PASS: toggle writes only `is_flopped` for that item.
 - CSV PASS: two-row import reported «۲ ریل جدید» and created them under the active account only.
 - JSON PASS: «۱ محتوا آپدیت شد، ۱ ریل پیدا نشد».

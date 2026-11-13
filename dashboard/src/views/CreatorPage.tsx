@@ -40,10 +40,13 @@ const DEFAULT_HOOK = `من منتظر جبران
 
 interface StoredSettings {
   textColor: string
+  highlightColor: string
   safeArea: SafeArea
   highlight: HighlightEffect
   align: 'center' | 'right'
+  offsetX: number
   textColorCustom: boolean
+  highlightColorCustom: boolean
 }
 
 export default function CreatorPage() {
@@ -61,7 +64,9 @@ export default function CreatorPage() {
     fontSize: THEMES.dark.fontSize,
     lineHeight: THEMES.dark.lineHeight,
     offsetY: 0,
+    offsetX: 0,
     textColor: THEMES.dark.text,
+    highlightColor: THEMES.dark.accent,
     safeArea: { ...DEFAULT_SAFE_AREA },
     background: THEMES.dark.background,
     backgroundImage: BACKGROUNDS.dark.text,
@@ -72,6 +77,7 @@ export default function CreatorPage() {
   const [ready, setReady] = useState(false)
   const [backgroundVersion, setBackgroundVersion] = useState(0)
   const [customColor, setCustomColor] = useState(false)
+  const [customHighlight, setCustomHighlight] = useState(false)
 
   const theme = THEMES[settings.mode]
 
@@ -84,11 +90,14 @@ export default function CreatorPage() {
       setSettings((current) => ({
         ...current,
         textColor: stored.textColor ?? current.textColor,
+        highlightColor: stored.highlightColor ?? current.highlightColor,
         safeArea: { ...current.safeArea, ...(stored.safeArea ?? {}) },
         highlight: stored.highlight ?? current.highlight,
         align: stored.align ?? current.align,
+        offsetX: stored.offsetX ?? current.offsetX,
       }))
       setCustomColor(Boolean(stored.textColorCustom))
+      setCustomHighlight(Boolean(stored.highlightColorCustom))
     } catch {
       // a broken saved value should never block the editor
     }
@@ -97,13 +106,16 @@ export default function CreatorPage() {
   useEffect(() => {
     const payload: StoredSettings = {
       textColor: settings.textColor,
+      highlightColor: settings.highlightColor,
       safeArea: settings.safeArea,
       highlight: settings.highlight,
       align: settings.align,
+      offsetX: settings.offsetX,
       textColorCustom: customColor,
+      highlightColorCustom: customHighlight,
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-  }, [settings.textColor, settings.safeArea, settings.highlight, settings.align, customColor])
+  }, [settings.textColor, settings.highlightColor, settings.safeArea, settings.highlight, settings.align, settings.offsetX, customColor, customHighlight])
 
   useEffect(() => {
     let cancelled = false
@@ -168,6 +180,7 @@ export default function CreatorPage() {
       lineHeight: settings.kind === 'cover' ? COVER_FONT.lineHeight : THEMES[mode].lineHeight,
       backgroundImage: BACKGROUNDS[mode][settings.kind],
       textColor: customColor ? settings.textColor : THEMES[mode].text,
+      highlightColor: customHighlight ? settings.highlightColor : THEMES[mode].accent,
     })
   }
 
@@ -297,6 +310,32 @@ export default function CreatorPage() {
                 </Stack>
 
                 <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, flexGrow: 1 }}>رنگ هایلایت</Typography>
+                  <Box
+                    component="input"
+                    type="color"
+                    value={settings.highlightColor}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      setCustomHighlight(true)
+                      patch({ highlightColor: event.target.value })
+                    }}
+                    sx={{ width: 44, height: 32, p: 0.5, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper', cursor: 'pointer' }}
+                    aria-label="رنگ هایلایت"
+                  />
+                  <Typography sx={{ fontSize: 12, color: 'text.secondary', direction: 'ltr' }}>{settings.highlightColor}</Typography>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      setCustomHighlight(false)
+                      patch({ highlightColor: theme.accent })
+                    }}
+                    disabled={!customHighlight}
+                  >
+                    پیش‌فرض
+                  </Button>
+                </Stack>
+
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                   <Typography sx={{ fontSize: 13, fontWeight: 600, flexGrow: 1 }}>رنگ متن</Typography>
                   <Box
                     component="input"
@@ -404,8 +443,16 @@ export default function CreatorPage() {
                     <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{settings.offsetY > 0 ? `+${settings.offsetY}` : settings.offsetY}px</Typography>
                   </Stack>
                   <Slider size="small" min={-420} max={420} step={10} value={settings.offsetY} onChange={(_, value) => patch({ offsetY: value as number })} />
+                </Stack>
+
+                <Stack spacing={1}>
+                  <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 600 }}>موقعیت افقی</Typography>
+                    <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{settings.offsetX > 0 ? `+${settings.offsetX}` : settings.offsetX}px</Typography>
+                  </Stack>
+                  <Slider size="small" min={-400} max={400} step={10} value={settings.offsetX} onChange={(_, value) => patch({ offsetX: value as number })} />
                   <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
-                    مرزهای امن از پنل بالا تنظیم می‌شوند؛ خط‌چین قرمز در پیش‌نمایش همان محدوده است.
+                    متن هرگز از محدودهٔ امن بیرون نمی‌زند؛ مرزها از پنل بالا قابل تغییرند.
                   </Typography>
                 </Stack>
 

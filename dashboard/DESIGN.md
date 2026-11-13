@@ -64,14 +64,14 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 - Canvas is 1080×1920 and is the preview itself, so the PNG export (`toBlob`, guide hidden) matches what you see.
 - Text alignment is a toggle: centred on the safe box, or flush to its right edge. Both wrap at the safe width.
 - Background art is exported straight from the Figma frames into `public/creator/`: `dark-text.png`, `dark-cover.png`, `light-cover.png`, `light-text.png`. Switching mode or kind swaps the art (and resets the vertical offset for covers). A real file upload replaces it.
-- Controls: mode (light/dark), kind (cover hook / body), alignment (centred or flush right), font size, line height, vertical offset, text colour, background image, highlight effect, safe-area edges.
-- Safe area defaults to 260 px top, 340 px bottom, 160 px right (action rail), 60 px left on 1080×1920; all four edges are editable and the dashed guide follows them.
-- Highlight effect is either a box behind the run (accent fill, contrast text) or a text-only recolour. `*word*` marks the run in both.
-- Text colour, safe area, highlight effect and alignment are stored in `localStorage` under `rozetext-creator`, so the setup survives a reload; the colour picker has a «پیش‌فرض» reset.
+- Controls: mode (light/dark), kind (cover hook / body), alignment (centred or flush right), font size, line height, vertical and horizontal position, text colour, highlight colour, background image, highlight effect, safe-area edges.
+- Horizontal and vertical sliders move the block but are clamped to the safe box, so text can never leave it. All four safe-area edges are editable and the dashed guide follows them.
+- Highlight effect is either a box behind the run (accent fill, contrast text picked from the fill's luminance) or a text-only recolour. `*word*` marks the run in both.
+- Text colour, highlight colour, safe area, highlight effect, alignment and horizontal offset are stored in `localStorage` under `rozetext-creator`, so the setup survives a reload; each colour picker has a «پیش‌فرض» reset.
 - `*word*` marks a highlighted run; the band is drawn from measured glyph positions, then the run is re-drawn in the accent's contrast color.
 - Fonts are self-hosted from `public/fonts`: `IRLotus-Regular.ttf`, `IRLotus-Bold.ttf`, `IRTitr-Regular.ttf` (copied from the system fonts the design uses).
 
-The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `reels_database.json` and the test hook/body, and states that extraction is not wired to ffmpeg yet instead of faking a result.
+The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `data/main-database/reels_database.json` and the test hook/body, and states that extraction is not wired to ffmpeg yet instead of faking a result.
 
 ## Benchmark accounts screen
 `/content/benchmark` reads `data/benchmark-accounts/benchmark_accounts.json` through `/api/benchmark` and shows one card per account: avatar (from the stored base64), Persian name, handle, cluster chip, followers/posts/following, average and record views, the content style and the matching archetypes. Four KPI cards (accounts, total followers, median, max) sit above a search field and a sort selector (followers / posts / alphabetical).

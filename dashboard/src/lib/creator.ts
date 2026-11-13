@@ -89,7 +89,9 @@ export interface CreatorSettings {
   fontSize: number
   lineHeight: number
   offsetY: number
+  offsetX: number
   textColor: string
+  highlightColor: string
   safeArea: SafeArea
   background: string
   backgroundImage: string | null
@@ -178,6 +180,19 @@ function drawSafeArea(ctx: CanvasRenderingContext2D, safe: SafeArea) {
   ctx.restore()
 }
 
+/** Pick black or white text for a highlight band so the run stays readable. */
+function contrastFor(color: string) {
+  const hex = color.replace('#', '')
+  if (hex.length !== 6) return '#FFFFFF'
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.6 ? '#141414' : '#FFFFFF'
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max))
+
 export interface DrawOptions {
   backgroundImage?: HTMLImageElement | null
   preview?: boolean
@@ -208,22 +223,28 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
   const blockCenter = (blockLeft + blockRight) / 2
   const isRight = settings.align === 'right'
   const maxWidth = Math.max(blockRight - blockLeft, 120)
+  const highlightColor = settings.highlightColor || theme.accent
 
   const rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
+  const widestRow = rows.reduce((widest, row) => Math.max(widest, ctx.measureText(row.text).width), 0)
   const blockHeight = Math.max(rows.length, 1) * lineHeight
   const top = safeArea.top + 40
   const bottom = CANVAS_HEIGHT - safeArea.bottom - 40
-  const center = Math.min(Math.max((top + bottom) / 2 + settings.offsetY, top + blockHeight / 2), bottom - blockHeight / 2)
+  const center = clamp((top + bottom) / 2 + settings.offsetY, top + blockHeight / 2, bottom - blockHeight / 2)
   const startY = center - blockHeight / 2 + lineHeight / 2
 
+  // the horizontal offset can shift the block, never past the safe box
+  const anchorX = isRight
+    ? clamp(blockRight + settings.offsetX, blockLeft + widestRow, blockRight)
+    : clamp(blockCenter + settings.offsetX, blockLeft + widestRow / 2, blockRight - widestRow / 2)
+
   ctx.textAlign = isRight ? 'right' : 'center'
-  const anchorX = isRight ? blockRight : blockCenter
 
   rows.forEach((row, index) => {
     if (!row.text) return
     const y = startY + index * lineHeight
     const width = ctx.measureText(row.text).width
-    const lineRight = isRight ? blockRight : blockCenter + width / 2
+    const lineRight = isRight ? anchorX : anchorX + width / 2
 
     if (boxHighlight) {
       row.ranges.forEach((range) => {
@@ -232,7 +253,7 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
         const pad = fontSize * 0.3
         ctx.save()
         ctx.globalAlpha = 0.95
-        ctx.fillStyle = theme.accent
+        ctx.fillStyle = highlightColor
         ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
         ctx.restore()
       })
@@ -251,7 +272,7 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       ctx.rect(lineRight - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
       ctx.clip()
       ctx.globalAlpha = 1
-      ctx.fillStyle = boxHighlight ? theme.onAccent : theme.highlightText
+      ctx.fillStyle = boxHighlight ? contrastFor(highlightColor) : highlightColor
       ctx.fillText(row.text, anchorX, y)
       ctx.restore()
     })
