@@ -41,7 +41,7 @@ const tierOf = (views: number) => (views >= 300000 ? 'وایرال' : views >= 1
 const tierColor = (views: number) => (views >= 300000 ? 'success' : views >= 10000 ? 'warning' : 'default') as 'success' | 'warning' | 'default'
 
 const ringSx = {
-  '& .MuiCircularProgress-circle': { stroke: 'rgba(255, 255, 255, 0.28)' },
+  '& .MuiCircularProgress-circle': { stroke: 'rgba(255, 255, 255, 0.35)' },
   '& .MuiCircularProgress-circleDeterminate': { stroke: '#FFFFFF', strokeLinecap: 'round' },
 } as const
 
@@ -285,13 +285,16 @@ export default function Overview() {
                 ]}
                 grid={{ horizontal: true }}
                 hideLegend
-                margin={{ left: 8, right: 20, top: 16, bottom: 8 }}
+                margin={{ left: 8, right: 20, top: 16, bottom: 0 }}
                 sx={{
                   '& .MuiLineElement-root': { strokeWidth: 2 },
                   '& .MuiChartsGrid-line': { strokeDasharray: '4 4', stroke: theme.palette.divider },
                 }}
               />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5, ps: '82px', pe: '20px' }}>
+              <Box
+                style={{ paddingLeft: 82, paddingRight: 20 }}
+                sx={{ display: 'flex', justifyContent: 'space-between', mt: '-10px', direction: 'ltr' }}
+              >
                 {[0, Math.floor(views.length / 4), Math.floor(views.length / 2), Math.floor((views.length * 3) / 4), views.length - 1].map((index) => (
                   <Typography key={index} sx={{ fontSize: 11, color: 'text.disabled' }}>
                     {dateFa(views[index]?.date ?? null)}
@@ -317,7 +320,7 @@ export default function Overview() {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>کد ریل</TableCell>
+                    <TableCell>عنوان</TableCell>
                     <TableCell>تاریخ</TableCell>
                     <TableCell align="center">ویو</TableCell>
                     <TableCell align="center">سیو</TableCell>
@@ -451,7 +454,7 @@ export default function Overview() {
             <Card sx={{ flex: 1, bgcolor: '#007867', color: '#FFFFFF', backgroundImage: 'none' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, height: '100%' }}>
                 <Box sx={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
-                  <CircularProgress variant="determinate" value={Math.min(100, (snapshot.kpis.saveRate ?? 0) * 1000)} size={80} thickness={4} sx={ringSx} />
+                  <CircularProgress variant="determinate" value={Math.min(100, (snapshot.kpis.saveRate ?? 0) * 1000)} size={84} thickness={5} sx={ringSx} />
                   <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
                     <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{pct((snapshot.kpis.saveRate ?? 0) * 100)}</Typography>
                   </Box>
@@ -466,7 +469,7 @@ export default function Overview() {
             <Card sx={{ flex: 1, bgcolor: '#006C9C', color: '#FFFFFF', backgroundImage: 'none' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, height: '100%' }}>
                 <Box sx={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
-                  <CircularProgress variant="determinate" value={snapshot.kpis.followersPct ?? 0} size={80} thickness={4} sx={ringSx} />
+                  <CircularProgress variant="determinate" value={snapshot.kpis.followersPct ?? 0} size={84} thickness={5} sx={ringSx} />
                   <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
                     <Typography sx={{ fontSize: 14, fontWeight: 700 }}>{pct(snapshot.kpis.followersPct ?? 0)}</Typography>
                   </Box>

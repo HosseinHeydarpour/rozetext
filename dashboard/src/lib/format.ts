@@ -75,6 +75,16 @@ export const usDateFa = (value: string) => {
   return new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'short', year: '2-digit' }).format(date)
 }
 
+/** Persian date + time for the stored `YYYY-MM-DD HH:mm:ss` stamps. */
+export const stampFa = (value: string) => {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
+  if (!match) return value
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]))
+  const day = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'short', year: 'numeric' }).format(date)
+  const pad = (value: number) => fa.format(value).padStart(2, '۰')
+  return `${day}، ${pad(Number(match[4]))}:${pad(Number(match[5]))}`
+}
+
 export const hourFa = (key: string) => {
   const match = key.match(/^(\d{1,2})(a|p)$/)
   if (!match) return key

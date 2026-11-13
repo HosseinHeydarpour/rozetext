@@ -33,7 +33,7 @@ import ImportCsvDialog from '@/components/analyzer/ImportCsvDialog'
 import ImportJsonDialog from '@/components/analyzer/ImportJsonDialog'
 import SelectionDialog from '@/components/analyzer/SelectionDialog'
 import ConfirmResetDialog from '@/components/analyzer/ConfirmResetDialog'
-import { fa, faCompact } from '@/lib/format'
+import { fa, faCompact, stampFa } from '@/lib/format'
 import { parseCsv } from '@/lib/csv'
 import {
   accountRows,
@@ -233,45 +233,58 @@ export default function AnalyzerPage() {
 
   return (
     <Box>
-      <PageHeader
-        title="آنالیزور محتوا"
-        subtitle="مدیریت و تحلیل ریل‌ها از روی دیتابیس reels_database.json؛ همان چرخهٔ ایمپورت، ویرایش و گزارش نسخهٔ دسکتاپ."
-        actions={
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-            <TextField
-              select
-              size="small"
-              label="حساب"
-              value={db?.active_account ?? ''}
-              onChange={(event) => void switchAccount(event.target.value)}
-              sx={{ minWidth: 140 }}
-              disabled={!db}
-            >
-              {db ? (
-                Object.keys(db.accounts).map((name) => (
-                  <MenuItem key={name} value={name}>
+      <Stack spacing={2} sx={{ mb: 3 }}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+            آنالیزور محتوا
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            مدیریت و تحلیل ریل‌ها روی دیتابیس{' '}
+            <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace', fontSize: 13 }}>
+              reels_database.json
+            </Box>{' '}
+            ؛ همان چرخهٔ ایمپورت، ویرایش و گزارش نسخهٔ دسکتاپ.
+          </Typography>
+        </Box>
+
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1, alignItems: 'center' }}>
+          <TextField
+            select
+            size="small"
+            label="حساب"
+            value={db?.active_account ?? ''}
+            onChange={(event) => void switchAccount(event.target.value)}
+            sx={{ minWidth: 150, mt: 0.5 }}
+            slotProps={{ inputLabel: { shrink: true } }}
+            disabled={!db}
+          >
+            {db ? (
+              Object.keys(db.accounts).map((name) => (
+                <MenuItem key={name} value={name}>
+                  <Box component="span" dir="ltr">
                     {name}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem value="">—</MenuItem>
-              )}
-            </TextField>
-            <Button size="small" variant="outlined" startIcon={<AddRoundedIcon />} onClick={() => setAccountOpen(true)} disabled={!db}>
-              حساب جدید
-            </Button>
-            <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setCsvOpen(true)} disabled={!db}>
-              ایمپورت CSV
-            </Button>
-            <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setJsonOpen(true)} disabled={!db}>
-              ایمپورت محتوا
-            </Button>
-            <Button size="small" variant="contained" startIcon={<DownloadRoundedIcon />} onClick={exportReport} disabled={!db}>
-              گزارش
-            </Button>
-          </Stack>
-        }
-      />
+                  </Box>
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="">—</MenuItem>
+            )}
+          </TextField>
+          <Button size="small" variant="outlined" startIcon={<AddRoundedIcon />} onClick={() => setAccountOpen(true)} disabled={!db}>
+            حساب جدید
+          </Button>
+          <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setCsvOpen(true)} disabled={!db}>
+            ایمپورت CSV
+          </Button>
+          <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setJsonOpen(true)} disabled={!db}>
+            ایمپورت محتوا
+          </Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button size="small" variant="contained" startIcon={<DownloadRoundedIcon />} onClick={exportReport} disabled={!db}>
+            گزارش
+          </Button>
+        </Stack>
+      </Stack>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {kpis.map((kpi) => (
@@ -298,13 +311,14 @@ export default function AnalyzerPage() {
                 نمایش {fa.format(selected.length)} کد
               </Button>
             ) : null}
-            <Box sx={{ flexGrow: 1 }} />
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
               <Chip size="small" label={`جدید: ${fa.format(stats.newCount)}`} color="success" />
               <Chip size="small" label={`آپدیت‌شده: ${fa.format(stats.updatedCount)}`} color="warning" />
               <Chip size="small" label={`فلپ دستی: ${fa.format(stats.flopped)}`} />
-              <Chip size="small" label={`آخرین ذخیره: ${activeAccount?.last_updated ?? '—'}`} />
+              <Chip size="small" label={`آخرین ذخیره: ${activeAccount?.last_updated ? stampFa(activeAccount.last_updated) : '—'}`} />
             </Stack>
+            <Box sx={{ flexGrow: 1 }} />
+            <Box sx={{ flexGrow: 1 }} />
             <Button size="small" color="error" startIcon={<DeleteSweepRoundedIcon />} onClick={() => setResetOpen(true)} disabled={!db}>
               پاک‌کردن داده
             </Button>

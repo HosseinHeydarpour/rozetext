@@ -3,7 +3,7 @@ import { Box, Stack, Typography } from '@mui/material'
 
 interface PageHeaderProps {
   title: string
-  subtitle: string
+  subtitle: ReactNode
   actions?: ReactNode
 }
 
