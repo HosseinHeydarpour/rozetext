@@ -224,38 +224,6 @@ export function mergeCsv(db: ReelsDb, table: string[][]): CsvImportResult {
   }
 }
 
-export interface ContentImportResult {
-  db: ReelsDb
-  updated: number
-  notFound: number
-}
-
-/** Port of `import_content_json`; only reels that already exist are updated. */
-export function applyContentJson(db: ReelsDb, parsed: unknown): ContentImportResult {
-  if (!Array.isArray(parsed)) throw new Error('ریشهٔ JSON باید یک آرایه باشد.')
-  const next: ReelsDb = structuredClone(db)
-  const account = next.accounts[next.active_account]
-  let updated = 0
-  let notFound = 0
-
-  for (const entry of parsed) {
-    if (!entry || typeof entry !== 'object') continue
-    const record = entry as Record<string, unknown>
-    const id = String(record.reelsId ?? record.reelId ?? record.reels_id ?? record.id ?? '').trim()
-    if (!id) continue
-    const text = String(record.content ?? record.conetnt ?? '').trim()
-    if (!account.items[id]) {
-      notFound += 1
-      continue
-    }
-    account.items[id] = { ...account.items[id], content: text }
-    updated += 1
-  }
-
-  if (updated > 0) account.last_updated = new Date().toISOString().slice(0, 19).replace('T', ' ')
-  return { db: next, updated, notFound }
-}
-
 const tierBadge = (views: number) => (views >= VIRAL ? '🔥 [VIRAL]' : views >= MID ? '⚡ [MID]' : '❌ [FLOP]')
 
 /** Port of `export_report`; same field order and tier thresholds. */
