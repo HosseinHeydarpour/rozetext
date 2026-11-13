@@ -11,10 +11,11 @@ const START_YEAR = 2026
 const START_MONTH = 'August'
 const START_DAY = 1
 const today = new Date()
-const TODAY_MONTH = today.toLocaleString('en-US', { month: 'long' })
-const TODAY_DAY = today.getDate()
-const TODAY_YEAR = today.getFullYear()
-const TODAY_LABEL = `${TODAY_MONTH} ${TODAY_DAY}, ${TODAY_YEAR}`
+const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
+const END_MONTH = end.toLocaleString('en-US', { month: 'long' })
+const END_DAY = end.getDate()
+const END_YEAR = end.getFullYear()
+const END_LABEL = `${END_MONTH} ${END_DAY}, ${END_YEAR}`
 
 try {
   process.loadEnvFile(path.join(ROOT, '.env'))
@@ -102,12 +103,12 @@ try {
   await wait(800, 1200)
 
   for (let i = 0; i < 12; i += 1) {
-    if (await page.getByText(`${TODAY_MONTH} ${TODAY_YEAR}`, { exact: true }).first().isVisible().catch(() => false)) break
+    if (await page.getByText(`${END_MONTH} ${END_YEAR}`, { exact: true }).first().isVisible().catch(() => false)) break
     await next.click({ force: true })
     await wait(700, 1000)
   }
 
-  const endDay = page.getByRole('button', { name: new RegExp(`${TODAY_DAY} ${TODAY_MONTH} ${TODAY_YEAR}`) }).first()
+  const endDay = page.getByRole('button', { name: new RegExp(`${END_DAY} ${END_MONTH} ${END_YEAR}`) }).first()
   await endDay.click({ force: true })
   await wait(800, 1200)
 
@@ -115,14 +116,14 @@ try {
   await update.click({ force: true })
   await wait(1200, 1800)
 
-  const rangeLabel = `${START_MONTH.slice(0, 3)} ${START_DAY} - ${TODAY_MONTH.slice(0, 3)} ${TODAY_DAY}`
+  const rangeLabel = `${START_MONTH.slice(0, 3)} ${START_DAY} - ${END_MONTH.slice(0, 3)} ${END_DAY}`
   const rows = page.getByRole('menuitem').filter({ hasText: new RegExp(rangeLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
   const rowsBefore = await rows.count().catch(() => 0)
 
   const generate = page.getByRole('button', { name: /^generate$/i }).first()
   await generate.click({ force: true })
   await wait(4000, 5000)
-  setState('generated', { range: `${START_MONTH} ${START_DAY}, ${START_YEAR} - ${TODAY_LABEL}` })
+  setState('generated', { range: `${START_MONTH} ${START_DAY}, ${START_YEAR} - ${END_LABEL}` })
 
   const newRowDeadline = Date.now() + 60_000
   while (Date.now() < newRowDeadline) {
@@ -131,7 +132,7 @@ try {
   }
 
   let ready = false
-  const deadline = Date.now() + 10 * 60_000
+  const deadline = Date.now() + 20 * 60_000
   let lastRefresh = Date.now()
   while (Date.now() < deadline) {
     const firstRow = rows.first()
@@ -154,7 +155,7 @@ try {
   }
 
   if (!ready) {
-    setState('needs_download', { message: 'Export did not reach 100% within 10 minutes; check Recent exports in the open window.' })
+    setState('needs_download', { message: 'Export did not reach 100% within 20 minutes; check Recent exports in the open window.' })
     process.exitCode = 4
   } else {
     const row = rows.first()
