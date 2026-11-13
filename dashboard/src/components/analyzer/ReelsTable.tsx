@@ -68,8 +68,7 @@ function Tik({ value }: { value: string }) {
 export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initialSearch = '' }: ReelsTableProps) {
   const [tier, setTier] = useState<TierFilter>('all')
   const [search, setSearch] = useState(initialSearch)
-  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'views', sort: 'desc' }])
-  const sortDesc = sortModel[0]?.sort !== 'asc'
+  const [sortDesc, setSortDesc] = useState(true)
 
   useEffect(() => {
     if (initialSearch) setSearch(initialSearch)
@@ -77,7 +76,7 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
 
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase()
-    return rows.filter((row) => {
+    const list = rows.filter((row) => {
       if (tier !== 'all' && row.tier !== tier) return false
       if (!needle) return true
       return (
@@ -86,14 +85,17 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
         row.reelCode.toLowerCase().includes(needle)
       )
     })
-  }, [rows, tier, search])
+    return [...list].sort((a, b) => (sortDesc ? b.views - a.views : a.views - b.views))
+  }, [rows, tier, search, sortDesc])
 
   const columns = useMemo<GridColDef<ReelRow>[]>(
     () => [
       {
         field: 'reelCode',
         headerName: 'کد ریل',
-        width: 140,
+        width: 120,
+        sortable: false,
+        headerAlign: 'right',
         renderCell: (params) => (
           <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0, width: '100%', overflow: 'hidden' }}>
             {params.row.is_new ? <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main', flexShrink: 0 }} /> : null}
@@ -116,45 +118,48 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
       {
         field: 'date',
         headerName: 'تاریخ',
-        width: 112,
+        width: 110,
+        sortable: false,
+        align: 'right',
+        headerAlign: 'right',
         valueFormatter: (value: string) => usDateFa(value),
       },
       {
         field: 'views',
         headerName: 'ویو',
-        width: 96,
-        align: 'center',
-        headerAlign: 'center',
+        width: 90,
+        align: 'right',
+        headerAlign: 'right',
         valueFormatter: (value: number) => fa.format(value),
       },
       {
         field: 'followers',
         headerName: 'فالو +',
-        width: 88,
-        align: 'center',
-        headerAlign: 'center',
+        width: 78,
+        align: 'right',
+        headerAlign: 'right',
         valueFormatter: (value: number) => `+${fa.format(value)}`,
       },
       {
         field: 'share',
         headerName: 'شیر',
-        width: 82,
-        align: 'center',
-        headerAlign: 'center',
+        width: 70,
+        align: 'right',
+        headerAlign: 'right',
         valueFormatter: (value: number) => fa.format(value),
       },
       {
         field: 'save',
         headerName: 'سیو',
-        width: 82,
-        align: 'center',
-        headerAlign: 'center',
+        width: 70,
+        align: 'right',
+        headerAlign: 'right',
         valueFormatter: (value: number) => fa.format(value),
       },
       {
         field: 'tier',
         headerName: 'عملکرد',
-        width: 92,
+        width: 78,
         align: 'center',
         headerAlign: 'center',
         renderCell: (params) => (
@@ -169,16 +174,16 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
       {
         field: 'caption',
         headerName: 'کپشن',
-        flex: 1.4,
-        minWidth: 220,
+        flex: 1.6,
+        minWidth: 150,
         sortable: false,
         renderCell: (params) => <Tik value={params.row.caption} />,
       },
       {
         field: 'content',
         headerName: 'متن ریلز',
-        flex: 1.2,
-        minWidth: 190,
+        flex: 1.3,
+        minWidth: 130,
         sortable: false,
         renderCell: (params) => (
           <Box
@@ -196,7 +201,7 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
         field: 'prediction',
         headerName: 'پیش‌بینی',
         flex: 1,
-        minWidth: 160,
+        minWidth: 100,
         sortable: false,
         renderCell: (params) => (
           <Box
@@ -213,7 +218,7 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
       {
         field: 'is_flopped',
         headerName: 'فلپ',
-        width: 78,
+        width: 64,
         align: 'center',
         headerAlign: 'center',
         sortable: false,
@@ -256,11 +261,7 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
               ضعیف
             </ToggleButton>
           </ToggleButtonGroup>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setSortModel([{ field: 'views', sort: sortDesc ? 'asc' : 'desc' }])}
-          >
+          <Button size="small" variant="outlined" onClick={() => setSortDesc((value) => !value)}>
             مرتب‌سازی ویو {sortDesc ? '↓' : '↑'}
           </Button>
         </Stack>
@@ -276,14 +277,12 @@ export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initia
           loading={loading}
           localeText={localeText}
           disableRowSelectionOnClick
+          disableColumnSorting
           rowHeight={56}
           columnHeaderHeight={46}
           pageSizeOptions={[25, 50, 100]}
           pagination
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 25 } } }}
-          sortModel={sortModel}
-          onSortModelChange={setSortModel}
-          sortingOrder={['desc', 'asc']}
           getRowClassName={(params: GridRowClassNameParams<GridValidRowModel & ReelRow>) => (params.row.is_new ? 'row-new' : '')}
           sx={(theme) => ({
             border: 0,
