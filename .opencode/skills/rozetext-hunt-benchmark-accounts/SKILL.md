@@ -22,7 +22,7 @@ The registry exists to benchmark against this page, not any poetry page.
 - Performance: share first, save second, comment third. Top reels are lines people send to someone, not news or trends.
 - Voice: colloquial Persian, first person "من", direct "تو", generalized "آدم‌ها", short sentences, ellipsis. No formal literary Persian.
 
-Re-derive this from `data/reels_database.json` if the voice shifts. The last analysis covered 512 reels from 2026-08-14 to 2026-11-11.
+Re-derive this from `data/main-database/reels_database.json` if the voice shifts. The last analysis covered 512 reels from 2026-08-14 to 2026-11-11.
 
 ## What to hunt
 

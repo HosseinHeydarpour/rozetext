@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 
-// Fills the empty `content` field of reels_database.json from reel screenshots.
+// Fills the empty `content` field of data/main-database/reels_database.json from reel screenshots.
 // `collect` screenshots with the collector account; the agent transcribes them;
 // `apply` merges runtime/reel-content/transcripts.json into the database.
 
@@ -26,17 +26,13 @@ const cleanup = process.argv.includes('--cleanup')
 
 const collector = (process.env.IG_COLLECT_USERNAME || '').trim().replace(/^@/, '').toLowerCase()
 
-const dbCandidates = [
-  path.join(DATA, 'main-database', 'reels_database.json'),
-  path.join(DATA, 'reels_database.json'),
-]
-const dbPath = dbCandidates.find((file) => fs.existsSync(file))
+const dbPath = path.join(DATA, 'main-database', 'reels_database.json')
 
 function setStatus(state, detail = {}) {
   fs.mkdirSync(RUNTIME, { recursive: true })
   fs.writeFileSync(
     STATUS,
-    JSON.stringify({ state, database: dbPath && path.relative(ROOT, dbPath), pid: process.pid, ...detail, updated_at: new Date().toISOString() }, null, 2),
+    JSON.stringify({ state, database: path.relative(ROOT, dbPath), pid: process.pid, ...detail, updated_at: new Date().toISOString() }, null, 2),
   )
   console.log(JSON.stringify({ state, ...detail }))
 }
@@ -59,7 +55,7 @@ function halt(state, message, code = 2) {
   throw new Halt(state, message, code)
 }
 
-if (!dbPath) stop('error', 'reels database not found: data/main-database/reels_database.json or data/reels_database.json')
+if (!fs.existsSync(dbPath)) stop('error', 'reels database not found: data/main-database/reels_database.json')
 const db = JSON.parse(fs.readFileSync(dbPath, 'utf8').replace(/^\uFEFF/, ''))
 const account = db.accounts?.[db.active_account]
 if (!account?.items) stop('error', `active account "${db.active_account}" has no items`)

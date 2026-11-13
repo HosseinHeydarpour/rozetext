@@ -1,6 +1,6 @@
 ---
 name: rozetext-database-updator
-description: "Fill the empty `content` field of the reels database from the reel video itself. Uses the collector account (never @rozetext.ir), screenshots each reel, the agent transcribes the on-screen Persian text, and the screenshots are deleted after the merge. Load when reels_database.json has reels without content."
+description: "Fill the empty `content` field of the reels database from the reel video itself. Uses the collector account (never @rozetext.ir), screenshots each reel, the agent transcribes the on-screen Persian text, and the screenshots are deleted after the merge. Load when data/main-database/reels_database.json has reels without content."
 ---
 
 # rozetext-database-updator
@@ -15,12 +15,9 @@ The reels database stores the on-screen text of every reel in `content`. Some re
 
 ## Database
 
-Resolution order, first existing file wins:
+Path: `data/main-database/reels_database.json`. This is the only store; do not add a fallback or create a second file.
 
-1. `data/main-database/reels_database.json`
-2. `data/reels_database.json`
-
-Shape: `active_account` plus `accounts[name].items[reelCode]`. Write the file the script reports; never create a second store.
+Shape: `active_account` plus `accounts[name].items[reelCode]`. Write the file the script reports.
 
 ## Hard rule: the page account never opens a reel here
 
