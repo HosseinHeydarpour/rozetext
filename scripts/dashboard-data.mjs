@@ -10,6 +10,8 @@ const STATE = path.join(RUNTIME, 'dashboard-data.json')
 const OUTPUT = path.join(DATA, 'insights-account.json')
 const CLOSE_FILE = path.join(RUNTIME, 'close-dashboard.txt')
 const RANGES = [7, 14, 30, 90]
+const DAYS = ['M', 'Tu', 'W', 'Th', 'F', 'Sa', 'Su']
+const HOURS = ['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p']
 const KEEP_OPEN = process.argv.includes('--keep-open')
 const FORCE = process.argv.includes('--force')
 
@@ -41,6 +43,25 @@ const grab = (text, regex) => {
   return match ? match.slice(1) : null
 }
 
+function parseActiveHours(text) {
+  const section = (text.split('Most active times')[1] || '').split('\nFollowers')[0]
+  const after = section.split(/\n9p\n/)[1] || ''
+  const values = [...after.matchAll(/([\d,]+)/g)].slice(0, 8).map((match) => num(match[1]))
+  if (values.length !== 8) return null
+  return Object.fromEntries(HOURS.map((hour, index) => [hour, values[index]]))
+}
+
+function bestActive(days) {
+  let best = null
+  for (const [day, hours] of Object.entries(days)) {
+    for (const [hour, value] of Object.entries(hours)) {
+      if (value == null) continue
+      if (!best || value > best.value) best = { day, hour, value }
+    }
+  }
+  return best
+}
+
 function parseAccountInsights(text) {
   const views = grab(text, /Views\n([\d,]+)\nViews\nFollowers\n([\d.]+)%\nNon-followers\n([\d.]+)%\nViewers\n([\d,]+)/)
   const interactions = grab(
@@ -56,12 +77,6 @@ function parseAccountInsights(text) {
   const cards = (section) => [...section.matchAll(cardPattern)].map((m) => ({ value: m[1], date: m[2] }))
   const viewsSection = (text.split('Top content based on views')[1] || '').split('Interactions\n')[0]
   const interactionsSection = (text.split('Top content based on interactions')[1] || '').split('Profile\n')[0]
-
-  const activeTimes = {}
-  for (const label of ['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p']) {
-    const found = grab(text, new RegExp(`${label}\\n([\\d,]+)`))
-    if (found) activeTimes[label] = num(found[0])
-  }
 
   return {
     views: views
@@ -87,7 +102,6 @@ function parseAccountInsights(text) {
     followers_total: followers ? num(followers[0]) : null,
     top_content_views: cards(viewsSection),
     top_content_interactions: cards(interactionsSection),
-    active_times: Object.keys(activeTimes).length ? { selected_day: 'M', hours: activeTimes } : null,
   }
 }
 
@@ -115,6 +129,25 @@ const context = await chromium.launchPersistentContext(profileDir, {
 })
 const page = context.pages()[0] || (await context.newPage())
 const wait = (min, max) => page.waitForTimeout(min + Math.floor(Math.random() * Math.max(1, max - min)))
+
+async function readActiveTimes(page) {
+  const heading = page.getByText('Most active times', { exact: true }).first()
+  await heading.scrollIntoViewIfNeeded().catch(() => {})
+  await wait(700, 1400)
+
+  const days = {}
+  for (const day of DAYS) {
+    const tab = page.getByRole('button', { name: day, exact: true }).first()
+    if (!(await tab.count().catch(() => 0))) continue
+    await tab.click().catch(() => {})
+    await wait(1600, 2600)
+    const text = (await page.locator('main').innerText().catch(() => '')).replace(/\n{3,}/g, '\n\n')
+    const hours = parseActiveHours(text)
+    if (hours) days[day] = hours
+  }
+
+  return { days, best: bestActive(days) }
+}
 
 const result = {
   source: 'instagram.com/accounts/insights',
@@ -144,6 +177,14 @@ try {
 
     const text = await readInsights(page)
     const ready = /Viewers/.test(text) && /Accounts engaged/.test(text) && /Total followers/.test(text)
+    await page.screenshot({ path: path.join(RUNTIME, `dashboard-${range}.png`), fullPage: true }).catch(() => {})
+
+    const active = await readActiveTimes(page)
+    const parsed = parseAccountInsights(text)
+    parsed.active_times = Object.keys(active.days).length
+      ? { selected_day: 'M', hours: active.days.M ?? null, days: active.days, best: active.best }
+      : null
+
     await page.mouse.wheel(0, -3000).catch(() => {})
     await wait(500, 900)
 
@@ -151,11 +192,10 @@ try {
       timeframe_days: range,
       fetched_at: new Date().toISOString(),
       ready,
-      parsed: parseAccountInsights(text),
+      parsed,
       raw: text,
     }
 
-    await page.screenshot({ path: path.join(RUNTIME, `dashboard-${range}.png`), fullPage: true }).catch(() => {})
     await wait(1800, 3600)
   }
 

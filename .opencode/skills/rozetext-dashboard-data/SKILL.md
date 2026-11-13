@@ -14,19 +14,20 @@ Ranges, fixed and recorded: **7, 14, 30, 90 days**.
 ## Run
 
 ```bash
-npm run dashboard:data
+npm run dashboard:collect
 ```
 
 - `--keep-open` keeps Chrome open for 5 minutes so the user can look around.
 - `--force` bypasses the 5-minute cooldown.
 - Progress is written to `runtime/dashboard-data.json` (`opening`, `range-7`, `range-14`, `range-30`, `range-90`, `done`, `error`).
 - Screenshots: `runtime/dashboard-<range>.png`.
-- Output: `data/insights-account.json`, one entry per range plus the raw page text.
+- Output: `data/insights-account.json`, one entry per range plus the raw page text and the active times for all seven days.
 
 ## Human behaviour (mandatory)
 
 - One page load per range, four in total. Never loop, never reload a range twice in one run.
-- Random pauses of 1.8–4.5 seconds between pages, 2.5–4.5 after each load.
+- For each range, click the seven day tabs once to read the active-times chart; this is not a reload.
+- Random pauses of 1.8–4.5 seconds between pages, 2.5–4.5 after each load, 1.2–2.2 seconds between day tabs.
 - Headed Chrome only. Do not run headless.
 - Do not run two copies at once; one Chrome window per profile.
 - The script refuses to run twice within 5 minutes unless `--force`. Respect it.
@@ -34,7 +35,7 @@ npm run dashboard:data
 
 ## Data captured
 
-Per range: views (total, follower/non-follower split, viewers), interactions (total, split, accounts engaged), content views split (reels/stories), content interactions split (reels/stories/posts), profile visits, total followers, top content by interactions, and the active-times bars for the default selected day.
+Per range: views (total, follower/non-follower split, viewers), interactions (total, split, accounts engaged), content views split (reels/stories), content interactions split (reels/stories/posts), profile visits, total followers, top content by interactions, and the active-times bars for all seven days plus the best day and hour.
 
 Not available on this page: audience demographics (age, gender, city) and a follower-growth chart. Those are app-only or need another screen; do not invent them.
 

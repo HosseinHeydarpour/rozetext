@@ -84,5 +84,6 @@ export interface Snapshot {
   recentContent: RecentContent[]
   topBySaves: PostMetric[]
   topByViews: PostMetric[]
-  activeTimes: Record<string, number>
+  activeTimes: Record<string, Record<string, number>>
+  activeTimesBest: { day: string; hour: string; value: number } | null
 }

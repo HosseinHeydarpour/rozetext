@@ -1,26 +1,26 @@
 {
   "source": "instagram.com/accounts/insights",
-  "fetched_at": "2026-11-13T02:26:31.749Z",
+  "fetched_at": "2026-11-13T16:27:14.247Z",
   "ranges": {
     "7": {
       "timeframe_days": 7,
-      "fetched_at": "2026-11-13T02:26:40.046Z",
+      "fetched_at": "2026-11-13T16:27:43.672Z",
       "ready": true,
       "parsed": {
         "views": {
-          "total": 3410855,
-          "followers_pct": 17.9,
-          "non_followers_pct": 82.1,
-          "viewers": 1492630
+          "total": 3499884,
+          "followers_pct": 17.5,
+          "non_followers_pct": 82.5,
+          "viewers": 1497813
         },
         "interactions": {
-          "total": 321655,
-          "followers_pct": 33,
-          "non_followers_pct": 67,
-          "accounts_engaged": 172455
+          "total": 330515,
+          "followers_pct": 33.1,
+          "non_followers_pct": 66.9,
+          "accounts_engaged": 174839
         },
         "content_views": {
-          "reels_pct": 99.5,
+          "reels_pct": 99.4,
           "stories_pct": 0.5
         },
         "content_interactions": {
@@ -28,130 +28,326 @@
           "stories_pct": 0.2,
           "posts_pct": 0
         },
-        "profile_visits": 5846,
-        "followers_total": 96555,
-        "top_content_views": [],
-        "top_content_interactions": [
+        "profile_visits": 5778,
+        "followers_total": 96729,
+        "top_content_views": [
           {
-            "value": "13K",
+            "value": "224K",
             "date": "Nov 7"
           },
           {
-            "value": "6.6K",
+            "value": "141K",
             "date": "Nov 11"
           },
           {
-            "value": "4K",
+            "value": "123K",
+            "date": "Nov 12"
+          },
+          {
+            "value": "71.1K",
+            "date": "Nov 8"
+          },
+          {
+            "value": "51.8K",
+            "date": "Nov 12"
+          }
+        ],
+        "top_content_interactions": [
+          {
+            "value": "13.4K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "10.9K",
+            "date": "Nov 12"
+          },
+          {
+            "value": "6.7K",
+            "date": "Nov 11"
+          },
+          {
+            "value": "5.1K",
             "date": "Nov 12"
           },
           {
             "value": "3K",
-            "date": "Nov 8"
-          },
-          {
-            "value": "2K",
             "date": "Nov 8"
           }
         ],
         "active_times": {
           "selected_day": "M",
           "hours": {
-            "12a": 3,
-            "3a": 6,
-            "6a": 9,
-            "9a": 12,
-            "12p": 3,
-            "3p": 6,
-            "6p": 9,
-            "9p": 31454
+            "12a": 31454,
+            "3a": 33294,
+            "6a": 33524,
+            "9a": 38216,
+            "12p": 31213,
+            "3p": 10571,
+            "6p": 14344,
+            "9p": 25050
+          },
+          "days": {
+            "M": {
+              "12a": 31454,
+              "3a": 33294,
+              "6a": 33524,
+              "9a": 38216,
+              "12p": 31213,
+              "3p": 10571,
+              "6p": 14344,
+              "9p": 25050
+            },
+            "Tu": {
+              "12a": 31472,
+              "3a": 33216,
+              "6a": 33440,
+              "9a": 37890,
+              "12p": 31175,
+              "3p": 10569,
+              "6p": 14235,
+              "9p": 25133
+            },
+            "W": {
+              "12a": 31382,
+              "3a": 33083,
+              "6a": 33447,
+              "9a": 37452,
+              "12p": 32164,
+              "3p": 11612,
+              "6p": 12237,
+              "9p": 24592
+            },
+            "Th": {
+              "12a": 30298,
+              "3a": 31989,
+              "6a": 31753,
+              "9a": 35256,
+              "12p": 33194,
+              "3p": 14412,
+              "6p": 9681,
+              "9p": 21729
+            },
+            "F": {
+              "12a": 31634,
+              "3a": 32935,
+              "6a": 33298,
+              "9a": 37237,
+              "12p": 32536,
+              "3p": 11758,
+              "6p": 12529,
+              "9p": 24050
+            },
+            "Sa": {
+              "12a": 30783,
+              "3a": 33389,
+              "6a": 33029,
+              "9a": 37476,
+              "12p": 32778,
+              "3p": 11430,
+              "6p": 12695,
+              "9p": 24314
+            },
+            "Su": {
+              "12a": 28758,
+              "3a": 33714,
+              "6a": 33172,
+              "9a": 37873,
+              "12p": 33101,
+              "3p": 11553,
+              "6p": 12932,
+              "9p": 24629
+            }
+          },
+          "best": {
+            "day": "M",
+            "hour": "9a",
+            "value": 38216
           }
         }
       },
-      "raw": "Professional dashboard\nInsights\nAd tools\nLast 7 days\nAccount insights\nViews\n3,410,855\nViews\nFollowers\n17.9%\nNon-followers\n82.1%\nViewers\n1,492,630\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.5%\n0.5%\nFollowers\nNon-followers\nInteractions\n321,655\nInteractions\nFollowers\n33%\nNon-followers\n67%\nAccounts engaged\n172,455\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n13K\nNov 7\n6.6K\nNov 11\n4K\nNov 12\n3K\nNov 8\n2K\nNov 8\nProfile\n5,846\nProfile activity\nProfile visits\n5,846\nFollowers\n96,555\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 7 days\nAccount insights\nViews\n3,499,884\nViews\nFollowers\n17.5%\nNon-followers\n82.5%\nViewers\n1,497,813\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.4%\n0.5%\nFollowers\nNon-followers\nTop content based on views\nSee all\n224K\nNov 7\n141K\nNov 11\n123K\nNov 12\n71.1K\nNov 8\n51.8K\nNov 12\nInteractions\n330,515\nInteractions\nFollowers\n33.1%\nNon-followers\n66.9%\nAccounts engaged\n174,839\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n13.4K\nNov 7\n10.9K\nNov 12\n6.7K\nNov 11\n5.1K\nNov 12\n3K\nNov 8\nProfile\n5,778\nProfile activity\nProfile visits\n5,778\nFollowers\n96,729\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
     },
     "14": {
       "timeframe_days": 14,
-      "fetched_at": "2026-11-13T02:26:48.754Z",
+      "fetched_at": "2026-11-13T16:28:07.345Z",
       "ready": true,
       "parsed": {
         "views": {
-          "total": 6705495,
-          "followers_pct": 18.7,
-          "non_followers_pct": 81.3,
-          "viewers": 2685399
+          "total": 6696906,
+          "followers_pct": 18.4,
+          "non_followers_pct": 81.6,
+          "viewers": 2708909
         },
         "interactions": {
-          "total": 582744,
-          "followers_pct": 33.4,
-          "non_followers_pct": 66.6,
-          "accounts_engaged": 307292
+          "total": 583854,
+          "followers_pct": 33.3,
+          "non_followers_pct": 66.7,
+          "accounts_engaged": 309834
         },
         "content_views": {
           "reels_pct": 99.1,
-          "stories_pct": 0.9
+          "stories_pct": 0.8
         },
         "content_interactions": {
           "reels_pct": 99.8,
           "stories_pct": 0.2,
           "posts_pct": 0
         },
-        "profile_visits": 12727,
-        "followers_total": 96555,
-        "top_content_views": [],
-        "top_content_interactions": [
+        "profile_visits": 12712,
+        "followers_total": 96730,
+        "top_content_views": [
           {
-            "value": "52.9K",
+            "value": "920K",
             "date": "Oct 31"
           },
           {
-            "value": "35.5K",
+            "value": "361K",
             "date": "Nov 5"
           },
           {
-            "value": "13K",
+            "value": "224K",
             "date": "Nov 7"
+          },
+          {
+            "value": "141K",
+            "date": "Nov 11"
+          },
+          {
+            "value": "137K",
+            "date": "Nov 4"
+          }
+        ],
+        "top_content_interactions": [
+          {
+            "value": "53.7K",
+            "date": "Oct 31"
+          },
+          {
+            "value": "36.3K",
+            "date": "Nov 5"
+          },
+          {
+            "value": "13.4K",
+            "date": "Nov 7"
+          },
+          {
+            "value": "10.9K",
+            "date": "Nov 12"
           },
           {
             "value": "7.4K",
             "date": "Nov 4"
-          },
-          {
-            "value": "6.6K",
-            "date": "Nov 11"
           }
         ],
         "active_times": {
           "selected_day": "M",
           "hours": {
-            "12a": 3,
-            "3a": 6,
-            "6a": 9,
-            "9a": 12,
-            "12p": 3,
-            "3p": 6,
-            "6p": 9,
-            "9p": 31454
+            "12a": 31454,
+            "3a": 33294,
+            "6a": 33524,
+            "9a": 38216,
+            "12p": 31213,
+            "3p": 10571,
+            "6p": 14344,
+            "9p": 25050
+          },
+          "days": {
+            "M": {
+              "12a": 31454,
+              "3a": 33294,
+              "6a": 33524,
+              "9a": 38216,
+              "12p": 31213,
+              "3p": 10571,
+              "6p": 14344,
+              "9p": 25050
+            },
+            "Tu": {
+              "12a": 31472,
+              "3a": 33216,
+              "6a": 33440,
+              "9a": 37890,
+              "12p": 31175,
+              "3p": 10569,
+              "6p": 14235,
+              "9p": 25133
+            },
+            "W": {
+              "12a": 31382,
+              "3a": 33083,
+              "6a": 33447,
+              "9a": 37452,
+              "12p": 32164,
+              "3p": 11612,
+              "6p": 12237,
+              "9p": 24592
+            },
+            "Th": {
+              "12a": 30298,
+              "3a": 31989,
+              "6a": 31753,
+              "9a": 35256,
+              "12p": 33194,
+              "3p": 14412,
+              "6p": 9681,
+              "9p": 21729
+            },
+            "F": {
+              "12a": 31634,
+              "3a": 32935,
+              "6a": 33298,
+              "9a": 37237,
+              "12p": 32536,
+              "3p": 11758,
+              "6p": 12529,
+              "9p": 24050
+            },
+            "Sa": {
+              "12a": 30783,
+              "3a": 33389,
+              "6a": 33029,
+              "9a": 37476,
+              "12p": 32778,
+              "3p": 11430,
+              "6p": 12695,
+              "9p": 24314
+            },
+            "Su": {
+              "12a": 28758,
+              "3a": 33714,
+              "6a": 33172,
+              "9a": 37873,
+              "12p": 33101,
+              "3p": 11553,
+              "6p": 12932,
+              "9p": 24629
+            }
+          },
+          "best": {
+            "day": "M",
+            "hour": "9a",
+            "value": 38216
           }
         }
       },
-      "raw": "Professional dashboard\nInsights\nAd tools\nLast 14 days\nAccount insights\nViews\n6,705,495\nViews\nFollowers\n18.7%\nNon-followers\n81.3%\nViewers\n2,685,399\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.1%\n0.9%\nFollowers\nNon-followers\nInteractions\n582,744\nInteractions\nFollowers\n33.4%\nNon-followers\n66.6%\nAccounts engaged\n307,292\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n52.9K\nOct 31\n35.5K\nNov 5\n13K\nNov 7\n7.4K\nNov 4\n6.6K\nNov 11\nProfile\n12,727\nProfile activity\nProfile visits\n12,727\nFollowers\n96,555\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 14 days\nAccount insights\nViews\n6,696,906\nViews\nFollowers\n18.4%\nNon-followers\n81.6%\nViewers\n2,708,909\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.1%\n0.8%\nFollowers\nNon-followers\nTop content based on views\nSee all\n920K\nOct 31\n361K\nNov 5\n224K\nNov 7\n141K\nNov 11\n137K\nNov 4\nInteractions\n583,854\nInteractions\nFollowers\n33.3%\nNon-followers\n66.7%\nAccounts engaged\n309,834\nBy content interactions\nReels\nStories\nPosts\n99.8%\n0.2%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n53.7K\nOct 31\n36.3K\nNov 5\n13.4K\nNov 7\n10.9K\nNov 12\n7.4K\nNov 4\nProfile\n12,712\nProfile activity\nProfile visits\n12,712\nFollowers\n96,730\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
     },
     "30": {
       "timeframe_days": 30,
-      "fetched_at": "2026-11-13T02:27:03.462Z",
+      "fetched_at": "2026-11-13T16:28:34.750Z",
       "ready": true,
       "parsed": {
         "views": {
-          "total": 20476860,
-          "followers_pct": 17.3,
-          "non_followers_pct": 82.7,
-          "viewers": 6803376
+          "total": 19914343,
+          "followers_pct": 17.4,
+          "non_followers_pct": 82.6,
+          "viewers": 6588005
         },
         "interactions": {
-          "total": 1718738,
-          "followers_pct": 30.8,
-          "non_followers_pct": 69.2,
-          "accounts_engaged": 814058
+          "total": 1672488,
+          "followers_pct": 31.1,
+          "non_followers_pct": 68.9,
+          "accounts_engaged": 796062
         },
         "content_views": {
           "reels_pct": 99.6,
@@ -162,41 +358,41 @@
           "stories_pct": 0.1,
           "posts_pct": 0
         },
-        "profile_visits": 35734,
-        "followers_total": 96555,
+        "profile_visits": 34944,
+        "followers_total": 96730,
         "top_content_views": [
           {
-            "value": "0",
-            "date": "Nov 12"
+            "value": "920K",
+            "date": "Oct 31"
           },
           {
-            "value": "0",
-            "date": "Nov 12"
+            "value": "457K",
+            "date": "Oct 16"
           },
           {
-            "value": "0",
-            "date": "Nov 12"
+            "value": "453K",
+            "date": "Oct 15"
           },
           {
-            "value": "0",
-            "date": "Nov 12"
+            "value": "393K",
+            "date": "Oct 16"
           },
           {
-            "value": "0",
-            "date": "Nov 12"
+            "value": "379K",
+            "date": "Oct 18"
           }
         ],
         "top_content_interactions": [
           {
-            "value": "52.9K",
+            "value": "53.7K",
             "date": "Oct 31"
           },
           {
-            "value": "35.5K",
+            "value": "36.3K",
             "date": "Nov 5"
           },
           {
-            "value": "34.3K",
+            "value": "34.4K",
             "date": "Oct 15"
           },
           {
@@ -204,45 +400,122 @@
             "date": "Oct 16"
           },
           {
-            "value": "23.6K",
+            "value": "23.9K",
             "date": "Oct 21"
           }
         ],
         "active_times": {
           "selected_day": "M",
           "hours": {
-            "12a": 3,
-            "3a": 6,
-            "6a": 9,
-            "9a": 12,
-            "12p": 3,
-            "3p": 6,
-            "6p": 9,
-            "9p": 31454
+            "12a": 31454,
+            "3a": 33294,
+            "6a": 33524,
+            "9a": 38216,
+            "12p": 31213,
+            "3p": 10571,
+            "6p": 14344,
+            "9p": 25050
+          },
+          "days": {
+            "M": {
+              "12a": 31454,
+              "3a": 33294,
+              "6a": 33524,
+              "9a": 38216,
+              "12p": 31213,
+              "3p": 10571,
+              "6p": 14344,
+              "9p": 25050
+            },
+            "Tu": {
+              "12a": 31472,
+              "3a": 33216,
+              "6a": 33440,
+              "9a": 37890,
+              "12p": 31175,
+              "3p": 10569,
+              "6p": 14235,
+              "9p": 25133
+            },
+            "W": {
+              "12a": 31382,
+              "3a": 33083,
+              "6a": 33447,
+              "9a": 37452,
+              "12p": 32164,
+              "3p": 11612,
+              "6p": 12237,
+              "9p": 24592
+            },
+            "Th": {
+              "12a": 30298,
+              "3a": 31989,
+              "6a": 31753,
+              "9a": 35256,
+              "12p": 33194,
+              "3p": 14412,
+              "6p": 9681,
+              "9p": 21729
+            },
+            "F": {
+              "12a": 31634,
+              "3a": 32935,
+              "6a": 33298,
+              "9a": 37237,
+              "12p": 32536,
+              "3p": 11758,
+              "6p": 12529,
+              "9p": 24050
+            },
+            "Sa": {
+              "12a": 30783,
+              "3a": 33389,
+              "6a": 33029,
+              "9a": 37476,
+              "12p": 32778,
+              "3p": 11430,
+              "6p": 12695,
+              "9p": 24314
+            },
+            "Su": {
+              "12a": 28758,
+              "3a": 33714,
+              "6a": 33172,
+              "9a": 37873,
+              "12p": 33101,
+              "3p": 11553,
+              "6p": 12932,
+              "9p": 24629
+            }
+          },
+          "best": {
+            "day": "M",
+            "hour": "9a",
+            "value": 38216
           }
         }
       },
-      "raw": "Professional dashboard\nInsights\nAd tools\nLast 30 days\nAccount insights\nViews\n20,476,860\nViews\nFollowers\n17.3%\nNon-followers\n82.7%\nViewers\n6,803,376\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.6%\n0.4%\nFollowers\nNon-followers\nTop content based on views\nSee all\n0\nNov 12\n0\nNov 12\n0\nNov 12\n0\nNov 12\n0\nNov 12\nInteractions\n1,718,738\nInteractions\nFollowers\n30.8%\nNon-followers\n69.2%\nAccounts engaged\n814,058\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n52.9K\nOct 31\n35.5K\nNov 5\n34.3K\nOct 15\n30.6K\nOct 16\n23.6K\nOct 21\nProfile\n35,734\nProfile activity\nProfile visits\n35,734\nFollowers\n96,555\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 30 days\nAccount insights\nViews\n19,914,343\nViews\nFollowers\n17.4%\nNon-followers\n82.6%\nViewers\n6,588,005\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.6%\n0.4%\nFollowers\nNon-followers\nTop content based on views\nSee all\n920K\nOct 31\n457K\nOct 16\n453K\nOct 15\n393K\nOct 16\n379K\nOct 18\nInteractions\n1,672,488\nInteractions\nFollowers\n31.1%\nNon-followers\n68.9%\nAccounts engaged\n796,062\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n53.7K\nOct 31\n36.3K\nNov 5\n34.4K\nOct 15\n30.6K\nOct 16\n23.9K\nOct 21\nProfile\n34,944\nProfile activity\nProfile visits\n34,944\nFollowers\n96,730\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
     },
     "90": {
       "timeframe_days": 90,
-      "fetched_at": "2026-11-13T02:27:23.551Z",
+      "fetched_at": "2026-11-13T16:29:03.522Z",
       "ready": true,
       "parsed": {
         "views": {
-          "total": 99811351,
+          "total": 100289921,
           "followers_pct": 13.6,
           "non_followers_pct": 86.4,
-          "viewers": 19660874
+          "viewers": 19768687
         },
         "interactions": {
-          "total": 8376904,
-          "followers_pct": 28.5,
-          "non_followers_pct": 71.5,
-          "accounts_engaged": 3073574
+          "total": 8418011,
+          "followers_pct": 28.6,
+          "non_followers_pct": 71.4,
+          "accounts_engaged": 3087365
         },
         "content_views": {
-          "reels_pct": 99.8,
+          "reels_pct": 99.9,
           "stories_pct": 0.2
         },
         "content_interactions": {
@@ -250,30 +523,9 @@
           "stories_pct": 0.1,
           "posts_pct": 0
         },
-        "profile_visits": 163053,
-        "followers_total": 96555,
-        "top_content_views": [
-          {
-            "value": "0",
-            "date": "Nov 12"
-          },
-          {
-            "value": "0",
-            "date": "Nov 12"
-          },
-          {
-            "value": "0",
-            "date": "Nov 12"
-          },
-          {
-            "value": "0",
-            "date": "Nov 12"
-          },
-          {
-            "value": "0",
-            "date": "Nov 12"
-          }
-        ],
+        "profile_visits": 163922,
+        "followers_total": 96730,
+        "top_content_views": [],
         "top_content_interactions": [
           {
             "value": "263K",
@@ -284,7 +536,7 @@
             "date": "Aug 27"
           },
           {
-            "value": "210K",
+            "value": "211K",
             "date": "Sep 16"
           },
           {
@@ -299,18 +551,95 @@
         "active_times": {
           "selected_day": "M",
           "hours": {
-            "12a": 3,
-            "3a": 6,
-            "6a": 9,
-            "9a": 12,
-            "12p": 3,
-            "3p": 6,
-            "6p": 9,
-            "9p": 31454
+            "12a": 31454,
+            "3a": 33294,
+            "6a": 33524,
+            "9a": 38216,
+            "12p": 31213,
+            "3p": 10571,
+            "6p": 14344,
+            "9p": 25050
+          },
+          "days": {
+            "M": {
+              "12a": 31454,
+              "3a": 33294,
+              "6a": 33524,
+              "9a": 38216,
+              "12p": 31213,
+              "3p": 10571,
+              "6p": 14344,
+              "9p": 25050
+            },
+            "Tu": {
+              "12a": 31472,
+              "3a": 33216,
+              "6a": 33440,
+              "9a": 37890,
+              "12p": 31175,
+              "3p": 10569,
+              "6p": 14235,
+              "9p": 25133
+            },
+            "W": {
+              "12a": 31382,
+              "3a": 33083,
+              "6a": 33447,
+              "9a": 37452,
+              "12p": 32164,
+              "3p": 11612,
+              "6p": 12237,
+              "9p": 24592
+            },
+            "Th": {
+              "12a": 30298,
+              "3a": 31989,
+              "6a": 31753,
+              "9a": 35256,
+              "12p": 33194,
+              "3p": 14412,
+              "6p": 9681,
+              "9p": 21729
+            },
+            "F": {
+              "12a": 31634,
+              "3a": 32935,
+              "6a": 33298,
+              "9a": 37237,
+              "12p": 32536,
+              "3p": 11758,
+              "6p": 12529,
+              "9p": 24050
+            },
+            "Sa": {
+              "12a": 30783,
+              "3a": 33389,
+              "6a": 33029,
+              "9a": 37476,
+              "12p": 32778,
+              "3p": 11430,
+              "6p": 12695,
+              "9p": 24314
+            },
+            "Su": {
+              "12a": 28758,
+              "3a": 33714,
+              "6a": 33172,
+              "9a": 37873,
+              "12p": 33101,
+              "3p": 11553,
+              "6p": 12932,
+              "9p": 24629
+            }
+          },
+          "best": {
+            "day": "M",
+            "hour": "9a",
+            "value": 38216
           }
         }
       },
-      "raw": "Professional dashboard\nInsights\nAd tools\nLast 90 days\nAccount insights\nViews\n99,811,351\nViews\nFollowers\n13.6%\nNon-followers\n86.4%\nViewers\n19,660,874\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.8%\n0.2%\nFollowers\nNon-followers\nTop content based on views\nSee all\n0\nNov 12\n0\nNov 12\n0\nNov 12\n0\nNov 12\n0\nNov 12\nInteractions\n8,376,904\nInteractions\nFollowers\n28.5%\nNon-followers\n71.5%\nAccounts engaged\n3,073,574\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n263K\nSep 16\n255K\nAug 27\n210K\nSep 16\n156K\nSep 8\n149K\nSep 12\nProfile\n163,053\nProfile activity\nProfile visits\n163,053\nFollowers\n96,555\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
+      "raw": "Professional dashboard\nInsights\nAd tools\nLast 90 days\nAccount insights\nViews\n100,289,921\nViews\nFollowers\n13.6%\nNon-followers\n86.4%\nViewers\n19,768,687\nBy content type\nAll\nFollowers\nNon-followers\nReels\nStories\n99.9%\n0.2%\nFollowers\nNon-followers\nTop content based on views\nSee all\n3.5M\nSep 16\n3M\nSep 8\n2.9M\nSep 16\n2.4M\nAug 30\n2.3M\nAug 27\nInteractions\n8,418,011\nInteractions\nFollowers\n28.6%\nNon-followers\n71.4%\nAccounts engaged\n3,087,365\nBy content interactions\nReels\nStories\nPosts\n99.9%\n0.1%\n0%\nFollowers and non-followers\nTop content based on interactions\nSee all\n263K\nSep 16\n255K\nAug 27\n211K\nSep 16\n156K\nSep 8\n149K\nSep 12\nProfile\n163,922\nProfile activity\nProfile visits\n163,922\nFollowers\n96,730\nTotal followers\nMost active times\nM\nTu\nW\nTh\nF\nSa\nSu\n12a\n3a\n6a\n9a\n12p\n3p\n6p\n9p\n31,454\n33,294\n33,524\n38,216\n31,213\n10,571\n14,344\n25,050\nFollowers"
     }
   }
 }

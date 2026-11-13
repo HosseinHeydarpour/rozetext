@@ -20,6 +20,7 @@
     "data:collect": "node scripts/collect-data.mjs",
     "reels:content": "node scripts/update-reels-content.mjs",
     "direct:admin": "node scripts/direct-admin.mjs",
+    "dashboard:collect": "node scripts/dashboard-data.mjs",
     "dashboard:data": "node scripts/build-dashboard-data.mjs",
     "bot": "node bot/index.mjs",
     "dashboard:dev": "npm --prefix dashboard run dev",

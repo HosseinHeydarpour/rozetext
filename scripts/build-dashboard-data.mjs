@@ -255,7 +255,8 @@ const snapshot = {
   recentContent: contentTable.rows,
   topBySaves,
   topByViews,
-  activeTimes: insight30.active_times?.hours || {},
+  activeTimes: insight30.active_times?.days || {},
+  activeTimesBest: insight30.active_times?.best ?? null,
 }
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true })
