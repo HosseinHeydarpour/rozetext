@@ -4,6 +4,7 @@ import { Box, Card, CardContent, CardHeader, Chip, Grid, LinearProgress, Stack, 
 import { BarChart } from '@mui/x-charts/BarChart'
 import { PieChart } from '@mui/x-charts/PieChart'
 import PageHeader from '../components/PageHeader'
+import ActiveHoursCard from '../components/ActiveHoursCard'
 import { fa, pct } from '../lib/format'
 import { useSnapshot } from '../lib/use-snapshot'
 
@@ -52,15 +53,22 @@ export default function AudiencePage() {
             <CardContent sx={{ pt: 0 }}>
               <BarChart
                 height={300}
-                xAxis={[{ scaleType: 'band', data: demographics.ageGender.map((bucket) => bucket.bucket) }]}
+                xAxis={[{ scaleType: 'band', data: demographics.ageGender.map((bucket) => bucket.bucket), tickLabelStyle: { display: 'none' } }]}
                 yAxis={[{ valueFormatter: (value: number) => pct(value) }]}
                 series={[
                   { data: demographics.ageGender.map((bucket) => bucket.men), label: 'مرد', color: theme.palette.primary.main },
                   { data: demographics.ageGender.map((bucket) => bucket.women), label: 'زن', color: theme.palette.info.main },
                 ]}
                 grid={{ horizontal: true }}
-                margin={{ left: 55, right: 20, top: 20, bottom: 40 }}
+                margin={{ left: 55, right: 20, top: 20, bottom: 8 }}
               />
+              <Box style={{ paddingLeft: 66, paddingRight: 20, direction: 'ltr' }} sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                {demographics.ageGender.map((bucket) => (
+                  <Typography key={bucket.bucket} sx={{ fontSize: 11, color: 'text.disabled' }}>
+                    {bucket.bucket}
+                  </Typography>
+                ))}
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -136,6 +144,10 @@ export default function AudiencePage() {
               </Stack>
             </CardContent>
           </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12 }}>
+          <ActiveHoursCard snapshot={snapshot} />
         </Grid>
       </Grid>
     </Box>

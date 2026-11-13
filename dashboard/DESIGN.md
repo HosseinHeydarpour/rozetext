@@ -83,7 +83,7 @@ The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `da
 - The Figma "Current Download" donut has 4 arbitrary slices; ours shows six real age buckets and the real follower total in the center.
 - The Figma page ships a photo in the featured card. There are no reel thumbnails in the data, so the card uses a brand gradient and the caption.
 - Chart x-axis labels are rendered as a label row under the chart (MUI X v9 renders empty tick labels when the axis is fed raw ISO dates).
-- The "active times" export parses into `{"12a":3,"3a":6,…,"9p":31454}` — labels and values are transposed, so the screen does not show an active-hours chart. It needs a fix in the scraper before it can be trusted.
+- The "active times" export carries all seven days and the best slot, so the audience screen shows a day-by-day bar chart with the peak hour marked.
 
 ## Type
 
