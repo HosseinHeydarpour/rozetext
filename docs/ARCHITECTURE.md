@@ -39,6 +39,12 @@ rozetext/
 │  ├─ auth.mjs                     پسورد، کوکی HMAC، rate limit
 │  └─ routes.mjs
 │
+├─ bot/
+│  ├─ index.mjs                    ربات تلگرام: منوی اسکیل‌ها → opencode run
+│  ├─ skills.mjs                   تنها منبع اسم فارسی و راهنمای اسکیل‌ها
+│  ├─ miniapp.mjs                  سرور محلی مینی‌اپ + تونل cloudflared
+│  └─ miniapp/                     صفحهٔ مینی‌اپ (HTML/CSS/JS، بدون build)
+│
 ├─ lib/
 │  ├─ beatapi.mjs                  کلاینت BeatAPI (فقط سرور)
 │  ├─ normalize.mjs                پاسخ خام → مدل داخلی
@@ -72,7 +78,18 @@ BeatAPI ──sync.mjs──> data/{profile,posts,growth}.json
                               dist/ ──> Cloudflare Pages ──> دامنه
 
 server ──> dashboard  (لوکال یا VPS، پشت پسورد)
+telegram ──> bot ──> opencode run --session …  (همان سشن دسکتاپ)
 ```
+
+## ربات تلگرام
+
+- یک پروسه Node، بدون dependency: `npm run bot`.
+- هر اسکیل یک دکمه است؛ دکمه فقط اسکیل را انتخاب می‌کند، پیام بعدی با آن اسکیل اجرا می‌شود.
+- اجرای کار از `opencode-cli run --session <id> --auto --format json` در ریشهٔ ریپو انجام می‌شود؛ سشن همان سشنی است که در اپ دسکتاپ دیده می‌شود.
+- فقط یک chat id مجاز است (`TELEGRAM_ALLOWED_CHAT_ID`). خالی باشد، ربات id را چاپ می‌کند و اجرا نمی‌کند.
+- `--auto` یعنی ابزارها بدون تأیید اجرا می‌شوند. ربات را فقط روی ماشین خودت و با allowlist نگه دار.
+- مینی‌اپ: `bot/miniapp/` استاتیک است و `bot/miniapp.mjs` روی `MINIAPP_PORT` (پیش‌فرض 8787) سرو می‌کند. ربات در استارت با `cloudflared` یک تونل `trycloudflare.com` می‌گیرد و دکمهٔ منوی چت را به آن آدرس وصل می‌کند. آدرس هر ری‌استارت عوض می‌شود.
+- انتخاب هر اسکیل در مینی‌اپ یک دیپ‌لینک است (`t.me/<bot>?start=sk_<name>`)، نه فراخوانی سرور. برای همین هیچ کلیدی داخل صفحه نیست.
 
 - `sync` روزی یک رکورد در `growth.json` می‌نویسد؛ اجرای دوباره در همان روز همان رکورد را به‌روز می‌کند.
 - `posts.json` با `id` پست کلید می‌خورد؛ پست حذف‌شده از اینستاگرام پاک نمی‌شود، `archived` می‌گیرد.

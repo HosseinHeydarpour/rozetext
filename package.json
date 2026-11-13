@@ -8,6 +8,8 @@
   "scripts": {
     "login": "node scripts/login.mjs",
     "login:collect": "node scripts/login.mjs --account=collect",
+    "session:import": "node scripts/import-session.mjs --account=collect",
+    "benchmark:hunt": "node scripts/hunt-benchmark-accounts.mjs",
     "dashboard:data": "node scripts/dashboard-data.mjs",
     "meta:suite": "node scripts/meta-suite.mjs",
     "meta:export": "node scripts/meta-export.mjs",
@@ -16,7 +18,10 @@
     "meta:ranges": "node scripts/meta-ranges.mjs",
     "meta:content": "node scripts/meta-content.mjs",
     "data:collect": "node scripts/collect-data.mjs",
+    "reels:content": "node scripts/update-reels-content.mjs",
+    "direct:admin": "node scripts/direct-admin.mjs",
     "dashboard:data": "node scripts/build-dashboard-data.mjs",
+    "bot": "node bot/index.mjs",
     "dashboard:dev": "npm --prefix dashboard run dev",
     "dashboard:build": "npm --prefix dashboard run build"
   },
