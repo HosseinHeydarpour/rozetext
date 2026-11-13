@@ -345,11 +345,26 @@ export default function CreatorPage() {
                 </Stack>
                 {audioNote ? <Alert severity="info">{audioNote}</Alert> : null}
                 <Divider />
-                <Stack spacing={1}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>متن تستی برای فاز بعد</Typography>
-                  <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
-                    هوک: «من منتظر جبران هیچ‌کس نیستم…» — متن: «گاهی دلم برای بچگی‌هام تنگ میشه…». همان چیزی که در پیش‌نمایش بالا می‌بینی،
-                    روی صدای همین ریل سوار می‌شود.
+                <Stack spacing={1.5}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>متن آماده برای ساخت ویدیو</Typography>
+                  <TextField
+                    size="small"
+                    label="هوک تستی"
+                    value={settings.hook}
+                    onChange={(event) => patch({ hook: event.target.value })}
+                    multiline
+                    minRows={1}
+                  />
+                  <TextField
+                    size="small"
+                    label="متن تستی"
+                    value={settings.body}
+                    onChange={(event) => patch({ body: event.target.value })}
+                    multiline
+                    minRows={3}
+                  />
+                  <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>
+                    همان متنی که در پیش‌نمایش می‌بینی، روی صدای ریل بالا سوار می‌شود.
                   </Typography>
                 </Stack>
               </Stack>
