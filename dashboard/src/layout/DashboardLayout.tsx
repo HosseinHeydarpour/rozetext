@@ -38,6 +38,8 @@ import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded'
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded'
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import EventAvailableRoundedIcon from '@mui/icons-material/EventAvailableRounded'
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded'
+import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded'
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded'
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
@@ -71,6 +73,12 @@ const navItems: NavItem[] = [
     ],
   },
   { to: '/audience', label: 'مخاطب', icon: <PeopleAltRoundedIcon /> },
+  {
+    to: '/settings',
+    label: 'تنظیمات',
+    icon: <SettingsRoundedIcon />,
+    children: [{ to: '/settings/telegram', label: 'ربات تلگرام', icon: <SmartToyRoundedIcon fontSize="small" /> }],
+  },
 ]
 
 const titles: Record<string, string> = {
@@ -79,6 +87,7 @@ const titles: Record<string, string> = {
   '/content/analyzer': 'آنالیزور محتوا',
   '/content/benchmark': 'اکانت‌های مرجع',
   '/audience': 'مخاطب',
+  '/settings/telegram': 'ربات تلگرام',
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

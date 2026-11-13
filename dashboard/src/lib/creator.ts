@@ -198,6 +198,47 @@ export interface DrawOptions {
   preview?: boolean
 }
 
+export function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error(`تصویر بارگذاری نشد: ${src}`))
+    image.src = src
+  })
+}
+
+/** Short cover title taken from the reel's first sentence. */
+export function deriveHook(text: string, maxLength = 58) {
+  const first = text.trim().split(/\n|(?<=[.!؟])\s/)[0] ?? ''
+  const clean = first.replace(/\s+/g, ' ').trim()
+  if (clean.length <= maxLength) return clean
+  const words = clean.slice(0, maxLength).split(' ')
+  words.pop()
+  return `${words.join(' ')}…`
+}
+
+/** Render one PNG without a visible canvas, ready for download or a batch. */
+export async function renderPostBlob(settings: CreatorSettings): Promise<Blob> {
+  const canvas = document.createElement('canvas')
+  canvas.width = CANVAS_WIDTH
+  canvas.height = CANVAS_HEIGHT
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('canvas 2d در دسترس نیست')
+  const image = settings.backgroundImage ? await loadImage(settings.backgroundImage) : null
+  drawPost(context, { ...settings, showSafeArea: false }, { backgroundImage: image, preview: false })
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('ساخت تصویر ناموفق بود'))), 'image/png')
+  })
+}
+
+export const downloadBlob = (blob: Blob, fileName: string) => {
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = fileName
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(link.href), 4000)
+}
+
 export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSettings, options: DrawOptions = {}) {
   const theme = THEMES[settings.mode]
   const isCover = settings.kind === 'cover'

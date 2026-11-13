@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import {
   Alert,
   Box,
@@ -11,6 +12,7 @@ import {
   Divider,
   Grid,
   Link as MuiLink,
+  Snackbar,
   Stack,
   Tooltip,
   Typography,
@@ -20,7 +22,22 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
 import TopicRoundedIcon from '@mui/icons-material/TopicRounded'
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded'
 import { fa } from '@/lib/format'
+import {
+  BACKGROUNDS,
+  COVER_FONT,
+  COVER_OFFSET,
+  DEFAULT_SAFE_AREA,
+  THEMES,
+  deriveHook,
+  downloadBlob,
+  loadImage,
+  renderPostBlob,
+  type CreatorSettings,
+} from '@/lib/creator'
 
 interface Slot {
   rank?: number
@@ -82,6 +99,10 @@ export default function SchedulePage() {
   const [error, setError] = useState<string | null>(null)
   const [from, setFrom] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
+  const [building, setBuilding] = useState(false)
+  const [exporting, setExporting] = useState<string | null>(null)
+  const [notice, setNotice] = useState<{ severity: 'success' | 'info' | 'error'; message: string } | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     setLoading(true)
@@ -98,11 +119,88 @@ export default function SchedulePage() {
       })
       .catch((cause) => setError(String((cause as Error).message ?? cause)))
       .finally(() => setLoading(false))
-  }, [from])
+  }, [from, reloadKey])
 
   const days = data?.days ?? []
   const total = useMemo(() => days.reduce((sum, day) => sum + (day.plan?.slots.length ?? 0), 0), [days])
   const current = days.find((day) => day.date === selected) ?? days[0] ?? null
+
+  const buildPlan = async () => {
+    if (!current) return
+    setBuilding(true)
+    try {
+      const response = await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ date: current.date }),
+      })
+      const body = (await response.json()) as { ok: boolean; error?: string; reason?: string; plan?: { slots?: unknown[] } }
+      if (!body.ok) {
+        setNotice({ severity: body.reason === 'no-candidates' ? 'info' : 'error', message: body.error ?? 'ساخت برنامه ناموفق بود.' })
+        return
+      }
+      setNotice({ severity: 'success', message: `برنامهٔ ${current.date} ساخته شد.` })
+      setReloadKey((value) => value + 1)
+    } catch (cause) {
+      setNotice({ severity: 'error', message: String((cause as Error).message ?? cause) })
+    } finally {
+      setBuilding(false)
+    }
+  }
+
+  const exportDay = async (day: Day) => {
+    const slots = day.plan?.slots ?? []
+    if (slots.length === 0) return
+    setExporting(day.date)
+    try {
+      await Promise.all([document.fonts.load('700 55px IRLotus'), document.fonts.load('400 92px IRTitr')])
+      const base: CreatorSettings = {
+        mode: 'dark',
+        kind: 'text',
+        align: 'center',
+        highlight: 'box',
+        body: '',
+        hook: '',
+        fontSize: THEMES.dark.fontSize,
+        lineHeight: THEMES.dark.lineHeight,
+        offsetY: 0,
+        offsetX: 0,
+        textColor: THEMES.dark.text,
+        highlightColor: THEMES.dark.accent,
+        safeArea: { ...DEFAULT_SAFE_AREA },
+        background: THEMES.dark.background,
+        backgroundImage: BACKGROUNDS.dark.text,
+        showSafeArea: false,
+      }
+
+      for (const [index, slot] of slots.entries()) {
+        const content = slot.content ?? ''
+        if (!content.trim()) continue
+        const order = String(index + 1).padStart(2, '0')
+
+        const cover = await renderPostBlob({
+          ...base,
+          kind: 'cover',
+          hook: deriveHook(content),
+          fontSize: COVER_FONT.fontSize,
+          lineHeight: COVER_FONT.lineHeight,
+          offsetY: COVER_OFFSET,
+          backgroundImage: BACKGROUNDS.dark.cover,
+        })
+        downloadBlob(cover, `${day.date}-${order}-cover.png`)
+        await new Promise((resolve) => setTimeout(resolve, 350))
+
+        const post = await renderPostBlob({ ...base, kind: 'text', body: content })
+        downloadBlob(post, `${day.date}-${order}-text.png`)
+        await new Promise((resolve) => setTimeout(resolve, 350))
+      }
+      setNotice({ severity: 'success', message: `${fa.format(slots.length * 2)} تصویر برای ${fullDayFa(day.date)} ساخته شد.` })
+    } catch (cause) {
+      setNotice({ severity: 'error', message: String((cause as Error).message ?? cause) })
+    } finally {
+      setExporting(null)
+    }
+  }
 
   return (
     <Box>
@@ -212,27 +310,40 @@ export default function SchedulePage() {
                 </Typography>
               </Box>
               {current.plan ? (
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <Chip size="small" variant="outlined" label={`ظرفیت: ${fa.format(current.plan.capacity)}`} />
                   {current.plan.unscheduled.length ? (
                     <Chip size="small" color="warning" variant="outlined" label={`${fa.format(current.plan.unscheduled.length)} بدون جای خالی`} />
                   ) : null}
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<DownloadRoundedIcon />}
+                    onClick={() => void exportDay(current)}
+                    disabled={exporting === current.date || current.plan.slots.length === 0}
+                  >
+                    {exporting === current.date ? 'در حال ساخت…' : 'خروجی کل روز'}
+                  </Button>
                 </Stack>
-              ) : null}
+              ) : (
+                <Button size="small" variant="contained" startIcon={<ReplayRoundedIcon />} onClick={() => void buildPlan()} disabled={building}>
+                  {building ? 'در حال ساخت…' : 'ساخت برنامهٔ این روز'}
+                </Button>
+              )}
             </Stack>
 
             {!current.plan ? (
               <Alert severity="info" icon={false}>
                 <Stack spacing={1}>
-                  <Typography variant="body2">هنوز برنامه‌ای برای این روز ساخته نشده است. بعد از تأیید متن‌ها این دستور را اجرا کن:</Typography>
-                  <Box
-                    dir="ltr"
-                    sx={{ fontFamily: 'monospace', fontSize: 12, bgcolor: 'action.hover', borderRadius: 1, px: 1.5, py: 1, alignSelf: 'flex-start' }}
-                  >
-                    {`npm run plan:content -- --date=${current.date}`}
-                  </Box>
+                  <Typography variant="body2">
+                    برای این روز هنوز چیزی چیده نشده است. برنامه وقتی ساخته می‌شود که اسکیل شکار متن، چند متن را تأیید کرده و در دیتابیس گذاشته باشد؛
+                    بعد از آن، دکمهٔ «ساخت برنامهٔ این روز» متن‌ها را روی ساعت‌های فعال مخاطب می‌چیند.
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    خروجی در <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace' }}>data/content-hunt/plans</Box> ذخیره می‌شود.
+                    اگر می‌خواهی از ترمینال اجرا کنی:{' '}
+                    <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace' }}>
+                      npm run plan:content -- --date={current.date}
+                    </Box>
                   </Typography>
                 </Stack>
               </Alert>
@@ -312,6 +423,17 @@ export default function SchedulePage() {
                             <Typography sx={{ fontSize: 11, color: 'text.secondary', direction: 'ltr', fontFamily: 'monospace' }}>{slot.shortcode}</Typography>
                           ) : null}
                           <Box sx={{ flexGrow: 1 }} />
+                          {slot.shortcode ? (
+                            <Button
+                              size="small"
+                              component={Link}
+                              href={`/content/creator?date=${current.date}&shortcode=${encodeURIComponent(slot.shortcode)}`}
+                              startIcon={<AutoAwesomeRoundedIcon />}
+                              sx={{ fontSize: 12 }}
+                            >
+                              ساخت پست
+                            </Button>
+                          ) : null}
                           {slot.source_url ? (
                             <MuiLink
                               href={slot.source_url}
@@ -349,6 +471,17 @@ export default function SchedulePage() {
           </CardContent>
         </Card>
       ) : null}
+
+      <Snackbar
+        open={Boolean(notice)}
+        autoHideDuration={6000}
+        onClose={() => setNotice(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert severity={notice?.severity ?? 'info'} onClose={() => setNotice(null)} sx={{ maxWidth: 520 }}>
+          {notice?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

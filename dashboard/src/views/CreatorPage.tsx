@@ -25,7 +25,7 @@ import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
-import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, drawPost, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, drawPost, deriveHook, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
 
 const STORAGE_KEY = 'rozetext-creator'
 
@@ -78,8 +78,30 @@ export default function CreatorPage() {
   const [backgroundVersion, setBackgroundVersion] = useState(0)
   const [customColor, setCustomColor] = useState(false)
   const [customHighlight, setCustomHighlight] = useState(false)
+  const [prefilled, setPrefilled] = useState<{ date: string; shortcode: string; window?: string } | null>(null)
 
   const theme = THEMES[settings.mode]
+
+  // a slot from the schedule screen arrives as ?date=&shortcode= and fills both texts
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const date = params.get('date')
+    const shortcode = params.get('shortcode')
+    if (!date || !shortcode) return
+    fetch(`/api/schedule?from=${date}&days=1`, { cache: 'no-store' })
+      .then((response) => response.json())
+      .then((body: { days?: { date: string; plan: { slots: { shortcode?: string; content?: string; window?: string }[] } | null }[] }) => {
+        const slot = body.days?.[0]?.plan?.slots.find((item) => item.shortcode === shortcode)
+        if (!slot?.content) return
+        setSettings((current) => ({
+          ...current,
+          body: slot.content ?? current.body,
+          hook: deriveHook(slot.content ?? current.hook),
+        }))
+        setPrefilled({ date, shortcode, window: slot.window })
+      })
+      .catch(() => null)
+  }, [])
 
   // restore the saved creator setup (colour, safe area, effect, alignment) after mount
   useEffect(() => {
@@ -235,6 +257,11 @@ export default function CreatorPage() {
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               پست ۱۰۸۰×۱۹۲۰ برای ریلز و کاور؛ خروجی PNG با همان چیدمانی که می‌بینی.
             </Typography>
+            {prefilled ? (
+              <Alert severity="success" icon={false} sx={{ mt: 1.5, py: 0.5 }}>
+                متنِ برنامهٔ {prefilled.date} بارگذاری شد؛ کاور و متن آمادهٔ خروجی‌اند.
+              </Alert>
+            ) : null}
           </Box>
           <Stack direction="row" spacing={1}>
             <ToggleButtonGroup exclusive size="small" value={settings.mode} onChange={(_, value: CreatorMode | null) => value && switchMode(value)}>

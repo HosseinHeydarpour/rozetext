@@ -73,9 +73,17 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 
 The reel-audio card is a phase-2 scaffold: it prefills a real reel link from `data/main-database/reels_database.json` and the test hook/body, and states that extraction is not wired to ffmpeg yet instead of faking a result.
 
+## Settings
+
+`/settings/telegram` reads the bot catalog from `bot/skills.mjs` and the token state from `.env` through `/api/telegram` (the token value is never returned; it only calls Telegram `getMe` to prove the connection). It lists each skill with its label, summary, when-to-run line and steps, plus the `npm run bot` command. The section holds only this screen for now.
+
 ## Schedule screen
 
-`/content/schedule` («محتوای آماده انتشار») reads `data/content-hunt/plans/<date>.json` through `/api/schedule` and lays the next seven days out as selectable day cards, starting today in Asia/Tehran. Each card shows the weekday, the Jalali date and how many texts are planned; clicking it opens that day's slots: window, start time, score, archetype, theme, follower activity, the reel text, the caption and a link to the source reel. Slots the planner could not place are listed separately. Days without a plan say so and print the exact `npm run plan:content` command instead of inventing content.
+`/content/schedule` («محتوای آماده انتشار») reads `data/content-hunt/plans/<date>.json` through `/api/schedule` and lays the next seven days out as selectable day cards, starting today in Asia/Tehran. Each card shows the weekday, the Jalali date and how many texts are planned; clicking it opens that day's slots: window, start time, score, archetype, theme, follower activity, the reel text, the caption and a link to the source reel. Slots the planner could not place are listed separately.
+
+- «ساخت برنامهٔ این روز» posts to `/api/plans`, which runs `scripts/plan-content.mjs --date=…` and reloads the week. With no confirmed texts it says so instead of failing.
+- «ساخت پست» opens the creator with `?date=&shortcode=`, so the reel text and a derived cover hook are already in place.
+- «خروجی کل روز» renders a cover and a text post per slot with the shared canvas renderer and downloads them as `<date>-<rank>-cover.png` / `-text.png`.
 
 ## Benchmark accounts screen
 `/content/benchmark` reads `data/benchmark-accounts/benchmark_accounts.json` through `/api/benchmark` and shows one card per account: avatar (from the stored base64), Persian name, handle, cluster chip, followers/posts/following, average and record views, the content style and the matching archetypes. Four KPI cards (accounts, total followers, median, max) sit above a search field and a sort selector (followers / posts / alphabetical).
