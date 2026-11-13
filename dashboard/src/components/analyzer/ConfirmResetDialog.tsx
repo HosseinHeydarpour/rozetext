@@ -5,21 +5,20 @@ import { useState } from 'react'
 
 interface ConfirmResetDialogProps {
   open: boolean
-  account: string
   onConfirm: () => void
   onClose: () => void
 }
 
-export default function ConfirmResetDialog({ open, account, onConfirm, onClose }: ConfirmResetDialogProps) {
+export default function ConfirmResetDialog({ open, onConfirm, onClose }: ConfirmResetDialogProps) {
   const [value, setValue] = useState('')
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>پاک‌کردن دادهٔ «{account}»</DialogTitle>
+      <DialogTitle>پاک‌کردن دادهٔ ریل‌ها</DialogTitle>
       <DialogContent>
         <Stack spacing={1}>
           <Typography variant="body2" color="text.secondary">
-            همهٔ ریل‌های ذخیره‌شدهٔ این حساب حذف می‌شوند. این کار برگشت‌پذیر نیست.
+            همهٔ ریل‌های ذخیره‌شده در دیتابیس حذف می‌شوند. این کار برگشت‌پذیر نیست.
           </Typography>
           <TextField
             autoFocus

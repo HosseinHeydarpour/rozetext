@@ -8,41 +8,22 @@ import {
   Card,
   CardContent,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Grid,
-  MenuItem,
   Snackbar,
   Stack,
-  Switch,
-  TextField,
   Typography,
-  FormControlLabel,
 } from '@mui/material'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
-import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded'
-import PlaylistAddCheckRoundedIcon from '@mui/icons-material/PlaylistAddCheckRounded'
-import PageHeader from '@/components/PageHeader'
 import ReelsTable from '@/components/analyzer/ReelsTable'
 import TextEditorDialog from '@/components/analyzer/TextEditorDialog'
 import ImportCsvDialog from '@/components/analyzer/ImportCsvDialog'
-import ImportJsonDialog from '@/components/analyzer/ImportJsonDialog'
-import SelectionDialog from '@/components/analyzer/SelectionDialog'
 import ConfirmResetDialog from '@/components/analyzer/ConfirmResetDialog'
+import ReportDialog, { type ReportFormat } from '@/components/analyzer/ReportDialog'
 import { fa, faCompact, stampFa } from '@/lib/format'
 import { parseCsv } from '@/lib/csv'
-import {
-  accountRows,
-  applyContentJson,
-  buildReport,
-  mergeCsv,
-  summarize,
-  type ReelsDb,
-} from '@/lib/reels'
+import { accountRows, buildReport, buildReportMarkdown, mergeCsv, summarize, type ReelsDb } from '@/lib/reels'
 
 type Toast = { severity: 'success' | 'error' | 'info'; message: string }
 
@@ -57,15 +38,10 @@ export default function AnalyzerPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<Toast | null>(null)
-  const [selectionMode, setSelectionMode] = useState(false)
-  const [selected, setSelected] = useState<string[]>([])
-  const [selectionOpen, setSelectionOpen] = useState(false)
   const [editor, setEditor] = useState<{ id: string; field: 'content' | 'prediction' } | null>(null)
   const [csvOpen, setCsvOpen] = useState(false)
-  const [jsonOpen, setJsonOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
-  const [accountOpen, setAccountOpen] = useState(false)
-  const [accountName, setAccountName] = useState('')
   const [initialSearch, setInitialSearch] = useState('')
 
   useEffect(() => {
@@ -127,7 +103,7 @@ export default function AnalyzerPage() {
     item[field] = value
     next.accounts[next.active_account].last_updated = stamp()
     setEditor(null)
-    await persist(next, field === 'content' ? 'محتوا ذخیره شد.' : 'پیش‌بینی ذخیره شد.')
+    await persist(next, field === 'content' ? 'متن ریلز ذخیره شد.' : 'پیش‌بینی ذخیره شد.')
   }
 
   const toggleFlop = async (id: string) => {
@@ -151,17 +127,6 @@ export default function AnalyzerPage() {
     }
   }
 
-  const importJson = async (text: string) => {
-    if (!db) return
-    try {
-      const result = applyContentJson(db, JSON.parse(text))
-      setJsonOpen(false)
-      await persist(result.db, `${fa.format(result.updated)} محتوا آپدیت شد، ${fa.format(result.notFound)} ریل پیدا نشد.`)
-    } catch (error) {
-      setToast({ severity: 'error', message: String((error as Error).message ?? error) })
-    }
-  }
-
   const resetAccount = async () => {
     if (!db) return
     const next = clone()
@@ -169,55 +134,24 @@ export default function AnalyzerPage() {
     account.items = {}
     account.last_updated = stamp()
     setResetOpen(false)
-    await persist(next, 'دادهٔ این حساب پاک شد.')
+    await persist(next, 'داده پاک شد.')
   }
 
-  const createAccount = async () => {
-    if (!db) return
-    const name = accountName.trim()
-    if (!name) return
-    if (db.accounts[name]) {
-      setToast({ severity: 'error', message: `حساب «${name}» از قبل وجود دارد.` })
-      return
-    }
-    const next = clone()
-    next.accounts[name] = { last_updated: 'Never', items: {} }
-    next.active_account = name
-    setAccountOpen(false)
-    setAccountName('')
-    await persist(next, `حساب «${name}» ساخته شد.`)
-  }
-
-  const switchAccount = async (name: string) => {
-    if (!db || name === db.active_account) return
-    const next = clone()
-    next.active_account = name
-    setSelected([])
-    await persist(next)
-  }
-
-  const exportReport = () => {
+  const downloadReport = (format: ReportFormat) => {
     if (!db || rows.length === 0) {
       setToast({ severity: 'info', message: 'ریلی برای گزارش وجود ندارد.' })
       return
     }
     const sorted = [...rows].sort((a, b) => b.views - a.views)
-    const report = buildReport(db.active_account, sorted)
-    const blob = new Blob([report], { type: 'text/plain;charset=utf-8' })
+    const body = format === 'md' ? buildReportMarkdown('رز تکست', sorted) : buildReport('رز تکست', sorted)
+    const blob = new Blob([body], { type: format === 'md' ? 'text/markdown;charset=utf-8' : 'text/plain;charset=utf-8' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `reels-report-${db.active_account}-${new Date().toISOString().slice(0, 10)}.txt`
+    link.download = `rozetext-reels-${new Date().toISOString().slice(0, 10)}.${format}`
     link.click()
     URL.revokeObjectURL(link.href)
-    setToast({ severity: 'success', message: 'گزارش ساخته شد.' })
-  }
-
-  const toggleSelectionMode = () => {
-    setSelectionMode((value) => {
-      if (value) setSelectionOpen(true)
-      else setSelected([])
-      return !value
-    })
+    setReportOpen(false)
+    setToast({ severity: 'success', message: `گزارش ${format.toUpperCase()} ساخته شد.` })
   }
 
   const kpis = [
@@ -239,48 +173,19 @@ export default function AnalyzerPage() {
             آنالیزور محتوا
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            مدیریت و تحلیل ریل‌ها روی دیتابیس{' '}
-            <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace', fontSize: 13 }}>
-              reels_database.json
-            </Box>{' '}
-            ؛ همان چرخهٔ ایمپورت، ویرایش و گزارش نسخهٔ دسکتاپ.
+            مدیریت و تحلیل ریل‌های رز تکست؛ همان چرخهٔ ایمپورت، ویرایش و گزارش نسخهٔ دسکتاپ.
           </Typography>
         </Box>
 
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1, alignItems: 'center' }}>
-          <TextField
-            select
-            size="small"
-            label="حساب"
-            value={db?.active_account ?? ''}
-            onChange={(event) => void switchAccount(event.target.value)}
-            sx={{ minWidth: 150, mt: 0.5 }}
-            slotProps={{ inputLabel: { shrink: true } }}
-            disabled={!db}
-          >
-            {db ? (
-              Object.keys(db.accounts).map((name) => (
-                <MenuItem key={name} value={name}>
-                  <Box component="span" dir="ltr">
-                    {name}
-                  </Box>
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="">—</MenuItem>
-            )}
-          </TextField>
-          <Button size="small" variant="outlined" startIcon={<AddRoundedIcon />} onClick={() => setAccountOpen(true)} disabled={!db}>
-            حساب جدید
-          </Button>
           <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setCsvOpen(true)} disabled={!db}>
             ایمپورت CSV
           </Button>
-          <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => setJsonOpen(true)} disabled={!db}>
-            ایمپورت محتوا
+          <Button size="small" variant="outlined" startIcon={<DeleteSweepRoundedIcon />} color="error" onClick={() => setResetOpen(true)} disabled={!db}>
+            پاک‌کردن داده
           </Button>
           <Box sx={{ flexGrow: 1 }} />
-          <Button size="small" variant="contained" startIcon={<DownloadRoundedIcon />} onClick={exportReport} disabled={!db}>
+          <Button size="small" variant="contained" startIcon={<DownloadRoundedIcon />} onClick={() => setReportOpen(true)} disabled={!db}>
             گزارش
           </Button>
         </Stack>
@@ -302,26 +207,15 @@ export default function AnalyzerPage() {
       <Card sx={{ mb: 2 }}>
         <CardContent sx={{ py: 1.5 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ alignItems: { md: 'center' } }}>
-            <FormControlLabel
-              control={<Switch checked={selectionMode} onChange={toggleSelectionMode} />}
-              label="حالت انتخاب"
-            />
-            {selectionMode ? (
-              <Button size="small" startIcon={<PlaylistAddCheckRoundedIcon />} onClick={() => setSelectionOpen(true)}>
-                نمایش {fa.format(selected.length)} کد
-              </Button>
-            ) : null}
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
               <Chip size="small" label={`جدید: ${fa.format(stats.newCount)}`} color="success" />
               <Chip size="small" label={`آپدیت‌شده: ${fa.format(stats.updatedCount)}`} color="warning" />
               <Chip size="small" label={`فلپ دستی: ${fa.format(stats.flopped)}`} />
-              <Chip size="small" label={`آخرین ذخیره: ${activeAccount?.last_updated ? stampFa(activeAccount.last_updated) : '—'}`} />
             </Stack>
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ flexGrow: 1 }} />
-            <Button size="small" color="error" startIcon={<DeleteSweepRoundedIcon />} onClick={() => setResetOpen(true)} disabled={!db}>
-              پاک‌کردن داده
-            </Button>
+            <Typography variant="caption" color="text.secondary">
+              آخرین ذخیره: {activeAccount?.last_updated ? stampFa(activeAccount.last_updated) : '—'}
+            </Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -336,9 +230,6 @@ export default function AnalyzerPage() {
         rows={rows}
         loading={loading || saving}
         initialSearch={initialSearch}
-        selectionMode={selectionMode}
-        selected={selected}
-        onSelectionToggle={(id) => setSelected((current) => (current.includes(id) ? current : [...current, id]))}
         onEdit={(id, field) => setEditor({ id, field })}
         onToggleFlop={(id) => void toggleFlop(id)}
       />
@@ -347,7 +238,7 @@ export default function AnalyzerPage() {
         <TextEditorDialog
           key={`${editor.id}-${editor.field}`}
           open
-          title={editor.field === 'content' ? `محتوای دستی — ${editor.id}` : `پیش‌بینی — ${editor.id}`}
+          title={editor.field === 'content' ? `متن ریلز — ${editor.id}` : `پیش‌بینی — ${editor.id}`}
           initial={editing[editor.field] ?? ''}
           onSave={(value) => void updateItem(editor.id, editor.field, value)}
           onClose={() => setEditor(null)}
@@ -355,34 +246,8 @@ export default function AnalyzerPage() {
       ) : null}
 
       <ImportCsvDialog open={csvOpen} onClose={() => setCsvOpen(false)} onImport={(text, name) => void importCsv(text, name)} />
-      <ImportJsonDialog open={jsonOpen} onClose={() => setJsonOpen(false)} onImport={(text) => void importJson(text)} />
-      <SelectionDialog open={selectionOpen} codes={selected} onClose={() => setSelectionOpen(false)} />
-      <ConfirmResetDialog
-        open={resetOpen}
-        account={db?.active_account ?? ''}
-        onConfirm={() => void resetAccount()}
-        onClose={() => setResetOpen(false)}
-      />
-
-      <Dialog open={accountOpen} onClose={() => setAccountOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>حساب جدید</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            fullWidth
-            label="نام حساب"
-            value={accountName}
-            onChange={(event) => setAccountName(event.target.value)}
-            sx={{ mt: 1 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAccountOpen(false)}>انصراف</Button>
-          <Button variant="contained" disabled={!accountName.trim()} onClick={() => void createAccount()}>
-            بساز
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ReportDialog open={reportOpen} count={rows.length} onClose={() => setReportOpen(false)} onDownload={downloadReport} />
+      <ConfirmResetDialog open={resetOpen} onConfirm={() => void resetAccount()} onClose={() => setResetOpen(false)} />
 
       <Snackbar open={saving} message="در حال ذخیره…" anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} />
     </Box>

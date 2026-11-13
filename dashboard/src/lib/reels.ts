@@ -280,6 +280,53 @@ export function buildReport(accountName: string, rows: ReelRow[]) {
   return lines.join('\n')
 }
 
+/** Same content as `buildReport`, as a markdown document with a summary table. */
+export function buildReportMarkdown(accountName: string, rows: ReelRow[]) {
+  const counts = summarize(rows)
+  const lines = [
+    `# گزارش ریل‌های ${accountName}`,
+    '',
+    `- تعداد ریل: ${counts.count}`,
+    `- مجموع ویو: ${counts.total.toLocaleString('en-US')}`,
+    `- میانهٔ ویو: ${counts.median.toLocaleString('en-US')}`,
+    `- وایرال / متوسط / ضعیف: ${counts.viral} / ${counts.mid} / ${counts.flop}`,
+    '',
+    '| # | کد ریل | تاریخ | ویو | فالو | شیر | سیو | وضعیت |',
+    '| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |',
+  ]
+  rows.forEach((row, index) => {
+    lines.push(
+      `| ${index + 1} | [${row.reelCode}](${row.url}) | ${row.date || '—'} | ${row.views.toLocaleString('en-US')} | ${row.followers.toLocaleString('en-US')} | ${row.share.toLocaleString('en-US')} | ${row.save.toLocaleString('en-US')} | ${row.tier}${row.is_flopped ? ' · فلپ' : ''} |`,
+    )
+  })
+  lines.push('', '## جزئیات', '')
+  rows.forEach((row, index) => {
+    lines.push(`### ${index + 1}. ${row.reelCode} — ${row.tier}`)
+    lines.push('')
+    lines.push(`- لینک: ${row.url}`)
+    lines.push(`- تاریخ: ${row.date || '—'}`)
+    lines.push(`- ویو: ${row.views.toLocaleString('en-US')}`)
+    lines.push(`- فالو جذب‌شده: ${row.followers.toLocaleString('en-US')}`)
+    lines.push(`- شیر: ${row.share.toLocaleString('en-US')} · سیو: ${row.save.toLocaleString('en-US')}`)
+    lines.push('')
+    lines.push(`**کپشن**`)
+    lines.push('')
+    lines.push(row.caption || '_ندارد_')
+    lines.push('')
+    lines.push(`**متن ریلز**`)
+    lines.push('')
+    lines.push(row.content || '_ندارد_')
+    lines.push('')
+    if (row.prediction) {
+      lines.push(`**پیش‌بینی**`)
+      lines.push('')
+      lines.push(row.prediction)
+      lines.push('')
+    }
+  })
+  return lines.join('\n')
+}
+
 export function summarize(rows: ReelRow[]) {
   const views = rows.map((row) => row.views).sort((a, b) => a - b)
   const total = views.reduce((sum, value) => sum + value, 0)

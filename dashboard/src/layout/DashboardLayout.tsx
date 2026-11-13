@@ -34,8 +34,10 @@ import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded'
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded'
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded'
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
+import StorageRoundedIcon from '@mui/icons-material/StorageRounded'
+import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
 import ThemeToggle from '@/components/ThemeToggle'
-import { longDateFa } from '@/lib/format'
+import { longDateFa, clockFa } from '@/lib/format'
 import snapshotJson from '@/data/snapshot.json'
 import type { Snapshot } from '@/lib/types'
 
@@ -193,15 +195,66 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </Box>
 
       <Box sx={{ p: 2 }}>
-        <Divider sx={{ mb: 2 }} />
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-          منبع داده
-        </Typography>
-        <Typography sx={{ fontSize: 13, fontWeight: 600, mt: 0.25 }}>Meta Business Suite</Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
-          آخرین همگام‌سازی
-        </Typography>
-        <Typography sx={{ fontSize: 13, fontWeight: 600, mt: 0.25 }}>{longDateFa(snapshot.generated_at)}</Typography>
+        <Box
+          sx={{
+            borderRadius: 2,
+            border: 1,
+            borderColor: 'divider',
+            bgcolor: 'action.hover',
+            p: 1.75,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1.5,
+          }}
+        >
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: 1.5,
+                display: 'grid',
+                placeItems: 'center',
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                flexShrink: 0,
+              }}
+            >
+              <StorageRoundedIcon fontSize="small" />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 11, color: 'text.secondary', lineHeight: 1.4 }}>منبع داده</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4 }}>Meta Business Suite</Typography>
+            </Box>
+          </Stack>
+
+          <Divider />
+
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: 1.5,
+                display: 'grid',
+                placeItems: 'center',
+                bgcolor: 'background.paper',
+                color: 'primary.main',
+                border: 1,
+                borderColor: 'divider',
+                flexShrink: 0,
+              }}
+            >
+              <ScheduleRoundedIcon fontSize="small" />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 11, color: 'text.secondary', lineHeight: 1.4 }}>آخرین همگام‌سازی</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4 }}>
+                {longDateFa(snapshot.generated_at)} · ساعت {clockFa(snapshot.generated_at)}
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
       </Box>
     </Box>
   )
@@ -219,7 +272,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
-            position: 'relative',
+            position: 'sticky',
+            top: 0,
+            alignSelf: 'flex-start',
+            height: '100vh',
             borderLeft: 1,
             borderColor: 'divider',
             bgcolor: 'background.paper',
@@ -247,7 +303,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           elevation={0}
           sx={{
             height: HEADER_HEIGHT,
-            bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(33, 43, 54, 0.80)' : 'rgba(255, 255, 255, 0.80)'),
+            bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(33, 43, 54, 0.92)' : 'rgba(255, 255, 255, 0.92)'),
             backdropFilter: 'blur(6px)',
             borderBottom: 1,
             borderColor: 'divider',

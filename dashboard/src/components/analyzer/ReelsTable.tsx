@@ -14,10 +14,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { DataGrid, type GridColDef, type GridRowClassNameParams, type GridSortModel, type GridValidRowModel } from '@mui/x-data-grid'
-import { alpha } from '@mui/material/styles'
+import type { GridColDef, GridRowClassNameParams, GridSortModel, GridValidRowModel } from '@mui/x-data-grid'
+import { DataGrid } from '@mui/x-data-grid'
 import { faIR } from '@mui/x-data-grid/locales'
 import type { GridLocaleText } from '@mui/x-data-grid'
+import { alpha } from '@mui/material/styles'
 import { fa, usDateFa } from '@/lib/format'
 import { tierLabel, type ReelRow } from '@/lib/reels'
 
@@ -33,20 +34,30 @@ interface ReelsTableProps {
   rows: ReelRow[]
   onEdit: (id: string, field: 'content' | 'prediction') => void
   onToggleFlop: (id: string) => void
-  onSelectionToggle: (id: string) => void
-  selectionMode: boolean
-  selected: string[]
   loading?: boolean
   initialSearch?: string
 }
 
 function Tik({ value }: { value: string }) {
-  if (!value) return <Typography variant="caption" color="text.disabled">—</Typography>
+  if (!value) {
+    return (
+      <Typography variant="caption" color="text.disabled">
+        —
+      </Typography>
+    )
+  }
   return (
     <Tooltip title={value}>
       <Typography
         variant="body2"
-        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', lineHeight: 2 }}
+        sx={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.6,
+          maxWidth: '100%',
+        }}
       >
         {value}
       </Typography>
@@ -54,21 +65,15 @@ function Tik({ value }: { value: string }) {
   )
 }
 
-export default function ReelsTable({
-  rows,
-  onEdit,
-  onToggleFlop,
-  onSelectionToggle,
-  selectionMode,
-  selected,
-  loading,
-  initialSearch = '',
-}: ReelsTableProps) {
+export default function ReelsTable({ rows, onEdit, onToggleFlop, loading, initialSearch = '' }: ReelsTableProps) {
   const [tier, setTier] = useState<TierFilter>('all')
   const [search, setSearch] = useState(initialSearch)
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'views', sort: 'desc' }])
-  useEffect(() => { if (initialSearch) setSearch(initialSearch) }, [initialSearch])
   const sortDesc = sortModel[0]?.sort !== 'asc'
+
+  useEffect(() => {
+    if (initialSearch) setSearch(initialSearch)
+  }, [initialSearch])
 
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase()
@@ -88,9 +93,9 @@ export default function ReelsTable({
       {
         field: 'reelCode',
         headerName: 'کد ریل',
-        width: 126,
+        width: 140,
         renderCell: (params) => (
-          <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
+          <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0, width: '100%', overflow: 'hidden' }}>
             {params.row.is_new ? <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main', flexShrink: 0 }} /> : null}
             {params.row.is_updated && !params.row.is_new ? (
               <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'warning.main', flexShrink: 0 }} />
@@ -100,8 +105,7 @@ export default function ReelsTable({
               href={params.row.url}
               target="_blank"
               rel="noreferrer"
-              variant="body2"
-              sx={{ color: 'primary.main', fontFamily: 'monospace', fontSize: 12, direction: 'ltr' }}
+              sx={{ color: 'primary.main', fontFamily: 'monospace', fontSize: 12, direction: 'ltr', whiteSpace: 'nowrap' }}
               onClick={(event) => event.stopPropagation()}
             >
               {params.value}
@@ -112,7 +116,7 @@ export default function ReelsTable({
       {
         field: 'date',
         headerName: 'تاریخ',
-        width: 118,
+        width: 112,
         valueFormatter: (value: string) => usDateFa(value),
       },
       {
@@ -172,7 +176,7 @@ export default function ReelsTable({
       },
       {
         field: 'content',
-        headerName: 'محتوای دستی',
+        headerName: 'متن ریلز',
         flex: 1.2,
         minWidth: 190,
         sortable: false,
@@ -182,7 +186,7 @@ export default function ReelsTable({
               event.stopPropagation()
               onEdit(params.row.id, 'content')
             }}
-            sx={{ cursor: 'pointer', width: '100%', '&:hover': { color: 'primary.main' } }}
+            sx={{ cursor: 'pointer', width: '100%', minWidth: 0, overflow: 'hidden', '&:hover': { color: 'primary.main' } }}
           >
             <Tik value={params.row.content} />
           </Box>
@@ -200,7 +204,7 @@ export default function ReelsTable({
               event.stopPropagation()
               onEdit(params.row.id, 'prediction')
             }}
-            sx={{ cursor: 'pointer', width: '100%', '&:hover': { color: 'primary.main' } }}
+            sx={{ cursor: 'pointer', width: '100%', minWidth: 0, overflow: 'hidden', '&:hover': { color: 'primary.main' } }}
           >
             <Tik value={params.row.prediction} />
           </Box>
@@ -228,12 +232,12 @@ export default function ReelsTable({
   )
 
   return (
-    <Card variant="outlined">
+    <Card>
       <Stack spacing={1.5} sx={{ p: 2, pb: 1 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ alignItems: { md: 'center' } }}>
           <TextField
             size="small"
-            placeholder="جستجو در کپشن، محتوا یا کد ریل"
+            placeholder="جستجو در کپشن، متن ریلز یا کد ریل"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             sx={{ minWidth: 260 }}
@@ -259,15 +263,9 @@ export default function ReelsTable({
           >
             مرتب‌سازی ویو {sortDesc ? '↓' : '↑'}
           </Button>
-          <Box sx={{ flexGrow: 1 }} />
-          {selectionMode ? (
-            <Chip size="small" color="primary" label={`${fa.format(selected.length)} ریل انتخاب‌شده`} />
-          ) : null}
         </Stack>
         <Typography variant="caption" color="text.secondary">
-          {selectionMode
-            ? 'حالت انتخاب روشن است؛ با کلیک روی هر ردیف کد ریل به لیست اضافه می‌شود.'
-            : 'برای ویرایش محتوا یا پیش‌بینی روی همان ستون کلیک کنید. کد ریل در تب جدید باز می‌شود.'}
+          برای ویرایش متن ریلز یا پیش‌بینی روی همان ستون کلیک کنید. کد ریل در تب جدید باز می‌شود.
         </Typography>
       </Stack>
 
@@ -287,16 +285,12 @@ export default function ReelsTable({
           onSortModelChange={setSortModel}
           sortingOrder={['desc', 'asc']}
           getRowClassName={(params: GridRowClassNameParams<GridValidRowModel & ReelRow>) => (params.row.is_new ? 'row-new' : '')}
-          onRowClick={(params) => {
-            if (selectionMode) onSelectionToggle(params.row.id)
-          }}
           sx={(theme) => ({
             border: 0,
             '& .MuiDataGrid-columnHeaders': { bgcolor: 'action.hover' },
             '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 700, fontSize: 12 },
-            '& .MuiDataGrid-cell': { alignItems: 'center' },
+            '& .MuiDataGrid-cell': { alignItems: 'center', overflow: 'hidden' },
             '& .row-new': { bgcolor: alpha(theme.palette.success.main, 0.14) },
-            '& .row-updated': { bgcolor: alpha(theme.palette.warning.main, 0.12) },
           })}
         />
       </Box>

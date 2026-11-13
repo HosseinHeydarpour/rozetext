@@ -41,6 +41,15 @@ Dark scheme is the same geometry with `#161C24` ground, `#212B36` paper and `#91
 
 The analyzer and audience screens reuse the same card, header and type rules instead of inventing new ones.
 
+## Analyzer screen
+
+One account (رز تکست), no switcher. Table: code, date, views, followers, shares, saves, tier, caption, «متن ریلز», prediction, flop. Every cell is one line with the full text in a tooltip; clicking «متن ریلز» or «پیشبینی» opens the editor.
+
+- CSV import keeps `content`/`prediction`/`is_flopped` of existing reels, always replaces the caption and marks new rows green.
+- Report dialog exports `.txt` (desktop format) or `.md` (summary table + per-reel details).
+- Reset asks for `DELETE`.
+- Removed on request: account switching, JSON content import, selection mode.
+
 ## Where it departs from the Figma file
 
 - Content is real: no Lorem Ipsum, no "Jaydon Frankie", no invoice rows. The banner says what the page actually did (`۱۹ میلیون ویو …`), the featured card is the best reel, the table is the five latest reels, the donut is age share of the real audience.
