@@ -93,6 +93,8 @@ The ranked queue holds what the database no longer holds: score, lift, provenanc
       "theme": "دوری/جدایی",
       "reasons": ["۱۶ خط", "شروع نامه‌وار", "لیفت ۳.۴ برابر اکانت منبع"],
       "status": "selected",
+      "confirmed": true,
+      "confirmed_at": "2026-11-13T…",
       "source_handle": "shadighorbanyy",
       "source_url": "https://www.instagram.com/reel/DfW7ev_zMTY/",
       "method": "benchmark",
@@ -155,6 +157,8 @@ The dashboard's daily snapshot. Written after scoring, only for selected candida
       "duration_sec": 8,
       "visual_note": "پس‌زمینه مشکی، متن سفید وسط‌چین",
       "cover_url": "",
+      "confirmed": true,
+      "confirmed_at": "2026-11-13T10:20:00.000Z",
       "published": false,
       "published_url": "",
       "published_at": "",
@@ -177,6 +181,7 @@ Field notes:
 | `final_caption` | the caption to publish, ending with `#رزتکست` |
 | `lines`, `hook`, `theme` | the text shape that drives the score |
 | `duration_sec`, `visual_note`, `cover_url` | production hints; empty when unknown |
+| `confirmed`, `confirmed_at` | the candidate passed the 65 bar and the text is complete |
 | `published`, `published_url`, `published_at` | the publish flag and its evidence |
 | `status`, `found_at` | pipeline state and timestamp |
 
@@ -184,6 +189,8 @@ Rules:
 
 - Only selected candidates. Rejected ones stay in the queue, not here.
 - One folder per day. A second run merges by `shortcode`, re-ranks, and updates `count`.
+- Every candidate carries the full key set above. Unknown numbers and dates are `null`, unknown strings `""`, unknown booleans `false`. A missing key is a bug.
+- `confirmed` is `true` only when `score > 65` and `caption`, `content` and `final_caption` are non-empty. `confirmed_at` is the selection time.
 - `published` is a boolean and starts `false`. It turns `true` only when the page's own reel URL exists.
 - `source_likes` and `source_comments` stay `null` when the API does not return them. Do not write 0 as a stand-in.
 - Writes are atomic. UTF-8, no BOM.

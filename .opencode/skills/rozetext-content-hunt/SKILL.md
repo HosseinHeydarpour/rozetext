@@ -170,6 +170,8 @@ Write the queue to `data/content-hunt/candidates.json`:
   "theme": "دوری/جدایی",
   "reasons": ["۱۶ خط", "شروع نامه‌وار", "لیفت ۳.۴ برابر اکانت منبع"],
   "status": "selected",
+  "confirmed": true,
+  "confirmed_at": "2026-11-13T02:26:31.749Z",
   "source_handle": "shadighorbanyy",
   "source_url": "https://www.instagram.com/reel/DfW7ev_zMTY/",
   "method": "benchmark",
@@ -185,6 +187,8 @@ Write the selected candidates to `data/hunted-candidates/<YYYY-MM-DD>/candidates
 
 - One folder per day. If the folder already exists, merge by `shortcode` and re-rank; never overwrite another run's candidates.
 - Only selected items, `score > 65`.
+- Every candidate carries the full key set from `references/database.md`. Unknown values are `null` or empty, never a missing key.
+- `confirmed: true` and `confirmed_at` only when `score > 65` and `caption`, `content` and `final_caption` are non-empty.
 - `published` starts `false` for every candidate.
 - Sort by score and set `rank` from 1.
 - Write atomically. The dashboard reads this file through `GET /api/hunted` (latest day, or `?date=YYYY-MM-DD`).
