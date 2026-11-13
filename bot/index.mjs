@@ -240,7 +240,11 @@ async function handle(update) {
   const skill = pending.get(chat)
   pending.delete(chat)
   const limit = 'Only use skills whose name starts with "rozetext".'
-  const prompt = skill ? `${limit} Follow the "${skill}" skill for this request:\n\n${text}` : `${limit}\n\n${text}`
+  const style =
+    'Write the answer in Persian, plain text for Telegram: no markdown at all (no tables, no "|", no "**", no "#", no backticks). Short lines, at most 12 lines, "•" for list items. Put the result first, caveats last.'
+  const prompt = skill
+    ? `${limit} ${style} Follow the "${skill}" skill for this request:\n\n${text}`
+    : `${limit} ${style}\n\n${text}`
 
   queue.push(() => work(chat, prompt))
   pump()
