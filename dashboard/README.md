@@ -35,8 +35,9 @@ npm run dashboard:build
 ## Data
 
 - `src/data/snapshot.json` is generated from `data/exports` by `scripts/build-dashboard-data.mjs`. Rebuild it after every data collection.
-- `../data/reels_database.json` is the analyzer store, shaped like the desktop app's file: `active_account` plus `accounts[name].items[reelCode]`. It is not generated; the analyzer edits it.
+- `../data/main-database/reels_database.json` is the analyzer store, shaped like the desktop app's file: `active_account` plus `accounts[name].items[reelCode]`. It is not generated; the analyzer edits it.
 - `../data/benchmark-accounts/benchmark_accounts.json` feeds `/content/benchmark` through `/api/benchmark`.
+- `data/runs/<date>/` holds one folder per collection run. `scripts/sync-latest-run.mjs` copies the newest folder into `data/exports` (meta-suite, audience, insights, dashboard) and leaves anything the run did not include untouched.
 
 ### Where each number comes from
 
@@ -45,9 +46,9 @@ npm run dashboard:build
 | Overview KPIs, ranges, follows | `data/exports/ranges/*` + `data/exports/audience/audience-trends.json` | `scripts/collect-data.mjs` → `meta-ranges.mjs`, `meta-export.mjs` |
 | Audience demographics, cities, countries | `data/exports/audience/audience-demographics.csv` | `meta-audience.mjs` |
 | Content table | `data/exports/content-table.csv` | `meta-content.mjs` |
-| Analyzer | `data/reels_database.json` | collected once, edited in the analyzer |
+| Analyzer | `data/main-database/reels_database.json` | collected once, edited in the analyzer |
 
-`/api/snapshot` serves the current snapshot and `/api/refresh` re-runs `build-dashboard-data.mjs`, so the header button rebuilds every screen without a redeploy. It does not scrape Instagram: that is `npm run data:collect`, which needs the logged-in browser session.
+`/api/snapshot` serves the current snapshot and `/api/refresh` first runs `scripts/sync-latest-run.mjs` (newest `data/runs/<date>` → `data/exports`), then `build-dashboard-data.mjs`. So the header button picks the latest collection and rebuilds every screen without a redeploy. It does not scrape Instagram: that is `npm run data:collect`, which needs the logged-in browser session.
 
 ## Direction
 

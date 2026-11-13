@@ -1,15 +1,23 @@
 export const CANVAS_WIDTH = 1080
 export const CANVAS_HEIGHT = 1920
 
+export interface SafeArea {
+  top: number
+  bottom: number
+  right: number
+  left: number
+}
+
 /**
- * Instagram reels safe area, measured on a 1080x1920 frame:
- * the header (avatar, name) eats the top, the caption and the action rail eat the
- * bottom, and the like/comment/share buttons sit on the right edge.
+ * Instagram reels safe area on a 1080x1920 frame: the header eats the top, the caption
+ * and the action rail eat the bottom, and the like/comment/share buttons sit on the right.
+ * Every edge is editable in the creator.
  */
-export const SAFE_AREA = { top: 260, bottom: 340, right: 200, left: 60 }
+export const DEFAULT_SAFE_AREA: SafeArea = { top: 260, bottom: 340, right: 160, left: 60 }
 
 export type CreatorMode = 'dark' | 'light'
 export type CreatorKind = 'cover' | 'text'
+export type HighlightEffect = 'box' | 'text'
 
 export interface CreatorTheme {
   name: string
@@ -18,6 +26,7 @@ export interface CreatorTheme {
   coverText: string
   coverTextOpacity: number
   accent: string
+  highlightText: string
   onAccent: string
   font: string
   weight: number
@@ -35,6 +44,7 @@ export const THEMES: Record<CreatorMode, CreatorTheme> = {
     coverText: '#181818',
     coverTextOpacity: 0.8,
     accent: '#8B2635',
+    highlightText: '#8B2635',
     onAccent: '#FFFFFF',
     font: 'IRLotus',
     weight: 700,
@@ -49,6 +59,7 @@ export const THEMES: Record<CreatorMode, CreatorTheme> = {
     coverText: '#FFF7EE',
     coverTextOpacity: 0.95,
     accent: '#F4C466',
+    highlightText: '#FFF3D6',
     onAccent: '#1B1B1B',
     font: 'IRLotus',
     weight: 700,
@@ -72,11 +83,14 @@ export interface CreatorSettings {
   mode: CreatorMode
   kind: CreatorKind
   align: 'center' | 'right'
+  highlight: HighlightEffect
   body: string
   hook: string
   fontSize: number
   lineHeight: number
   offsetY: number
+  textColor: string
+  safeArea: SafeArea
   background: string
   backgroundImage: string | null
   showSafeArea: boolean
@@ -155,12 +169,12 @@ function drawBackground(ctx: CanvasRenderingContext2D, settings: CreatorSettings
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 }
 
-function drawSafeArea(ctx: CanvasRenderingContext2D) {
+function drawSafeArea(ctx: CanvasRenderingContext2D, safe: SafeArea) {
   ctx.save()
   ctx.strokeStyle = 'rgba(255, 60, 60, 0.55)'
   ctx.setLineDash([24, 18])
   ctx.lineWidth = 4
-  ctx.strokeRect(SAFE_AREA.left, SAFE_AREA.top, CANVAS_WIDTH - SAFE_AREA.left - SAFE_AREA.right, CANVAS_HEIGHT - SAFE_AREA.top - SAFE_AREA.bottom)
+  ctx.strokeRect(safe.left, safe.top, CANVAS_WIDTH - safe.left - safe.right, CANVAS_HEIGHT - safe.top - safe.bottom)
   ctx.restore()
 }
 
@@ -174,10 +188,11 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
   const isCover = settings.kind === 'cover'
   const family = isCover ? 'IRTitr' : theme.font
   const weight = isCover ? 400 : theme.weight
-  const { fontSize, lineHeight } = settings
+  const { fontSize, lineHeight, safeArea } = settings
   const text = isCover ? settings.hook : settings.body
-  const textColor = isCover ? theme.coverText : theme.text
+  const textColor = settings.textColor || (isCover ? theme.coverText : theme.text)
   const textOpacity = isCover ? theme.coverTextOpacity : theme.textOpacity
+  const boxHighlight = settings.highlight === 'box'
 
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
   if (options.backgroundImage?.complete) ctx.drawImage(options.backgroundImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -186,19 +201,18 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
   ctx.save()
   ctx.font = `${weight} ${fontSize}px ${family}`
   ctx.textBaseline = 'middle'
-  ctx.textAlign = 'center'
   ctx.direction = 'rtl'
 
-  const blockLeft = SAFE_AREA.left
-  const blockRight = CANVAS_WIDTH - SAFE_AREA.right
+  const blockLeft = safeArea.left
+  const blockRight = CANVAS_WIDTH - safeArea.right
   const blockCenter = (blockLeft + blockRight) / 2
   const isRight = settings.align === 'right'
-  const maxWidth = blockRight - blockLeft
+  const maxWidth = Math.max(blockRight - blockLeft, 120)
 
   const rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
   const blockHeight = Math.max(rows.length, 1) * lineHeight
-  const top = SAFE_AREA.top + 40
-  const bottom = CANVAS_HEIGHT - SAFE_AREA.bottom - 40
+  const top = safeArea.top + 40
+  const bottom = CANVAS_HEIGHT - safeArea.bottom - 40
   const center = Math.min(Math.max((top + bottom) / 2 + settings.offsetY, top + blockHeight / 2), bottom - blockHeight / 2)
   const startY = center - blockHeight / 2 + lineHeight / 2
 
@@ -211,17 +225,18 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
     const width = ctx.measureText(row.text).width
     const lineRight = isRight ? blockRight : blockCenter + width / 2
 
-    // the asterisk markers are drawn from real glyph positions: measure the prefix, then the run
-    row.ranges.forEach((range) => {
-      const before = ctx.measureText(row.text.slice(0, range.start)).width
-      const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
-      const pad = fontSize * 0.3
-      ctx.save()
-      ctx.globalAlpha = 0.95
-      ctx.fillStyle = theme.accent
-      ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
-      ctx.restore()
-    })
+    if (boxHighlight) {
+      row.ranges.forEach((range) => {
+        const before = ctx.measureText(row.text.slice(0, range.start)).width
+        const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
+        const pad = fontSize * 0.3
+        ctx.save()
+        ctx.globalAlpha = 0.95
+        ctx.fillStyle = theme.accent
+        ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
+        ctx.restore()
+      })
+    }
 
     ctx.globalAlpha = textOpacity
     ctx.fillStyle = textColor
@@ -232,11 +247,11 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
       ctx.save()
       ctx.beginPath()
-      const pad = fontSize * 0.55
+      const pad = boxHighlight ? fontSize * 0.55 : fontSize * 0.45
       ctx.rect(lineRight - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
       ctx.clip()
       ctx.globalAlpha = 1
-      ctx.fillStyle = theme.onAccent
+      ctx.fillStyle = boxHighlight ? theme.onAccent : theme.highlightText
       ctx.fillText(row.text, anchorX, y)
       ctx.restore()
     })
@@ -244,5 +259,5 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
 
   ctx.restore()
   ctx.globalAlpha = 1
-  if (settings.showSafeArea && options.preview !== false) drawSafeArea(ctx)
+  if (settings.showSafeArea && options.preview !== false) drawSafeArea(ctx, safeArea)
 }

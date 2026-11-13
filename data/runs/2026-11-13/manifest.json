@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-13",
+  "started_at": "2026-11-13T02:26:31.358Z",
+  "full": false,
+  "steps": [
+    {
+      "name": "dashboard",
+      "code": 0,
+      "at": "2026-11-13T02:27:28.337Z"
+    },
+    {
+      "name": "meta-export",
+      "code": 4,
+      "at": "2026-11-13T02:39:29.415Z"
+    }
+  ],
+  "files": {
+    "dashboard": [
+      "dashboard/insights-account.json"
+    ],
+    "meta_suite": []
+  },
+  "finished_at": "2026-11-13T02:39:29.415Z"
+}

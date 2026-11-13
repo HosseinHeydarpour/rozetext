@@ -64,8 +64,10 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 - Canvas is 1080×1920 and is the preview itself, so the PNG export (`toBlob`, guide hidden) matches what you see.
 - Text alignment is a toggle: centred on the safe box, or flush to its right edge. Both wrap at the safe width.
 - Background art is exported straight from the Figma frames into `public/creator/`: `dark-text.png`, `dark-cover.png`, `light-cover.png`, `light-text.png`. Switching mode or kind swaps the art (and resets the vertical offset for covers). A real file upload replaces it.
-- Controls: mode (light/dark), kind (cover hook / body), font size, line height, vertical offset, background image, safe-area guide.
-- Instagram safe area is 260 px top, 340 px bottom, 200 px right (action rail) on 1080×1920; text is wrapped to the safe width and clamped inside it.
+- Controls: mode (light/dark), kind (cover hook / body), alignment (centred or flush right), font size, line height, vertical offset, text colour, background image, highlight effect, safe-area edges.
+- Safe area defaults to 260 px top, 340 px bottom, 160 px right (action rail), 60 px left on 1080×1920; all four edges are editable and the dashed guide follows them.
+- Highlight effect is either a box behind the run (accent fill, contrast text) or a text-only recolour. `*word*` marks the run in both.
+- Text colour, safe area, highlight effect and alignment are stored in `localStorage` under `rozetext-creator`, so the setup survives a reload; the colour picker has a «پیش‌فرض» reset.
 - `*word*` marks a highlighted run; the band is drawn from measured glyph positions, then the run is re-drawn in the accent's contrast color.
 - Fonts are self-hosted from `public/fonts`: `IRLotus-Regular.ttf`, `IRLotus-Bold.ttf`, `IRTitr-Regular.ttf` (copied from the system fonts the design uses).
 

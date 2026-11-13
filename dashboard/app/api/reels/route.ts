@@ -6,7 +6,7 @@ import { emptyDb, normalizeDb, type ReelsDb } from '@/lib/reels'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const DB_PATH = path.join(process.cwd(), '..', 'data', 'reels_database.json')
+const DB_PATH = path.join(process.cwd(), '..', 'data', 'main-database', 'reels_database.json')
 
 async function read() {
   try {

@@ -25,7 +25,9 @@ import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
-import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, SAFE_AREA, THEMES, drawPost, type CreatorKind, type CreatorMode, type CreatorSettings } from '@/lib/creator'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, drawPost, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+
+const STORAGE_KEY = 'rozetext-creator'
 
 const DEFAULT_BODY = `گاهی دلم برای بچگی‌هام خیلی تنگ میشه...
 برای عصرهایی که می‌رفتیم سر کوچه و با بچه‌های همسایه بازی می‌کردیم
@@ -36,6 +38,14 @@ const DEFAULT_BODY = `گاهی دلم برای بچگی‌هام خیلی تنگ
 const DEFAULT_HOOK = `من منتظر جبران
 هیچکس نیستم...`
 
+interface StoredSettings {
+  textColor: string
+  safeArea: SafeArea
+  highlight: HighlightEffect
+  align: 'center' | 'right'
+  textColorCustom: boolean
+}
+
 export default function CreatorPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -45,11 +55,14 @@ export default function CreatorPage() {
     mode: 'dark',
     kind: 'text',
     align: 'center',
+    highlight: 'box',
     body: DEFAULT_BODY,
     hook: DEFAULT_HOOK,
     fontSize: THEMES.dark.fontSize,
     lineHeight: THEMES.dark.lineHeight,
     offsetY: 0,
+    textColor: THEMES.dark.text,
+    safeArea: { ...DEFAULT_SAFE_AREA },
     background: THEMES.dark.background,
     backgroundImage: BACKGROUNDS.dark.text,
     showSafeArea: true,
@@ -58,8 +71,39 @@ export default function CreatorPage() {
   const [audioNote, setAudioNote] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const [backgroundVersion, setBackgroundVersion] = useState(0)
+  const [customColor, setCustomColor] = useState(false)
 
   const theme = THEMES[settings.mode]
+
+  // restore the saved creator setup (colour, safe area, effect, alignment) after mount
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const stored = JSON.parse(raw) as Partial<StoredSettings>
+      setSettings((current) => ({
+        ...current,
+        textColor: stored.textColor ?? current.textColor,
+        safeArea: { ...current.safeArea, ...(stored.safeArea ?? {}) },
+        highlight: stored.highlight ?? current.highlight,
+        align: stored.align ?? current.align,
+      }))
+      setCustomColor(Boolean(stored.textColorCustom))
+    } catch {
+      // a broken saved value should never block the editor
+    }
+  }, [])
+
+  useEffect(() => {
+    const payload: StoredSettings = {
+      textColor: settings.textColor,
+      safeArea: settings.safeArea,
+      highlight: settings.highlight,
+      align: settings.align,
+      textColorCustom: customColor,
+    }
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  }, [settings.textColor, settings.safeArea, settings.highlight, settings.align, customColor])
 
   useEffect(() => {
     let cancelled = false
@@ -123,6 +167,7 @@ export default function CreatorPage() {
       fontSize: settings.kind === 'cover' ? COVER_FONT.fontSize : THEMES[mode].fontSize,
       lineHeight: settings.kind === 'cover' ? COVER_FONT.lineHeight : THEMES[mode].lineHeight,
       backgroundImage: BACKGROUNDS[mode][settings.kind],
+      textColor: customColor ? settings.textColor : THEMES[mode].text,
     })
   }
 
@@ -233,6 +278,89 @@ export default function CreatorPage() {
                   </ToggleButtonGroup>
                 </Stack>
 
+                <Stack spacing={1}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>افکت هایلایت</Typography>
+                  <ToggleButtonGroup
+                    exclusive
+                    fullWidth
+                    size="small"
+                    value={settings.highlight}
+                    onChange={(_, value: HighlightEffect | null) => value && patch({ highlight: value })}
+                  >
+                    <ToggleButton value="box" sx={{ fontSize: 12 }}>
+                      باکس رنگی
+                    </ToggleButton>
+                    <ToggleButton value="text" sx={{ fontSize: 12 }}>
+                      فقط رنگ متن
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Stack>
+
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, flexGrow: 1 }}>رنگ متن</Typography>
+                  <Box
+                    component="input"
+                    type="color"
+                    value={settings.textColor}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      setCustomColor(true)
+                      patch({ textColor: event.target.value })
+                    }}
+                    sx={{ width: 44, height: 32, p: 0.5, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper', cursor: 'pointer' }}
+                    aria-label="رنگ متن"
+                  />
+                  <Typography sx={{ fontSize: 12, color: 'text.secondary', direction: 'ltr' }}>{settings.textColor}</Typography>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      setCustomColor(false)
+                      patch({ textColor: theme.text })
+                    }}
+                    disabled={!customColor}
+                  >
+                    پیش‌فرض
+                  </Button>
+                </Stack>
+                <Typography sx={{ fontSize: 11, color: 'text.secondary', mt: -1.5 }}>رنگ انتخابی در همین مرورگر ذخیره می‌شود.</Typography>
+
+                <Stack spacing={1}>
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 600 }}>محدودهٔ امن</Typography>
+                    <Button
+                      size="small"
+                      onClick={() => patch({ safeArea: { ...DEFAULT_SAFE_AREA } })}
+                      sx={{ fontSize: 11, minWidth: 0 }}
+                    >
+                      بازنشانی
+                    </Button>
+                  </Stack>
+                  <Grid container spacing={1.5}>
+                    {(
+                      [
+                        ['top', 'بالا'],
+                        ['bottom', 'پایین'],
+                        ['right', 'راست'],
+                        ['left', 'چپ'],
+                      ] as [keyof SafeArea, string][]
+                    ).map(([edge, label]) => (
+                      <Grid key={edge} size={6}>
+                        <TextField
+                          type="number"
+                          size="small"
+                          label={label}
+                          value={settings.safeArea[edge]}
+                          onChange={(event) =>
+                            patch({
+                              safeArea: { ...settings.safeArea, [edge]: Math.max(0, Math.min(600, Number(event.target.value) || 0)) },
+                            })
+                          }
+                          slotProps={{ htmlInput: { min: 0, max: 600, step: 10 } }}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Stack>
+
                 {settings.kind === 'cover' ? (
                   <TextField
                     label="متن کاور (هوک ریلز)"
@@ -277,7 +405,7 @@ export default function CreatorPage() {
                   </Stack>
                   <Slider size="small" min={-420} max={420} step={10} value={settings.offsetY} onChange={(_, value) => patch({ offsetY: value as number })} />
                   <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
-                    محدودهٔ امن: {SAFE_AREA.top}px بالا، {SAFE_AREA.bottom}px پایین، {SAFE_AREA.right}px سمت راست (دکمه‌های اینستاگرام).
+                    مرزهای امن از پنل بالا تنظیم می‌شوند؛ خط‌چین قرمز در پیش‌نمایش همان محدوده است.
                   </Typography>
                 </Stack>
 
