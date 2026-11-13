@@ -86,6 +86,8 @@ Each slot carries:
 
 `unscheduled` lists confirmed texts that did not fit the capacity.
 
+The dashboard reads the plan at `GET /api/plan` (latest, or `?date=YYYY-MM-DD`). `GET /api/hunted` for a day also returns the matching `plan` object, joined by `shortcode`.
+
 ## Report
 
 Give the user a Persian table:

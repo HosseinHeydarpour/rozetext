@@ -153,7 +153,7 @@ const plan = {
   date,
   timezone: 'Asia/Tehran',
   capacity,
-  source_file: path.relative(ROOT, sourceFile),
+  source_file: path.relative(ROOT, sourceFile).split(path.sep).join('/'),
   activity_source: `data/insights-account.json ranges.7.parsed.active_times.${dayHours ? `days.${weekday}` : 'days.average'}`,
   activity_fetched_at: insights.fetched_at ?? null,
   generated_at: new Date().toISOString(),

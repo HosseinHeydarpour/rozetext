@@ -87,6 +87,13 @@ The buckets are:
 - The score comes from the hunt. The planner does not re-score or re-confirm.
 - A text that is not confirmed never appears in a plan.
 
+## Dashboard
+
+- `GET /api/plan` returns the latest plan, or `?date=YYYY-MM-DD`.
+- `GET /api/hunted` returns the day's candidates and, when a plan exists for that day's file, a `plan` object.
+- The join key is `shortcode`.
+- The dashboard only reads. The planner writes the file.
+
 ## Current data
 
 Peak: Monday 09:00-11:59 with 38,216 active followers.

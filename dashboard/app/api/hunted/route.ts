@@ -6,6 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const ROOT = path.join(process.cwd(), '..', 'data', 'hunted-candidates')
+const PLANS = path.join(process.cwd(), '..', 'data', 'content-hunt', 'plans')
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
 async function availableDates() {
@@ -15,6 +16,19 @@ async function availableDates() {
     .map((entry) => entry.name)
     .sort()
     .reverse()
+}
+
+async function planFor(date: string) {
+  const files = await readdir(PLANS).catch(() => [])
+  for (const file of files) {
+    if (!file.endsWith('.json')) continue
+    try {
+      const plan = JSON.parse(await readFile(path.join(PLANS, file), 'utf8')) as { source_file?: string }
+      const source = String(plan.source_file ?? '').replace(/\\/g, '/')
+      if (source.endsWith(`hunted-candidates/${date}/candidates.json`)) return plan
+    } catch {}
+  }
+  return null
 }
 
 export async function GET(request: Request) {
@@ -29,8 +43,8 @@ export async function GET(request: Request) {
   try {
     const raw = (await readFile(path.join(ROOT, date, 'candidates.json'), 'utf8')).replace(/^\uFEFF/, '')
     const parsed = JSON.parse(raw) as Record<string, unknown>
-    return NextResponse.json({ date, dates, ...parsed })
+    return NextResponse.json({ date, dates, ...parsed, plan: await planFor(date) })
   } catch {
-    return NextResponse.json({ date, dates, count: 0, candidates: [] })
+    return NextResponse.json({ date, dates, count: 0, candidates: [], plan: null })
   }
 }
