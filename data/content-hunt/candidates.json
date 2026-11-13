@@ -2,7 +2,7 @@
   "meta": {
     "updated_at": null,
     "count": 0,
-    "note": "Ranked queue for the hunt. Selected texts live in data/main-database/reels_database.json, accounts.Default; accounts.hunt is staging."
+    "note": "Ranked queue for the hunt. Confirmed texts live in data/main-database/reels_database.json, accounts.Default; accounts.hunt is staging."
   },
   "items": {}
 }

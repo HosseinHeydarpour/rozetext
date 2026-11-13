@@ -4,7 +4,7 @@ Four places hold the hunt. They do different jobs.
 
 | file | job |
 |---|---|
-| `data/main-database/reels_database.json`, `accounts.Default` | the page's reels, plus selected hunted texts |
+| `data/main-database/reels_database.json`, `accounts.Default` | the page's reels, plus confirmed hunted texts |
 | same file, `accounts.hunt` | staging for extraction only |
 | `data/content-hunt/candidates.json` | score, provenance and pipeline status |
 | `data/hunted-candidates/<date>/candidates.json` | the dashboard's daily snapshot |
@@ -21,7 +21,7 @@ A hunted text enters this account only after scoring above 65. It gets the page'
 "DfW7ev_zMTY": {
   "url": "",
   "date": "",
-  "caption": "exact caption",
+  "caption": "rewritten caption with #رزتکست",
   "content": "exact on-screen text",
   "prediction": "",
   "is_flopped": false,
@@ -35,8 +35,8 @@ Every other field is empty. No source numbers, no source URL, no score.
 
 | field | filled when | meaning |
 |---|---|---|
-| `caption` | selection | exact caption of the source, ending with ` #رزتکست` |
-| `content` | selection | exact on-screen text of the source |
+| `caption` | confirmation | rewritten publish-ready caption, ending with `#رزتکست` |
+| `content` | confirmation | exact on-screen text of the source |
 | `url` | after publishing | the page's own reel URL |
 | `date` | after publishing | the page's publish date |
 | `last_stats` | after measuring | `{views, followers, share, save}` from the page's own export |
@@ -45,7 +45,7 @@ Every other field is empty. No source numbers, no source URL, no score.
 Rules:
 
 - The item key is the **source** shortcode. It does not change after publishing.
-- The final caption ends with ` #رزتکست`. Remove any `#رزتکست` from the source caption first, so it appears once. Never add it to `content`.
+- The final caption is rewritten in the page's voice and ends with `#رزتکست`. The source caption stays in the daily file as `source_caption`. Never add the tag to `content`.
 - Until the page publishes, `url` is empty and `last_stats` is null. The dashboard will show the item with 0 views and a FLOP tier; that is expected and correct, it has no result yet.
 - After publishing, fill `url`, `date` and later `last_stats`. Do not put the source account's metrics here.
 - Writes are atomic: write `.tmp`, then rename. UTF-8, no BOM.
@@ -70,7 +70,7 @@ Only exists between discovery and scoring. Each item carries what extraction nee
 - `source_account_id` is the numeric id when the API returns it, otherwise the handle.
 - `benchmark_account_id` is the numeric id when the source is a benchmark account, otherwise its registry handle.
 - `content` is filled by `update-reels-content.mjs --apply`.
-- After scoring, a selected item is copied to `Default` and deleted here. A rejected item is deleted here and kept in the queue as a row.
+- After scoring, a confirmed item is copied to `Default` and deleted here. A rejected item is deleted here and kept in the queue as a row.
 - The account is empty after a clean run. If it is not empty, the run did not finish; resume from scoring, not from discovery.
 
 ## `data/content-hunt/candidates.json`
@@ -92,7 +92,7 @@ The ranked queue holds what the database no longer holds: score, lift, provenanc
       "hook": "letter",
       "theme": "دوری/جدایی",
       "reasons": ["۱۶ خط", "شروع نامه‌وار", "لیفت ۳.۴ برابر اکانت منبع"],
-      "status": "selected",
+      "status": "confirmed",
       "confirmed": true,
       "confirmed_at": "2026-11-13T…",
       "source_handle": "shadighorbanyy",
@@ -108,16 +108,16 @@ The ranked queue holds what the database no longer holds: score, lift, provenanc
 
 | status | meaning |
 |---|---|
-| `selected` | score above 65, the text is in `accounts.Default` |
+| `confirmed` | all ten gates pass, the text is in `accounts.Default` |
 | `rejected` | score 65 or below, no text in the database |
 | `published` | the page posted it; `published_url` is set |
 | `measured` | 7 or 30 day numbers are in |
 
-`lift` is the source post's views divided by the source account's median. `proof` is 0 when no median exists, and the score is capped at 70.
+`lift` is the source post's views divided by the source account's median. A missing median is a rejection; fetch it before scoring.
 
 ## `data/hunted-candidates/<YYYY-MM-DD>/candidates.json`
 
-The dashboard's daily snapshot. Written after scoring, only for selected candidates (`score > 65`). Date is the run date in Asia/Tehran.
+The dashboard's daily snapshot. Written after scoring, only for confirmed candidates (all ten gates). Date is the run date in Asia/Tehran.
 
 ```json
 {
@@ -151,9 +151,10 @@ The dashboard's daily snapshot. Written after scoring, only for selected candida
       "source_median": 320000,
       "method": "benchmark",
       "benchmark_account_id": "@shadighorbanyy",
-      "caption": "کپشن دقیق پیج مادر",
+      "source_caption": "کپشن دقیق پیج مادر",
+      "caption": "کپشن بازنویسی‌شده با #رزتکست",
+      "caption_origin": "rewritten",
       "content": "متن دقیق روی ریل",
-      "final_caption": "کپشن دقیق پیج مادر #رزتکست",
       "duration_sec": 8,
       "visual_note": "پس‌زمینه مشکی، متن سفید وسط‌چین",
       "cover_url": "",
@@ -162,7 +163,7 @@ The dashboard's daily snapshot. Written after scoring, only for selected candida
       "published": false,
       "published_url": "",
       "published_at": "",
-      "status": "selected",
+      "status": "confirmed",
       "found_at": "2026-11-13T10:12:00.000Z"
     }
   ]
@@ -177,8 +178,8 @@ Field notes:
 | `source_handle`, `source_account_id`, `source_name`, `source_url` | the mother page, for credit and traceability |
 | `source_posted_at`, `source_views`, `source_likes`, `source_comments`, `source_median` | how the source performed; `null` when the API did not return it |
 | `method`, `benchmark_account_id` | how it was found and which benchmark account it belongs to |
-| `caption`, `content` | the exact source caption and on-screen text |
-| `final_caption` | the caption to publish, ending with `#رزتکست` |
+| `source_caption`, `caption`, `caption_origin` | the exact source caption, the rewritten publish-ready caption, and whether it was rewritten or generated |
+| `content` | the exact on-screen text |
 | `lines`, `hook`, `theme` | the text shape that drives the score |
 | `duration_sec`, `visual_note`, `cover_url` | production hints; empty when unknown |
 | `confirmed`, `confirmed_at` | the candidate passed the 65 bar and the text is complete |
@@ -187,15 +188,37 @@ Field notes:
 
 Rules:
 
-- Only selected candidates. Rejected ones stay in the queue, not here.
+- Only confirmed candidates. Rejected ones stay in the queue, not here.
 - One folder per day. A second run merges by `shortcode`, re-ranks, and updates `count`.
 - Every candidate carries the full key set above. Unknown numbers and dates are `null`, unknown strings `""`, unknown booleans `false`. A missing key is a bug.
-- `confirmed` is `true` only when `score > 65` and `caption`, `content` and `final_caption` are non-empty. `confirmed_at` is the selection time.
+- `confirmed` is `true` only when all ten gates in `references/scoring.md` pass. `confirmed_at` is the confirmation time.
+- `caption` is the rewritten, publish-ready caption and ends with `#رزتکست`. `source_caption` is the original and may be empty.
 - `published` is a boolean and starts `false`. It turns `true` only when the page's own reel URL exists.
 - `source_likes` and `source_comments` stay `null` when the API does not return them. Do not write 0 as a stand-in.
 - Writes are atomic. UTF-8, no BOM.
 
 The dashboard reads it through `GET /api/hunted` (latest day) or `GET /api/hunted?date=YYYY-MM-DD`.
+
+## `data/content-hunt/backlog.json`
+
+Near misses for dry days. Never production.
+
+An item enters the backlog only when it has 5-7 lines, a lift of at least 4x, and a score of at least 75. It keeps the same fields as a daily candidate plus:
+
+```json
+{
+  "tier": "B",
+  "confirmed": false,
+  "reason": "5-7 lines, high lift"
+}
+```
+
+Rules:
+
+- Backlog items never enter `accounts.Default` and never appear in the daily dashboard file.
+- The page may use one manually, knowing the prior is about 10%, not 40-50%.
+- A backlog item is deleted when the text is older than 60 days or the page publishes it.
+- 1-4 line texts never enter the backlog.
 
 ## Run log
 
@@ -213,7 +236,7 @@ The dashboard reads it through `GET /api/hunted` (latest day) or `GET /api/hunte
   "kept": 40,
   "extracted": 20,
   "scored": 20,
-  "selected": 3,
+  "confirmed": 3,
   "errors": []
 }
 ```

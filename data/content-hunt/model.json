@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "kind": "heuristic",
   "source": "512 reels, 2026-08-14 to 2026-11-11",
   "base_viral_rate": 21.7,
@@ -13,6 +13,26 @@
     "A": "40-50%",
     "B": "20-30%",
     "C": "under 10%"
+  },
+  "gates": {
+    "min_lines": 8,
+    "max_lines": 25,
+    "min_lift": 2,
+    "max_similarity": 0.5,
+    "require_median": true,
+    "score_gt": 65
+  },
+  "caption": {
+    "rewrite": true,
+    "generate_if_missing": true,
+    "max_hashtags": 2,
+    "tag": "#رزتکست"
+  },
+  "backlog": {
+    "min_lines": 5,
+    "max_lines": 7,
+    "min_lift": 4,
+    "min_score": 75
   },
   "accounts_per_run": {
     "min": 15,

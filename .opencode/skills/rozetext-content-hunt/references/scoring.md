@@ -1,10 +1,10 @@
 # Scoring model
 
-Version 2 is a heuristic built from the page's own 512 reels (2026-08-14 to 2026-11-11). It ranks candidates. It is not a calibrated probability, and the report must say so.
+Version 3 is a heuristic built from the page's own 512 reels (2026-08-14 to 2026-11-11). It ranks candidates. It is not a calibrated probability, and the report must say so.
 
 Base rate: 111 of 512 reels reached 300K or more. That is 21.7%.
 
-The selection bar is **score > 65**. The page publishes a lot of texts, so average candidates are not worth a slot.
+The score bar is **65**. A candidate must also pass all ten gates below. The page publishes a lot of texts, so average candidates are not worth a slot.
 
 ## What the 512 reels say
 
@@ -64,9 +64,8 @@ Strong themes (median views in the 512): grief and loneliness 95K, distance and 
 |---|---:|
 | 4x or more | 30 |
 | 2x to 4x | 20 |
-| 1.5x to 2x | 10 |
-| under 1.5x | reject before scoring |
-| no median | 0, and cap the total at 70 |
+| under 2x | reject |
+| no median | reject, fetch the account median first |
 
 ### Novelty (0-10)
 
@@ -76,14 +75,32 @@ Similarity against the page's 512 reels and against the other candidates: charac
 |---|---:|
 | under 0.35 | 10 |
 | 0.35-0.50 | 5 |
-| 0.50-0.60 | 0 |
-| 0.60 or more | reject |
+| 0.50 or more | reject |
+
+## Confirmation gates
+
+A score is necessary but not sufficient. A candidate is confirmed only when all ten are true:
+
+1. `score > 65`
+2. 8 to 25 lines
+3. similarity below 0.5
+4. lift at least 2x
+5. source median fetched
+6. on-screen text non-empty and Persian
+7. caption rewritten or generated, non-empty
+8. caption ends with exactly one `#رزتکست`
+9. shortcode not already in `Default` or `hunt`
+10. method and source fields present
+
+Anything below 8 lines is rejected even with a high lift. The data: 1-3 lines had 0% viral, 3-7 had 10%.
+
+If a gate fails, `confirmed` stays false and the text does not enter `Default`.
 
 ## Bands
 
 | band | score | prior viral rate | action |
 |---|---:|---|---|
-| A | 66-100 | 40-50% | selected, copied to `accounts.Default` |
+| A | 66-100 | 40-50% | confirmed if all ten gates pass, copied to `accounts.Default` |
 | B | 45-65 | 20-30% | rejected, kept in the queue for audit |
 | C | 0-44 | under 10% | rejected |
 
