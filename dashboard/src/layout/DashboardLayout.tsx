@@ -308,13 +308,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           position="sticky"
           color="transparent"
           elevation={0}
-          sx={{
+          sx={(t) => ({
             height: HEADER_HEIGHT,
-            bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(33, 43, 54, 0.92)' : 'rgba(255, 255, 255, 0.92)'),
+            bgcolor: 'rgba(255, 255, 255, 0.92)',
+            ...t.applyStyles('dark', { bgcolor: 'rgba(33, 43, 54, 0.92)' }),
             backdropFilter: 'blur(6px)',
             borderBottom: 1,
             borderColor: 'divider',
-          }}
+          })}
         >
           <Toolbar sx={{ height: HEADER_HEIGHT, minHeight: `${HEADER_HEIGHT}px !important`, gap: 1.5, px: { xs: 2, md: 3 } }}>
             <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ display: { md: 'none' } }} aria-label="باز کردن منو">
