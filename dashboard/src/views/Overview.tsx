@@ -29,11 +29,10 @@ import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import { LineChart } from '@mui/x-charts/LineChart'
 import { PieChart } from '@mui/x-charts/PieChart'
 import StatCard from '@/components/StatCard'
-import snapshotJson from '@/data/snapshot.json'
 import type { RangeKey, Snapshot } from '@/lib/types'
+import { useSnapshot } from '@/lib/use-snapshot'
 import { dateFa, fa, faCompact, faCompactExact, longDateFa, parseCompact, pct, sourceDateFa } from '@/lib/format'
 
-const snapshot = snapshotJson as unknown as Snapshot
 const ORDER: RangeKey[] = ['yesterday', 'last-7-days', 'last-28-days', 'last-90-days', 'this-week', 'this-month', 'this-year']
 
 const toNumber = (value: string) => Number(String(value).replace(/[^\d]/g, '')) || 0
@@ -47,6 +46,7 @@ const ringSx = {
 
 export default function Overview() {
   const theme = useTheme()
+  const { snapshot } = useSnapshot()
   const [range, setRange] = useState<RangeKey>('last-28-days')
   const rangeData = snapshot.ranges[range]
   const views = rangeData.series.views

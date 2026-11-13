@@ -62,6 +62,7 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 | cover font | IRTitr 400 | IRTitr 400 |
 
 - Canvas is 1080×1920 and is the preview itself, so the PNG export (`toBlob`, guide hidden) matches what you see.
+- Text alignment is a toggle: centred on the safe box, or flush to its right edge. Both wrap at the safe width.
 - Background art is exported straight from the Figma frames into `public/creator/`: `dark-text.png`, `dark-cover.png`, `light-cover.png`, `light-text.png`. Switching mode or kind swaps the art (and resets the vertical offset for covers). A real file upload replaces it.
 - Controls: mode (light/dark), kind (cover hook / body), font size, line height, vertical offset, background image, safe-area guide.
 - Instagram safe area is 260 px top, 340 px bottom, 200 px right (action rail) on 1080×1920; text is wrapped to the safe width and clamped inside it.

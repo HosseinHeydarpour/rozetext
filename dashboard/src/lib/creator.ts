@@ -71,6 +71,7 @@ export const COVER_FONT = { family: 'IRTitr', weight: 400, fontSize: 92, lineHei
 export interface CreatorSettings {
   mode: CreatorMode
   kind: CreatorKind
+  align: 'center' | 'right'
   body: string
   hook: string
   fontSize: number
@@ -188,20 +189,27 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
   ctx.textAlign = 'center'
   ctx.direction = 'rtl'
 
-  const maxWidth = CANVAS_WIDTH - SAFE_AREA.left - SAFE_AREA.right
+  const blockLeft = SAFE_AREA.left
+  const blockRight = CANVAS_WIDTH - SAFE_AREA.right
+  const blockCenter = (blockLeft + blockRight) / 2
+  const isRight = settings.align === 'right'
+  const maxWidth = blockRight - blockLeft
+
   const rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
   const blockHeight = Math.max(rows.length, 1) * lineHeight
   const top = SAFE_AREA.top + 40
   const bottom = CANVAS_HEIGHT - SAFE_AREA.bottom - 40
   const center = Math.min(Math.max((top + bottom) / 2 + settings.offsetY, top + blockHeight / 2), bottom - blockHeight / 2)
   const startY = center - blockHeight / 2 + lineHeight / 2
-  const centerX = CANVAS_WIDTH / 2
+
+  ctx.textAlign = isRight ? 'right' : 'center'
+  const anchorX = isRight ? blockRight : blockCenter
 
   rows.forEach((row, index) => {
     if (!row.text) return
     const y = startY + index * lineHeight
     const width = ctx.measureText(row.text).width
-    const right = centerX + width / 2
+    const lineRight = isRight ? blockRight : blockCenter + width / 2
 
     // the asterisk markers are drawn from real glyph positions: measure the prefix, then the run
     row.ranges.forEach((range) => {
@@ -211,13 +219,13 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       ctx.save()
       ctx.globalAlpha = 0.95
       ctx.fillStyle = theme.accent
-      ctx.fillRect(right - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
+      ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
       ctx.restore()
     })
 
     ctx.globalAlpha = textOpacity
     ctx.fillStyle = textColor
-    ctx.fillText(row.text, centerX, y)
+    ctx.fillText(row.text, anchorX, y)
 
     row.ranges.forEach((range) => {
       const before = ctx.measureText(row.text.slice(0, range.start)).width
@@ -225,11 +233,11 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       ctx.save()
       ctx.beginPath()
       const pad = fontSize * 0.55
-      ctx.rect(right - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
+      ctx.rect(lineRight - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
       ctx.clip()
       ctx.globalAlpha = 1
       ctx.fillStyle = theme.onAccent
-      ctx.fillText(row.text, centerX, y)
+      ctx.fillText(row.text, anchorX, y)
       ctx.restore()
     })
   })

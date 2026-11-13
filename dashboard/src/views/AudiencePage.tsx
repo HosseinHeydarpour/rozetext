@@ -4,14 +4,13 @@ import { Box, Card, CardContent, CardHeader, Chip, Grid, LinearProgress, Stack, 
 import { BarChart } from '@mui/x-charts/BarChart'
 import { PieChart } from '@mui/x-charts/PieChart'
 import PageHeader from '../components/PageHeader'
-import snapshotJson from '../data/snapshot.json'
-import type { Snapshot } from '../lib/types'
 import { fa, pct } from '../lib/format'
+import { useSnapshot } from '../lib/use-snapshot'
 
-const snapshot = snapshotJson as unknown as Snapshot
 
 export default function AudiencePage() {
   const theme = useTheme()
+  const { snapshot } = useSnapshot()
   const { demographics } = snapshot
 
   return (

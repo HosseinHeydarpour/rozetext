@@ -7,6 +7,8 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
+  CircularProgress,
   Collapse,
   Divider,
   Drawer,
@@ -38,12 +40,11 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded'
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded'
 import ThemeToggle from '@/components/ThemeToggle'
 import { longDateFa, clockFa } from '@/lib/format'
-import snapshotJson from '@/data/snapshot.json'
-import type { Snapshot } from '@/lib/types'
+import { useSnapshot } from '@/lib/use-snapshot'
 
-const snapshot = snapshotJson as unknown as Snapshot
 const DRAWER_WIDTH = 280
 const HEADER_HEIGHT = 80
 
@@ -86,6 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false)
   const [contentOpen, setContentOpen] = useState(pathname.startsWith('/content'))
   const [query, setQuery] = useState('')
+  const { snapshot, refresh, refreshing, error } = useSnapshot()
 
   const title = useMemo(() => titles[pathname] ?? 'نمای کلی', [pathname])
   const isActive = (to: string) => (to === '/' ? pathname === '/' : pathname === to)
@@ -368,10 +370,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Tooltip title="تاریخ آخرین همگام‌سازی">
+            <Tooltip title="تاریخ آخرین همگام‌سازی داده">
               <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
                 {longDateFa(snapshot.generated_at)}
               </Typography>
+            </Tooltip>
+            <Tooltip title={error ?? 'خواندن دوبارهٔ داده از data/exports و ساخت snapshot تازه'}>
+              <span>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => void refresh()}
+                  disabled={refreshing}
+                  startIcon={refreshing ? <CircularProgress size={14} color="inherit" /> : <RefreshRoundedIcon />}
+                  sx={{ minWidth: 0, px: { xs: 1, sm: 1.5 } }}
+                >
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {refreshing ? 'در حال به‌روزرسانی' : 'به‌روزرسانی'}
+                  </Box>
+                </Button>
+              </span>
             </Tooltip>
             <ThemeToggle />
             <Box sx={{ p: 0.5, borderRadius: '50%', bgcolor: 'action.hover' }}>

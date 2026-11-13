@@ -44,6 +44,7 @@ export default function CreatorPage() {
   const [settings, setSettings] = useState<CreatorSettings>({
     mode: 'dark',
     kind: 'text',
+    align: 'center',
     body: DEFAULT_BODY,
     hook: DEFAULT_HOOK,
     fontSize: THEMES.dark.fontSize,
@@ -213,6 +214,24 @@ export default function CreatorPage() {
                     کاور
                   </ToggleButton>
                 </ToggleButtonGroup>
+
+                <Stack spacing={1}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>تراز متن</Typography>
+                  <ToggleButtonGroup
+                    exclusive
+                    fullWidth
+                    size="small"
+                    value={settings.align}
+                    onChange={(_, value: 'center' | 'right' | null) => value && patch({ align: value })}
+                  >
+                    <ToggleButton value="center" sx={{ fontSize: 12 }}>
+                      وسط‌چین
+                    </ToggleButton>
+                    <ToggleButton value="right" sx={{ fontSize: 12 }}>
+                      راست‌چین
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Stack>
 
                 {settings.kind === 'cover' ? (
                   <TextField

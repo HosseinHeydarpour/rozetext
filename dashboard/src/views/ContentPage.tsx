@@ -4,13 +4,12 @@ import { Box, Chip, Grid, Stack } from '@mui/material'
 import PageHeader from '../components/PageHeader'
 import PostsGrid from '../components/PostsGrid'
 import TopPostsCard from '../components/TopPostsCard'
-import snapshotJson from '../data/snapshot.json'
-import type { Snapshot } from '../lib/types'
 import { fa, faCompact } from '../lib/format'
+import { useSnapshot } from '../lib/use-snapshot'
 
-const snapshot = snapshotJson as unknown as Snapshot
 
 export default function ContentPage() {
+  const { snapshot } = useSnapshot()
   return (
     <Box>
       <PageHeader
