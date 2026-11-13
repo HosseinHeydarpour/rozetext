@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Box,
   Button,
@@ -37,6 +37,7 @@ interface ReelsTableProps {
   selectionMode: boolean
   selected: string[]
   loading?: boolean
+  initialSearch?: string
 }
 
 function Tik({ value }: { value: string }) {
@@ -61,10 +62,12 @@ export default function ReelsTable({
   selectionMode,
   selected,
   loading,
+  initialSearch = '',
 }: ReelsTableProps) {
   const [tier, setTier] = useState<TierFilter>('all')
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(initialSearch)
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'views', sort: 'desc' }])
+  useEffect(() => { if (initialSearch) setSearch(initialSearch) }, [initialSearch])
   const sortDesc = sortModel[0]?.sort !== 'asc'
 
   const filtered = useMemo(() => {

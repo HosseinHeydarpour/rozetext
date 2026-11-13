@@ -66,6 +66,12 @@ export default function AnalyzerPage() {
   const [resetOpen, setResetOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const [accountName, setAccountName] = useState('')
+  const [initialSearch, setInitialSearch] = useState('')
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search).get('q')
+    if (query) setInitialSearch(query)
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -315,6 +321,7 @@ export default function AnalyzerPage() {
       <ReelsTable
         rows={rows}
         loading={loading || saving}
+        initialSearch={initialSearch}
         selectionMode={selectionMode}
         selected={selected}
         onSelectionToggle={(id) => setSelected((current) => (current.includes(id) ? current : [...current, id]))}
