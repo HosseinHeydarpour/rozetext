@@ -38,6 +38,15 @@ Per range: views (total, follower/non-follower split, viewers), interactions (to
 
 Not available on this page: audience demographics (age, gender, city) and a follower-growth chart. Those are app-only or need another screen; do not invent them.
 
+## Encoding
+
+Every file here is UTF-8. Windows PowerShell 5.1 decodes UTF-8 as ANSI, so Persian shows as `U_O...`, and the console cannot render Persian glyphs even after `chcp 65001` (it prints `?????`). That is a viewer problem, not a broken file. Never re-save or transcode a file because a shell shows mojibake.
+
+- Check the bytes instead of the console: `node -e "const fs=require('fs');new TextDecoder('utf-8',{fatal:true}).decode(fs.readFileSync(process.argv[1]))" <file>`. It throws on invalid UTF-8 and prints nothing on success.
+- Read Persian output in the editor or the dashboard, not in the terminal.
+- Scripts write UTF-8 without BOM: `fs.writeFileSync(path, text, 'utf8')`.
+- `data/reports/rozetext-reels-*.md` is exported by the dashboard (`buildReportMarkdown` in `dashboard/src/lib/reels.ts`), not by this skill, and is already UTF-8.
+
 ## Session
 
 If the page redirects to `/accounts/login`, the session expired. Stop, tell the user, and load `rozetext-login` before running again. Never ask for the password inside this skill.
