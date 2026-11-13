@@ -1,6 +1,6 @@
 ---
 name: rozetext-data-collect-account-login
-description: "Separate Instagram session for the data-collection (burner) account. Logs in with its own credentials and its own Chrome profile, so the main @rozetext.ir session is never replaced. Load when a task could put the page account at risk or needs a second account."
+description: "Separate Instagram session for the data-collection (burner) account. Logs in with its own credentials or imports a session into its own Chrome profile, so the main @rozetext.ir session is never replaced. Load when a task could put the page account at risk or needs a second account."
 ---
 
 # rozetext-data-collect-account-login
@@ -31,9 +31,20 @@ Posting, DMs, follows and comments stay off limits from this account. It is a re
    - `ok`: session saved to `runtime/collect-ig-state.json`.
    - `closed`: the user closed Chrome; nothing was saved.
    - `error`: quote `message`; a screenshot is at `runtime/collect-login-error.png`.
-4. A wrong password writes `runtime/collect-login-blocked.json` and exits. Do not retry or try another password. Ask for the correct one in `.env`, then run once with `--force`.
+4. A wrong password writes `runtime/collect-login-blocked.json` and exits. Do not retry or try another password. Ask for the correct one in `.env`, then run once with `--force`. If the user provides a valid session instead, use Session import below.
 5. If the user wants to type the password themselves: `npm run login:collect -- --manual`.
 6. Check the `pid` in the status file before a new run; never start a second collect login while one is active.
+
+## Session import (when password login is blocked)
+
+Use this when Instagram rejects the password, or the user already has a valid session for the collect account.
+
+1. Save the cookie JSON to `runtime/collect-cookies.json`. A Playwright storage state (`{"cookies":[...]}`) and a Cookie-Editor array both work. It must contain `sessionid`; keep `ds_user_id` and `csrftoken` too.
+2. Run `npm run session:import`. For another slug: `node scripts/import-session.mjs --account=<slug> --cookies=<path>`.
+3. The script refuses `--account=main`, refuses the page Chrome profile, and refuses a cookie file whose `ds_user_id` matches the page session on disk. It loads the cookies into `chrome-profile-collect`, verifies the logged-in account is `IG_COLLECT_USERNAME`, and only then writes `runtime/collect-ig-state.json`, clears the collect block file, and deletes the cookie file.
+4. A mismatch means the session belongs to another account. Nothing is saved. Stop and get a session from the collect account. Do not remove the guard or save the cookies by hand.
+
+The cookie file is a live credential. Do not paste it into this skill, `.env`, a commit or chat. The script deletes it after a successful import.
 
 ## What stays untouched
 
@@ -45,12 +56,16 @@ Posting, DMs, follows and comments stay off limits from this account. It is a re
 | 2FA file | `runtime/2fa.txt` | `runtime/collect-2fa.txt` |
 | saved session | `runtime/ig-state.json` | `runtime/collect-ig-state.json` |
 | block file | `runtime/login-blocked.json` | `runtime/collect-login-blocked.json` |
-| screenshots | `runtime/login-*.png` | `runtime/collect-login-*.png` |
+| screenshots | `runtime/login-*.png` | `runtime/collect-*.png` |
 
 - The script refuses to start if the collect profile resolves to the page profile.
 - Never delete, move, rename or overwrite `runtime/ig-state.json`, `runtime/login.json` or the page Chrome profile. The collect login does not touch them, and neither should you.
-- Never copy cookies between the two profiles.
+- Never copy cookies between the two profiles. The import path takes a cookie file and refuses the page session; it never reads the page profile.
 - One Chrome window per profile. A collect run can run beside a page session, but two runs on one profile corrupt it.
+
+## Separate identity
+
+The collect account must have its own phone number and email. If it shares them with @rozetext.ir, Instagram can link the two accounts, and a ban or challenge on the collector can reach the page account. No script removes that link. Change the contact info in Instagram settings before relying on this account for risky work.
 
 ## Safety
 
