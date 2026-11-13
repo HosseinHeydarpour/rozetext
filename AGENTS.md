@@ -49,4 +49,11 @@ npm run bot        # Telegram bot: skill buttons -> opencode run
 
 - Site and dashboard: Persian RTL, self-hosted fonts, no CDN.
 - Follow antislop while writing UI or copy; the skill is installed globally.
-- Commit messages: `area: what changed` (site, dashboard, data, server, skill, docs).
+
+## Commits
+
+- The moment the user approves a finished change, commit and push it. Do not wait to be asked again.
+- Stage only the files that change touched. The same working tree may hold other agents' edits and the user's own work; never include them.
+- Run `git status` first, then add paths explicitly. Never use `git add -A` or `git commit -a`.
+- Commit messages: `area: what changed` (bot, data, dashboard, site, server, skill, docs).
+- Push to `main` and report the result. If the push fails, say so plainly; do not retry with force.
