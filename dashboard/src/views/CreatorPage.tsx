@@ -26,7 +26,7 @@ import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
 import MovieRoundedIcon from '@mui/icons-material/MovieRounded'
-import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, downloadBlob, drawPost, deriveHook, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, downloadBlob, drawPost, deriveHook, renderPostBlob, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
 
 const STORAGE_KEY = 'rozetext-creator'
 
@@ -48,6 +48,7 @@ interface StoredSettings {
   offsetX: number
   textColorCustom: boolean
   highlightColorCustom: boolean
+  fitInside: boolean
 }
 
 export default function CreatorPage() {
@@ -60,6 +61,7 @@ export default function CreatorPage() {
     kind: 'text',
     align: 'center',
     highlight: 'box',
+    fitInside: true,
     body: DEFAULT_BODY,
     hook: DEFAULT_HOOK,
     fontSize: THEMES.dark.fontSize,
@@ -117,6 +119,7 @@ export default function CreatorPage() {
         highlightColor: stored.highlightColor ?? current.highlightColor,
         safeArea: { ...current.safeArea, ...(stored.safeArea ?? {}) },
         highlight: stored.highlight ?? current.highlight,
+        fitInside: stored.fitInside ?? current.fitInside,
         align: stored.align ?? current.align,
         offsetX: stored.offsetX ?? current.offsetX,
       }))
@@ -137,6 +140,7 @@ export default function CreatorPage() {
       offsetX: settings.offsetX,
       textColorCustom: customColor,
       highlightColorCustom: customHighlight,
+      fitInside: settings.fitInside,
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   }, [settings.textColor, settings.highlightColor, settings.safeArea, settings.highlight, settings.align, settings.offsetX, customColor, customHighlight])
@@ -224,7 +228,17 @@ export default function CreatorPage() {
     setBuildingClip(format)
     setClipNote({ severity: 'info', message: format === 'video' ? 'صدا استخراج و کلیپ ساخته می‌شود…' : 'صدا استخراج می‌شود…' })
     try {
-      const image = format === 'video' ? canvasRef.current.toDataURL('image/png') : undefined
+      // render a clean frame: the live canvas still carries the safe-area guide
+      let image: string | undefined
+      if (format === 'video') {
+        const frame = await renderPostBlob({ ...settings, showSafeArea: false })
+        image = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(String(reader.result))
+          reader.onerror = () => reject(new Error('خواندن تصویر ناموفق بود'))
+          reader.readAsDataURL(frame)
+        })
+      }
       const response = await fetch('/api/clip', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -514,6 +528,14 @@ export default function CreatorPage() {
                     متن هرگز از محدودهٔ امن بیرون نمی‌زند؛ مرزها از پنل بالا قابل تغییرند.
                   </Typography>
                 </Stack>
+
+                <FormControlLabel
+                  control={<Switch checked={settings.fitInside} onChange={(event) => patch({ fitInside: event.target.checked })} />}
+                  label="محدود کردن ارتفاع متن داخل کادر امن"
+                />
+                <Typography sx={{ fontSize: 11, color: 'text.secondary', mt: -1 }}>
+                  اگر متن بلندتر از کادر باشد، اندازهٔ فونت تا جا شدن کوچک می‌شود. با خاموش‌کردنش متن می‌تواند از کادر بیرون بزند.
+                </Typography>
 
                 <Divider />
 

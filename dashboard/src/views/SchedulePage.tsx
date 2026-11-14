@@ -159,6 +159,7 @@ export default function SchedulePage() {
         kind: 'text',
         align: 'center',
         highlight: 'box',
+        fitInside: true,
         body: '',
         hook: '',
         fontSize: THEMES.dark.fontSize,

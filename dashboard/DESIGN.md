@@ -63,6 +63,7 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 
 - Canvas is 1080×1920 and is the preview itself, so the PNG export (`toBlob`, guide hidden) matches what you see.
 - Text alignment is a toggle: centred on the safe box, or flush to its right edge. Both wrap at the safe width.
+- «محدود کردن ارتفاع متن داخل کادر امن» keeps a long paragraph inside the safe box by scaling type down (never up) and, as a last guard, dropping the overflow lines; turning it off lets the text run past the guide.
 - Background art is exported straight from the Figma frames into `public/creator/`: `dark-text.png`, `dark-cover.png`, `light-cover.png`, `light-text.png`. Switching mode or kind swaps the art (and resets the vertical offset for covers). A real file upload replaces it.
 - Controls: mode (light/dark), kind (cover hook / body), alignment (centred or flush right), font size, line height, vertical and horizontal position, text colour, highlight colour, background image, highlight effect, safe-area edges.
 - Horizontal and vertical sliders move the block but are clamped to the safe box, so text can never leave it. All four safe-area edges are editable and the dashed guide follows them.
@@ -71,7 +72,7 @@ One account (رز تکست), no switcher. Table: code, date, views, followers, s
 - `*word*` marks a highlighted run; the band is drawn from measured glyph positions, then the run is re-drawn in the accent's contrast color.
 - Fonts are self-hosted from `public/fonts`: `IRLotus-Regular.ttf`, `IRLotus-Bold.ttf`, `IRTitr-Regular.ttf` (copied from the system fonts the design uses).
 
-The reel-audio card prefills a reel link from `data/main-database/reels_database.json`. «ساخت کلیپ با یک کلیک» sends the current canvas frame and the link to `/api/clip`, which extracts the audio with yt-dlp and muxes it with the still frame through ffmpeg (1080×1920, H.264 + AAC, `-shortest`); «فقط صدا» returns the m4a alone. No Instagram session is needed for public reels; private ones fail with the yt-dlp error shown in the card.
+The reel-audio card prefills a reel link from `data/main-database/reels_database.json`. «ساخت کلیپ با یک کلیک» renders a clean frame (the guide is never baked in) and sends it with the link to `/api/clip`, which extracts the audio with yt-dlp and muxes it with the still frame through ffmpeg (1080×1920, H.264 + AAC, `-shortest`); «فقط صدا» returns the m4a alone. No Instagram session is needed for public reels; private ones fail with the yt-dlp error shown in the card.
 
 ## Settings
 

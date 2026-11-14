@@ -84,6 +84,7 @@ export interface CreatorSettings {
   kind: CreatorKind
   align: 'center' | 'right'
   highlight: HighlightEffect
+  fitInside: boolean
   body: string
   hook: string
   fontSize: number
@@ -266,13 +267,38 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
   const maxWidth = Math.max(blockRight - blockLeft, 120)
   const highlightColor = settings.highlightColor || theme.accent
 
-  const rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
-  const widestRow = rows.reduce((widest, row) => Math.max(widest, ctx.measureText(row.text).width), 0)
-  const blockHeight = Math.max(rows.length, 1) * lineHeight
   const top = safeArea.top + 40
   const bottom = CANVAS_HEIGHT - safeArea.bottom - 40
+  const availableHeight = bottom - top
+
+  let currentFontSize = fontSize
+  let currentLineHeight = lineHeight
+  let rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
+
+  // keep the whole paragraph inside the safe box by scaling type down, never up
+  if (settings.fitInside) {
+    for (let attempt = 0; attempt < 8 && rows.length * currentLineHeight > availableHeight; attempt += 1) {
+      const factor = Math.max(availableHeight / (rows.length * currentLineHeight), 0.55)
+      currentFontSize = Math.max(24, Math.round(currentFontSize * factor))
+      currentLineHeight = Math.max(30, Math.round(currentLineHeight * factor))
+      ctx.font = `${weight} ${currentFontSize}px ${family}`
+      rows = text.split('\n').flatMap((line) => wrapText(ctx, line, maxWidth))
+      if (currentFontSize <= 24) break
+    }
+
+    // last guard for absurdly long texts: drop the overflow rows, no half lines
+    const maxRows = Math.max(1, Math.floor(availableHeight / currentLineHeight))
+    if (rows.length > maxRows) {
+      rows = rows.slice(0, maxRows)
+      const last = rows[rows.length - 1]
+      if (last) last.text = `${last.text.replace(/\s+\S*$/, '')}…`
+    }
+  }
+
+  const widestRow = rows.reduce((widest, row) => Math.max(widest, ctx.measureText(row.text).width), 0)
+  const blockHeight = Math.max(rows.length, 1) * currentLineHeight
   const center = clamp((top + bottom) / 2 + settings.offsetY, top + blockHeight / 2, bottom - blockHeight / 2)
-  const startY = center - blockHeight / 2 + lineHeight / 2
+  const startY = center - blockHeight / 2 + currentLineHeight / 2
 
   // the horizontal offset can shift the block, never past the safe box
   const anchorX = isRight
@@ -283,7 +309,7 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
 
   rows.forEach((row, index) => {
     if (!row.text) return
-    const y = startY + index * lineHeight
+    const y = startY + index * currentLineHeight
     const width = ctx.measureText(row.text).width
     const lineRight = isRight ? anchorX : anchorX + width / 2
 
@@ -291,11 +317,11 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       row.ranges.forEach((range) => {
         const before = ctx.measureText(row.text.slice(0, range.start)).width
         const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
-        const pad = fontSize * 0.3
+        const pad = currentFontSize * 0.3
         ctx.save()
         ctx.globalAlpha = 0.95
         ctx.fillStyle = highlightColor
-        ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - lineHeight / 2 + lineHeight * 0.14, runWidth + pad, lineHeight * 0.72)
+        ctx.fillRect(lineRight - before - runWidth - pad * 0.5, y - currentLineHeight / 2 + currentLineHeight * 0.14, runWidth + pad, currentLineHeight * 0.72)
         ctx.restore()
       })
     }
@@ -309,8 +335,8 @@ export function drawPost(ctx: CanvasRenderingContext2D, settings: CreatorSetting
       const runWidth = ctx.measureText(row.text.slice(range.start, range.end)).width
       ctx.save()
       ctx.beginPath()
-      const pad = boxHighlight ? fontSize * 0.55 : fontSize * 0.45
-      ctx.rect(lineRight - before - runWidth - pad, y - lineHeight / 2, runWidth + pad * 2, lineHeight)
+      const pad = boxHighlight ? currentFontSize * 0.55 : currentFontSize * 0.45
+      ctx.rect(lineRight - before - runWidth - pad, y - currentLineHeight / 2, runWidth + pad * 2, currentLineHeight)
       ctx.clip()
       ctx.globalAlpha = 1
       ctx.fillStyle = boxHighlight ? contrastFor(highlightColor) : highlightColor
