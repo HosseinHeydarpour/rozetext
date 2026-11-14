@@ -12,7 +12,6 @@ import {
   Divider,
   FormControlLabel,
   Grid,
-  MenuItem,
   Slider,
   Stack,
   Switch,
@@ -26,7 +25,9 @@ import GraphicEqRoundedIcon from '@mui/icons-material/GraphicEqRounded'
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
 import MovieRoundedIcon from '@mui/icons-material/MovieRounded'
-import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, downloadBlob, drawPost, deriveHook, renderPostBlob, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+import FolderRoundedIcon from '@mui/icons-material/FolderRounded'
+import { BACKGROUNDS, CANVAS_HEIGHT, CANVAS_WIDTH, COVER_FONT, COVER_OFFSET, DEFAULT_SAFE_AREA, THEMES, drawPost, deriveHook, renderPostBlob, type CreatorKind, type CreatorMode, type CreatorSettings, type HighlightEffect, type SafeArea } from '@/lib/creator'
+import { canPickFolder, clearOutputFolder, ensureOutputFolder, getOutputFolderName, pickOutputFolder, saveFile } from '@/lib/output'
 
 const STORAGE_KEY = 'rozetext-creator'
 
@@ -82,6 +83,8 @@ export default function CreatorPage() {
   const [backgroundVersion, setBackgroundVersion] = useState(0)
   const [customColor, setCustomColor] = useState(false)
   const [customHighlight, setCustomHighlight] = useState(false)
+  const [outputFolder, setOutputFolder] = useState<string | null>(null)
+  const [folderSupported, setFolderSupported] = useState(false)
   const [prefilled, setPrefilled] = useState<{ date: string; shortcode: string; window?: string } | null>(null)
 
   const theme = THEMES[settings.mode]
@@ -106,6 +109,16 @@ export default function CreatorPage() {
       })
       .catch(() => null)
   }, [])
+
+  useEffect(() => {
+    setFolderSupported(canPickFolder())
+    void getOutputFolderName().then((name) => setOutputFolder(name))
+  }, [])
+
+  const removeFolder = async () => {
+    await clearOutputFolder()
+    setOutputFolder(null)
+  }
 
   // restore the saved creator setup (colour, safe area, effect, alignment) after mount
   useEffect(() => {
@@ -229,14 +242,16 @@ export default function CreatorPage() {
     setClipNote({ severity: 'info', message: format === 'video' ? 'صدا استخراج و کلیپ ساخته می‌شود…' : 'صدا استخراج می‌شود…' })
     try {
       // render a clean frame: the live canvas still carries the safe-area guide
+      let frame: Blob | null = null
       let image: string | undefined
       if (format === 'video') {
-        const frame = await renderPostBlob({ ...settings, showSafeArea: false })
+        const clean = await renderPostBlob({ ...settings, showSafeArea: false })
+        frame = clean
         image = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader()
           reader.onload = () => resolve(String(reader.result))
           reader.onerror = () => reject(new Error('خواندن تصویر ناموفق بود'))
-          reader.readAsDataURL(frame)
+          reader.readAsDataURL(clean)
         })
       }
       const response = await fetch('/api/clip', {
@@ -250,10 +265,16 @@ export default function CreatorPage() {
       }
       const blob = await response.blob()
       const extension = format === 'video' ? 'mp4' : 'm4a'
-      downloadBlob(blob, `rozetext-${reel.code || 'reel'}-${Date.now()}.${extension}`)
+      const stamp = Date.now()
+      const target = await saveFile(blob, `rozetext-${reel.code || 'reel'}-${stamp}.${extension}`)
+      // the cover goes out with the clip, as its own PNG
+      if (frame) await saveFile(frame, `rozetext-${reel.code || 'reel'}-${stamp}-cover.png`)
       setClipNote({
         severity: 'success',
-        message: format === 'video' ? 'کلیپ ساخته شد و دانلود شد.' : 'صدای ریل جدا شد و دانلود شد.',
+        message:
+          format === 'video'
+            ? `کلیپ و کاورش ${target === 'folder' ? 'در پوشهٔ خروجی ذخیره شدند' : 'دانلود شدند'}.`
+            : `صدای ریل ${target === 'folder' ? 'در پوشهٔ خروجی ذخیره شد' : 'دانلود شد'}.`,
       })
     } catch (cause) {
       setClipNote({ severity: 'error', message: String((cause as Error).message ?? cause) })
@@ -262,7 +283,7 @@ export default function CreatorPage() {
     }
   }
 
-  const download = () => {
+  const download = async () => {
     const source = canvasRef.current
     if (!source) return
     // render a clean frame without the safe-area guide before exporting
@@ -272,14 +293,13 @@ export default function CreatorPage() {
     const context = exportCanvas.getContext('2d')
     if (!context) return
     drawPost(context, { ...settings, showSafeArea: false }, { backgroundImage: imageRef.current, preview: false })
-    exportCanvas.toBlob((blob) => {
-      if (!blob) return
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = `rozetext-${settings.mode}-${settings.kind}-${Date.now()}.png`
-      link.click()
-      URL.revokeObjectURL(link.href)
-    }, 'image/png')
+    const blob = await new Promise<Blob | null>((resolve) => exportCanvas.toBlob(resolve, 'image/png'))
+    if (!blob) return
+    const target = await saveFile(blob, `rozetext-${settings.mode}-${settings.kind}-${Date.now()}.png`)
+    setClipNote({
+      severity: 'success',
+      message: target === 'folder' ? 'تصویر در پوشهٔ خروجی ذخیره شد.' : 'تصویر دانلود شد.',
+    })
   }
 
   const previewScale = 0.36
@@ -536,6 +556,55 @@ export default function CreatorPage() {
                 <Typography sx={{ fontSize: 11, color: 'text.secondary', mt: -1 }}>
                   اگر متن بلندتر از کادر باشد، اندازهٔ فونت تا جا شدن کوچک می‌شود. با خاموش‌کردنش متن می‌تواند از کادر بیرون بزند.
                 </Typography>
+
+                <Divider />
+
+                <Stack spacing={1}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>مسیر خروجی</Typography>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<FolderRoundedIcon />}
+                      onClick={async () => {
+                        try {
+                          const name = await pickOutputFolder()
+                          if (name) {
+                            setOutputFolder(name)
+                            setClipNote({ severity: 'success', message: `خروجی‌ها در پوشهٔ «${name}» ذخیره می‌شوند.` })
+                          }
+                        } catch {
+                          setClipNote({ severity: 'info', message: 'انتخاب پوشه لغو شد.' })
+                        }
+                      }}
+                      disabled={!folderSupported}
+                    >
+                      انتخاب پوشه
+                    </Button>
+                    {outputFolder ? <Chip size="small" variant="outlined" label={outputFolder} onDelete={removeFolder} /> : null}
+                    {outputFolder ? (
+                      <Button
+                        size="small"
+                        variant="text"
+                        onClick={async () => {
+                          const name = await ensureOutputFolder()
+                          setClipNote(
+                            name
+                              ? { severity: 'success', message: `دسترسی پوشهٔ «${name}» آماده است.` }
+                              : { severity: 'info', message: 'دسترسی پوشه داده نشد؛ فایل‌ها دانلود می‌شوند.' },
+                          )
+                        }}
+                      >
+                        فعال‌سازی دسترسی
+                      </Button>
+                    ) : null}
+                  </Stack>
+                  <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
+                    {folderSupported
+                      ? 'با انتخاب پوشه، PNG و کلیپ مستقیم همان‌جا ذخیره می‌شوند؛ بدون انتخاب، فایل‌ها دانلود می‌شوند.'
+                      : 'این مرورگر انتخاب پوشه را پشتیبانی نمی‌کند؛ فایل‌ها دانلود می‌شوند.'}
+                  </Typography>
+                </Stack>
 
                 <Divider />
 

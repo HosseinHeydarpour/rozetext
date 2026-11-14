@@ -26,6 +26,7 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded'
 import { fa } from '@/lib/format'
+import { saveFile } from '@/lib/output'
 import {
   BACKGROUNDS,
   COVER_FONT,
@@ -33,8 +34,6 @@ import {
   DEFAULT_SAFE_AREA,
   THEMES,
   deriveHook,
-  downloadBlob,
-  loadImage,
   renderPostBlob,
   type CreatorSettings,
 } from '@/lib/creator'
@@ -188,11 +187,11 @@ export default function SchedulePage() {
           offsetY: COVER_OFFSET,
           backgroundImage: BACKGROUNDS.dark.cover,
         })
-        downloadBlob(cover, `${day.date}-${order}-cover.png`)
+        await saveFile(cover, `${day.date}-${order}-cover.png`)
         await new Promise((resolve) => setTimeout(resolve, 350))
 
         const post = await renderPostBlob({ ...base, kind: 'text', body: content })
-        downloadBlob(post, `${day.date}-${order}-text.png`)
+        await saveFile(post, `${day.date}-${order}-text.png`)
         await new Promise((resolve) => setTimeout(resolve, 350))
       }
       setNotice({ severity: 'success', message: `${fa.format(slots.length * 2)} تصویر برای ${fullDayFa(day.date)} ساخته شد.` })

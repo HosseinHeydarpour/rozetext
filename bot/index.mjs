@@ -20,6 +20,37 @@ const OWNER = process.env.TELEGRAM_ALLOWED_CHAT_ID?.trim() ?? ''
 const MODEL = process.env.OPENCODE_MODEL?.trim() || 'opencode-go/deepseek-v4.1-flash'
 const TIMEOUT = 15 * 60 * 1000
 
+// groups the bot has been added to, so the dashboard can post into them
+const GROUPS_FILE = path.join(ROOT, 'runtime', 'telegram-groups.json')
+
+function loadGroups() {
+  try {
+    const data = JSON.parse(fs.readFileSync(GROUPS_FILE, 'utf8'))
+    return Array.isArray(data.groups) ? data.groups : []
+  } catch {
+    return []
+  }
+}
+
+function writeGroups(groups) {
+  fs.mkdirSync(path.dirname(GROUPS_FILE), { recursive: true })
+  const tmp = `${GROUPS_FILE}.tmp`
+  fs.writeFileSync(tmp, JSON.stringify({ groups }, null, 2), 'utf8')
+  fs.renameSync(tmp, GROUPS_FILE)
+}
+
+function saveGroup(id, title, type) {
+  if (!id || !String(id).startsWith('-')) return
+  const groups = loadGroups().filter((group) => String(group.id) !== String(id))
+  groups.push({ id: String(id), title: title ?? '', type: type ?? 'group', seen_at: new Date().toISOString() })
+  writeGroups(groups)
+}
+
+function removeGroup(id) {
+  if (!id) return
+  writeGroups(loadGroups().filter((group) => String(group.id) !== String(id)))
+}
+
 let session = process.env.OPENCODE_SESSION?.trim() || 'ses_telegram'
 let title = sessionTitle()
 
@@ -187,15 +218,36 @@ async function work(chat, prompt) {
 async function handle(update) {
   const callback = update.callback_query
   const message = update.message
+
+  // the bot may be added to a group; remember it so the dashboard can post there
+  const membership = update.my_chat_member
+  if (membership) {
+    const chatInfo = membership.chat ?? {}
+    const status = membership.new_chat_member?.status ?? ''
+    const byOwner = !OWNER || String(membership.from?.id ?? '') === OWNER
+    if (byOwner && (chatInfo.type === 'group' || chatInfo.type === 'supergroup')) {
+      if (status === 'member' || status === 'administrator') saveGroup(chatInfo.id, chatInfo.title, chatInfo.type)
+      else if (status === 'left' || status === 'kicked') removeGroup(chatInfo.id)
+    }
+    return
+  }
+
   const chat = String(callback?.message?.chat?.id ?? message?.chat?.id ?? '')
   if (!chat) return
 
+  const isGroup = chat.startsWith('-')
+  if (isGroup) saveGroup(chat, message?.chat?.title ?? callback?.message?.chat?.title, message?.chat?.type)
+
+  const sender = String(callback?.from?.id ?? message?.from?.id ?? '')
   const answer = (text) =>
     tg('answerCallbackQuery', { callback_query_id: callback.id, text }).catch(() => {})
 
-  if (!OWNER || chat !== OWNER) {
+  // the owner's private chat, or the owner speaking inside a group the bot joined
+  if (!OWNER || (chat !== OWNER && sender !== OWNER)) {
     if (callback) return answer('دسترسی نداری')
-    return say(chat, `این ربات فقط برای صاحبش کار می‌کند.\nchat id این چت: ${chat}`)
+    // stay quiet in groups; other members should not get a bot reply on every message
+    if (!isGroup) return say(chat, `این ربات فقط برای صاحبش کار می‌کند.\nchat id این چت: ${chat}`)
+    return
   }
 
   if (callback) {
@@ -234,6 +286,11 @@ async function handle(update) {
     return say(chat, 'سشن تازه ساخته شد.')
   }
   if (text.startsWith('/id')) return say(chat, chat)
+  if (text.startsWith('/groups')) {
+    const groups = loadGroups()
+    if (!groups.length) return say(chat, 'هنوز ربات را به گروهی اضافه نکرده‌ای.')
+    return say(chat, ['گروه‌ها:', ...groups.map((group) => `• ${group.title || 'بی‌نام'} — ${group.id}`)].join('\n'))
+  }
 
   if (busy || queue.length) return say(chat, 'در حال اجرای درخواست قبلی‌ام. یکی‌یکی بفرست.')
 
@@ -260,7 +317,7 @@ async function poll() {
 
   for (;;) {
     try {
-      const updates = await tg('getUpdates', { offset, timeout: 30, allowed_updates: ['message', 'callback_query'] })
+      const updates = await tg('getUpdates', { offset, timeout: 30, allowed_updates: ['message', 'callback_query', 'my_chat_member'] })
       for (const update of updates) {
         offset = update.update_id + 1
         handle(update).catch((error) => console.error(error))

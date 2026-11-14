@@ -1,23 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
   Chip,
   Divider,
+  MenuItem,
   Stack,
-  Step,
-  StepLabel,
-  Stepper,
+  TextField,
   Typography,
 } from '@mui/material'
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded'
 import KeyRoundedIcon from '@mui/icons-material/KeyRounded'
 import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded'
+import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded'
 
 interface TelegramResponse {
   tokenSet: boolean
@@ -26,19 +27,63 @@ interface TelegramResponse {
   model: string | null
   health: { ok: boolean; username?: string; name?: string; error?: string }
   skills: { name: string; label: string; summary: string; when: string; steps: string[] }[]
+  groups: { id: string; title: string; type: string; seen_at: string }[]
   command: string
 }
 
 export default function TelegramSettingsPage() {
   const [data, setData] = useState<TelegramResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [groupId, setGroupId] = useState('')
+  const [caption, setCaption] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [sending, setSending] = useState(false)
+  const [notice, setNotice] = useState<{ severity: 'success' | 'error'; message: string } | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     fetch('/api/telegram', { cache: 'no-store' })
       .then((response) => response.json())
-      .then((body: TelegramResponse) => setData(body))
+      .then((body: TelegramResponse) => {
+        setData(body)
+        setGroupId((current) => current || body.groups[0]?.id || '')
+      })
       .catch((cause) => setError(String((cause as Error).message ?? cause)))
   }, [])
+
+  const send = async () => {
+    setSending(true)
+    setNotice(null)
+    try {
+      const video = file?.type.startsWith('video')
+      if (file && file.size > (video ? 45 : 9) * 1024 * 1024) throw new Error(video ? 'ویدیو بزرگ‌تر از ۴۵ مگابایت است.' : 'تصویر بزرگ‌تر از ۹ مگابایت است.')
+      const dataUrl = file
+        ? await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(String(reader.result))
+            reader.onerror = () => reject(new Error('خواندن فایل ناموفق بود.'))
+            reader.readAsDataURL(file)
+          })
+        : undefined
+      const response = await fetch('/api/telegram/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          chatId: groupId,
+          caption,
+          image: video ? undefined : dataUrl,
+          video: video ? dataUrl : undefined,
+        }),
+      })
+      const body = (await response.json()) as { ok?: boolean; error?: string }
+      if (!response.ok || !body.ok) throw new Error(body.error ?? 'ارسال ناموفق بود.')
+      setNotice({ severity: 'success', message: 'در گروه ارسال شد.' })
+    } catch (cause) {
+      setNotice({ severity: 'error', message: String((cause as Error).message ?? cause) })
+    } finally {
+      setSending(false)
+    }
+  }
 
   return (
     <Box>
@@ -90,6 +135,76 @@ export default function TelegramSettingsPage() {
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
               ربات به‌صورت یک پروسهٔ جدا روی همین ماشین اجرا می‌شود؛ وضعیت این صفحه فقط اتصال توکن را بررسی می‌کند.
             </Typography>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="ارسال پست به گروه"
+            subheader="ربات را در گروه عضو کن، بعد از آن گروه‌ها همین‌جا دیده می‌شوند."
+          />
+          <CardContent sx={{ pt: 0 }}>
+            <Stack spacing={2}>
+              {data && data.groups.length === 0 ? (
+                <Alert severity="info" icon={false}>
+                  هنوز گروهی ثبت نشده. ربات (@{data?.health.username ?? 'rozetext_bot'}) را به گروه اضافه کن، یا در گروه <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace', fontSize: 12 }}>/start</Box> را
+                  بفرست؛ بعد این صفحه را دوباره باز کن. شناسهٔ گروه در <Box component="span" dir="ltr" sx={{ fontFamily: 'monospace', fontSize: 12 }}>runtime/telegram-groups.json</Box> ذخیره می‌شود.
+                </Alert>
+              ) : null}
+
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <TextField
+                  select
+                  size="small"
+                  label="گروه"
+                  value={groupId}
+                  onChange={(event) => setGroupId(event.target.value)}
+                  sx={{ minWidth: 260 }}
+                  disabled={!data?.groups.length}
+                >
+                  {(data?.groups ?? []).map((group) => (
+                    <MenuItem key={group.id} value={group.id}>
+                      {group.title || group.id}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button size="small" variant="outlined" startIcon={<UploadFileRoundedIcon />} onClick={() => fileRef.current?.click()}>
+                  انتخاب فایل
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,video/mp4"
+                  hidden
+                  onChange={(event) => {
+                    setFile(event.target.files?.[0] ?? null)
+                    event.target.value = ''
+                  }}
+                />
+                {file ? <Chip size="small" variant="outlined" label={file.name} onDelete={() => setFile(null)} /> : null}
+              </Stack>
+
+              <TextField
+                size="small"
+                label="کپشن (اختیاری)"
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                multiline
+                minRows={2}
+              />
+
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <Button variant="contained" onClick={() => void send()} disabled={!groupId || sending || (!file && !caption.trim())}>
+                  {sending ? 'در حال ارسال…' : 'ارسال به گروه'}
+                </Button>
+                {notice ? <Alert severity={notice.severity}>{notice.message}</Alert> : null}
+              </Stack>
+
+              <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
+                تصویر تا ۹ مگابایت و ویدیو تا ۴۵ مگابایت پذیرفته می‌شود. برای اینکه ربات داخل گروه بتواند پیام بفرستد، باید عضو گروه باشد
+                (ادمین لازم نیست، ولی اگر گروه محدود است ادمینش کن).
+              </Typography>
+            </Stack>
           </CardContent>
         </Card>
 

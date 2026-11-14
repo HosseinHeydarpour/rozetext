@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
-import { pathToFileURL } from 'node:url'
+import { readGroups } from './groups'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -51,6 +51,7 @@ export async function GET() {
   const owner = env.TELEGRAM_ALLOWED_CHAT_ID ?? ''
 
   const skills = await readSkills()
+  const groups = await readGroups()
 
   const health = token ? await telegramMe(token) : { ok: false, error: 'TELEGRAM_BOT_TOKEN تنظیم نشده است.' }
 
@@ -62,8 +63,8 @@ export async function GET() {
     model: env.OPENCODE_MODEL ?? null,
     health,
     skills,
+    groups,
     envError,
-    cwd: process.cwd(),
     command: 'npm run bot',
   })
 }
