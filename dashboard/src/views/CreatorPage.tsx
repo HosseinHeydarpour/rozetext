@@ -332,7 +332,7 @@ export default function CreatorPage() {
       </Stack>
 
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 5 }}>
+        <Grid size={{ xs: 12, lg: 5 }} sx={{ order: { xs: 2, lg: 1 } }}>
           <Card>
             <CardHeader title="تنظیمات" subheader="تغییرها همان لحظه روی پیش‌نمایش اعمال می‌شود." />
             <CardContent sx={{ pt: 0 }}>
@@ -573,26 +573,6 @@ export default function CreatorPage() {
               </Stack>
             </CardContent>
           </Card>
-        </Grid>
-
-        <Grid size={{ xs: 12, lg: 7 }}>
-          <Card>
-            <CardHeader title="پیش‌نمایش" subheader={`${theme.name} · ${settings.kind === 'cover' ? 'کاور' : 'متن تکست‌گرافی'}`} />
-            <CardContent sx={{ pt: 0, display: 'flex', justifyContent: 'center' }}>
-              <Box
-                sx={{
-                  width: CANVAS_WIDTH * previewScale,
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  lineHeight: 0,
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
-                  bgcolor: '#000',
-                }}
-              >
-                <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ width: '100%', height: 'auto', display: 'block' }} />
-              </Box>
-            </CardContent>
-          </Card>
 
           <Card sx={{ mt: 3 }}>
             <CardHeader
@@ -654,6 +634,29 @@ export default function CreatorPage() {
                   </Typography>
                 </Stack>
               </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid
+          size={{ xs: 12, lg: 7 }}
+          sx={{ order: { xs: 1, lg: 2 }, alignSelf: { lg: 'start' }, position: { lg: 'sticky' }, top: { lg: 96 } }}
+        >
+          <Card>
+            <CardHeader title="پیش‌نمایش" subheader={`${theme.name} · ${settings.kind === 'cover' ? 'کاور' : 'متن تکست‌گرافی'}`} />
+            <CardContent sx={{ pt: 0, display: 'flex', justifyContent: 'center' }}>
+              <Box
+                sx={{
+                  width: CANVAS_WIDTH * previewScale,
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  lineHeight: 0,
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+                  bgcolor: '#000',
+                }}
+              >
+                <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ width: '100%', height: 'auto', display: 'block' }} />
+              </Box>
             </CardContent>
           </Card>
         </Grid>
